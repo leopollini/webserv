@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:01:08 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 15:44:29 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/05/31 19:31:57 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ struct	BetterSocket
 	{
 		if (fd >= 0)
 			close(fd);
-		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+		if ((fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) < 0)
 			throw FailedSocketCreation();
 		addr.sin_family = AF_INET;
 		addr.sin_addr.s_addr = address;

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 15:50:12 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/05/31 19:25:40 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 bool	Webserv::_up;
 
-Webserv::Webserv(const std::string &filename) : _conf(filename), _servers_up()
+Webserv::Webserv(const string &filename) : _conf(filename), _servers_up()
 {
 	timestamp("Setting up Webserv!\n", CYAN);
 	signal(SIGINT, gracefullyQuit);
@@ -79,16 +79,17 @@ void	Webserv::addServer(Server *s)
 void	Webserv::gracefullyQuit(int sig)
 {
 	(void)sig;
-	static int	force = 0;
-	timestamp("\b\bGracefully shutting Webserv! Send signal again to Force Close\n",GRAYI);
+
+	timestamp("\b\bGracefully shutting Webserv!\n\t\tSend signal again to Force Close\n",GRAYI);
+	signal(SIGINT, SIG_DFL);
 	_up = false;
 }
 
 void	Webserv::upAllServers()
 {
-	for (int c = 0; c < DOWN_SERVER_TRIES_MAX && _servers_down.size(); c++)
+	for (int c = 0; c < DOWN_SERVER_TRIES_MAX && _servers_down.size() && _up; c++)
 	{
-		for (std::list<Server *>::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
+		for (std::list<Server *>::iterator i = _servers_down.begin(); i != _servers_down.end() && _up; i++)
 		{
 			try
 			{
@@ -102,7 +103,7 @@ void	Webserv::upAllServers()
 			{
 				if ((*i)->_down_count + 1 >= DOWN_SERVER_TRIES_MAX)
 					continue ;
-				timestamp("Failed to setup Server at " + itoa((*i)->getPort()) + ": " + std::string(e.what()) + '\n', ERROR);
+				timestamp("Failed to setup Server at " + itoa((*i)->getPort()) + ": " + string(e.what()) + '\n', ERROR);
 				(*i)->_down_count++;
 			}
 			usleep(DOWN_SERVER_SLEEP_MS * 1000);

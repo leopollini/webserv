@@ -6,7 +6,7 @@
 #    By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/17 08:42:40 by lpollini          #+#    #+#              #
-#    Updated: 2024/05/30 15:12:42 by lpollini         ###   ########.fr        #
+#    Updated: 2024/05/31 16:08:53 by lpollini         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,8 +23,7 @@ FILES		= main src/Webserv src/utils src/Server src/BetterPoll
 
 SRC			= $(FILES:=.cpp)
 OBJ			= $(addprefix $(OBJDIR)/, $(FILES:=.o))
-HEADER		= include/Webserv.hpp include/utils.hpp include/BetterSocket.hpp \
-include/Server.hpp include/BetterPoll.hpp
+HEADER		= $(INCLUDES)
 
 #Colors:
 GREEN		=	\e[92;5;118m

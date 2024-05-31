@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 15:47:59 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/05/31 17:13:05 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,10 @@
 # include "BetterPoll.hpp"
 # include "Server.hpp"
 
-# define DOWN_SERVER_TRIES_MAX 5
-# define DOWN_SERVER_SLEEP_MS 200
-# define DOWN_SERVER_MAX 10
-# define NO_SERVER_SLEEP_TIME_MS 3000
+# define DOWN_SERVER_TRIES_MAX 20
+# define DOWN_SERVER_SLEEP_MS 2000
+# define DOWN_SERVER_MAX 20
+# define NO_SERVER_SLEEP_TIME_MS 30000
 
 class	Server;
 
@@ -30,7 +30,7 @@ struct	BetterPoll;
 
 class	Webserv
 {
-	const std::string	_conf;
+	const string	_conf;
 	int					_conf_fd;
 	static bool			_up;
 	std::list<Server *>	_servers_up;
@@ -42,7 +42,7 @@ class	Webserv
 	Webserv&	operator=(const Webserv &assignment) {(void)assignment; return (*this);}
 	Webserv() {};
 public:
-	Webserv(const std::string &filename);
+	Webserv(const string &filename);
 	~Webserv();
 
 	char	parseConfig();

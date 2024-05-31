@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:39 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 15:32:30 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/05/31 17:27:42 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int main(int argn, char *argv[], char *envp[])
 	catch(const std::exception& e)
 	{
 		timestamp(e.what(), ERROR);
-		std::cout << '\n';
+		cout << '\n';
 	}
 
 

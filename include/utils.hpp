@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:37 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 15:48:27 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/05/31 17:27:47 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,9 @@
 # define INFO WHITE
 # define DONE GREEN
 
-typedef std::map<std::string, std::string>	conf_t;
+using std::string;
+using std::cout;
+typedef std::map<string, string>	conf_t;
 
 typedef	enum	e_colors
 {
@@ -67,7 +69,9 @@ typedef	enum	e_text
 	CROSSED
 }				textype;
 
-void	timestamp(std::string s, colors c = WHITE, textype a = BOLD, bool do_timestamp = true);
-std::string itoa(int arg);
+void	timestamp(string s, colors c = WHITE, textype a = BOLD, bool do_timestamp = true);
+string	itoa(int arg);
+
+string	addr_to_str(int addr);
 
 #endif
