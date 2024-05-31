@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:37 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/30 15:03:48 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/05/31 15:48:27 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,14 @@
 # include <map>
 # include <deque>
 # include "utils.hpp"
+
+# define ERROR RED
+# define WARNING YELLOW
+# define DEBUG CYAN
+# define INFO WHITE
+# define DONE GREEN
+
+typedef std::map<std::string, std::string>	conf_t;
 
 typedef	enum	e_colors
 {

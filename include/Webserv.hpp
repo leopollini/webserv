@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 09:41:54 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/05/31 15:47:59 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class	Webserv
 	std::list<Server *>	_servers_up;
 	std::list<Server *>	_servers_down;
 	struct BetterPoll	_poll;
+	conf_t				_env;
 
 	Webserv(const Webserv &copy) {(void)copy;}
 	Webserv&	operator=(const Webserv &assignment) {(void)assignment; return (*this);}

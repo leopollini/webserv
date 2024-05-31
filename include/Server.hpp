@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 09:46:33 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/05/31 15:33:30 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,13 @@ class	Server
 	port_t				_port;
 	struct BetterSocket	_sock;
 	char				_state;
+	conf_t				_env;
 
 	Server&	operator=(const Server& assignment) {(void)assignment; return (*this);}
 	Server(const Server& copy) {(void)copy;}
 public:
 	int					_down_count;
+	conf_t				_sconf;
 
 	Server(port_t port);
 	~Server();

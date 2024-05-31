@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:01:08 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 09:49:42 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/05/31 15:44:29 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ struct	BetterSocket
 	int					sock;
 	struct sockaddr_in	addr;
 	struct sockaddr_in	client;
+	socklen_t			len;
 
 	void				init(short port, int address = INADDR_ANY)
 	{
@@ -40,8 +41,7 @@ struct	BetterSocket
 	}
 	int					Accept()
 	{
-		socklen_t	len = 0;
-
+		len = 0;
 		sock = accept(fd, (struct sockaddr *)&client, &len);
 		return sock;
 	}

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 09:55:07 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/05/31 15:50:12 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,8 @@ void	Webserv::addServer(Server *s)
 void	Webserv::gracefullyQuit(int sig)
 {
 	(void)sig;
-	timestamp("\b\bGracefully shutting Webserv!\n",GRAYI);
+	static int	force = 0;
+	timestamp("\b\bGracefully shutting Webserv! Send signal again to Force Close\n",GRAYI);
 	_up = false;
 }
 
@@ -101,7 +102,7 @@ void	Webserv::upAllServers()
 			{
 				if ((*i)->_down_count + 1 >= DOWN_SERVER_TRIES_MAX)
 					continue ;
-				timestamp("Failed to setup Server at " + itoa((*i)->getPort()) + ": " + std::string(e.what()) + '\n', RED);
+				timestamp("Failed to setup Server at " + itoa((*i)->getPort()) + ": " + std::string(e.what()) + '\n', ERROR);
 				(*i)->_down_count++;
 			}
 			usleep(DOWN_SERVER_SLEEP_MS * 1000);

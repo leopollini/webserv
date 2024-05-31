@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 09:49:08 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/05/31 15:47:40 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int	Server::getSockFd()
 void	Server::Accept(pollfd pfd)
 {
 	_clientfd = _sock.Accept();
-	timestamp("Server at " + itoa(_port) + " caught a client! IP: " + inet_ntoa(_sock.client.sin_addr) + '\n', MAGENTA);
+	timestamp("Server at " + itoa(_port) + " caught a client! IP: " + itoa(getsockname(_sock.sock, (sockaddr *)&_sock.client, &_sock.len)) + '\n', MAGENTA);
 	write(_clientfd, "Hahalol\n", 8);
 	std::cout << "Ready for " << pfd.revents << '\n';
 	close(_clientfd);
