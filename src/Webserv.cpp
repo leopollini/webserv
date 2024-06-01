@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 19:25:40 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/01 16:33:54 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,29 +43,13 @@ char	Webserv::parseConfig()
 
 void	Webserv::start()
 {
-	std::deque<Server *>	ok_servs;
-
 	timestamp("Starting Webserv!\n",GREEN);
 	_up = true;
 	upAllServers();
 	while (_up)
 	{
-		if (!_servers_up.size())
-		{
-			timestamp("No server is accessible! Sleeping.\n", YELLOW);
-			usleep(NO_SERVER_SLEEP_TIME_MS * 1000);
-			// something to unclog the system here, dunno
-			continue ;
-		}
-		else if (_servers_down.size())
-		{
-			timestamp("Some servers are still down! Retrying.\n", YELLOW);
-			upAllServers();
-		}
-		ok_servs = _poll.Poll();
-		for (size_t i = 0; i < ok_servs.size(); i++)
-			ok_servs[i]->Accept(_poll.findPollfd(ok_servs[i]->getSockFd()));
-		usleep(20000);
+		cout << "Waitimg.\n";
+		_sel.selectAndDo();
 	}
 	downAllServers();
 	_up = false;
@@ -103,13 +87,13 @@ void	Webserv::upAllServers()
 			{
 				if ((*i)->_down_count + 1 >= DOWN_SERVER_TRIES_MAX)
 					continue ;
-				timestamp("Failed to setup Server at " + itoa((*i)->getPort()) + ": " + string(e.what()) + '\n', ERROR);
+				timestamp("Failed to setup Port " + itoa((*i)->getPort()) + ": " + string(e.what()) + '\n', ERROR);
 				(*i)->_down_count++;
 			}
 			usleep(DOWN_SERVER_SLEEP_MS * 1000);
 		}
 	}
-	_poll.loadFds(_servers_up);
+	_sel.loadServFds(_servers_up);
 }
 
 void	Webserv::downAllServers()

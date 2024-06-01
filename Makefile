@@ -6,7 +6,7 @@
 #    By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/17 08:42:40 by lpollini          #+#    #+#              #
-#    Updated: 2024/05/31 16:08:53 by lpollini         ###   ########.fr        #
+#    Updated: 2024/06/01 14:43:41 by lpollini         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,7 @@ RM			= rm -rf
 INCLUDES	= include/
 OBJDIR 		= .objFiles
 
-FILES		= main src/Webserv src/utils src/Server src/BetterPoll
+FILES		= main src/Webserv src/utils src/Server src/BetterSelect
 
 SRC			= $(FILES:=.cpp)
 OBJ			= $(addprefix $(OBJDIR)/, $(FILES:=.o))

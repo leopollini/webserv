@@ -6,13 +6,13 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 19:31:36 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/01 16:58:10 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 
-Server::Server(port_t port) : _port(port), _down_count(0), _state(0)
+Server::Server(port_t port) : _port(port), _down_count(0), _state(0), _clientfds()
 {
 	timestamp("Added server at port " + itoa(_port) + "!\n", CYAN);
 	
@@ -24,6 +24,8 @@ Server::~Server()
 	close(_sock.fd);
 	if (_sock.sock >= 0)
 		close(_sock.sock);
+	for (std::list<int>::iterator i = _clientfds.begin(); i != _clientfds.end(); i++)
+		close(*i);
 }
 
 int	Server::getSockFd()
@@ -31,19 +33,23 @@ int	Server::getSockFd()
 	return _sock.fd;
 }
 
-void	Server::Accept(pollfd pfd)
+int	Server::Accept()
 {
-	_clientfd = _sock.Accept();
+	_clientfds.push_front(_sock.Accept());
 
-	getsockname(_sock.sock, (sockaddr *)&_sock.client, &_sock.len);
+	getsockname(_clientfds.front(), (sockaddr *)&_sock.client, &_sock.len);
 	
-	timestamp("Server at " + itoa(_port) + " caught a client! IP: " + addr_to_str(_sock.client.sin_addr.s_addr) + '\n', MAGENTA);
-	write(_clientfd, "Hahalol\n", 8);
+	timestamp("Server at " + itoa(_port) + " caught a client! IP: " + addr_to_str(_sock.client.sin_addr.s_addr) + " FD: " + itoa(_clientfds.front()) + '\n', MAGENTA);
+	
+
+	// write(_clientfds.front(), "Hahalol\n", 8);
 	
 	// fcntl(_clientfd, F_SETFL, fcntl(_clientfd, F_GETFL, 0) | O_NONBLOCK);
 	
-	close(_clientfd);
-	close(_sock.sock);
+	// close(_clientfds.front());
+	// _clientfds.pop_front();
+	// close(_sock.sock);
+	return _clientfds.front();
 }
 
 bool	Server::tryup()

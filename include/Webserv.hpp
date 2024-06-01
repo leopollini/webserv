@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 17:13:05 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/01 16:34:26 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,26 +16,22 @@
 
 # include "utils.hpp"
 # include "BetterSocket.hpp"
-# include "BetterPoll.hpp"
+# include "BetterSelect.hpp"
 # include "Server.hpp"
-
-# define DOWN_SERVER_TRIES_MAX 20
-# define DOWN_SERVER_SLEEP_MS 2000
-# define DOWN_SERVER_MAX 20
-# define NO_SERVER_SLEEP_TIME_MS 30000
+# include "Webserv.hpp"
 
 class	Server;
 
-struct	BetterPoll;
+struct	BetterSelect;
 
 class	Webserv
 {
-	const string	_conf;
+	const string		_conf;
 	int					_conf_fd;
 	static bool			_up;
 	std::list<Server *>	_servers_up;
 	std::list<Server *>	_servers_down;
-	struct BetterPoll	_poll;
+	struct BetterSelect	_sel;
 	conf_t				_env;
 
 	Webserv(const Webserv &copy) {(void)copy;}

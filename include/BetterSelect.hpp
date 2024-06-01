@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   BetterPoll.hpp                                     :+:      :+:    :+:   */
+/*   BetterSelect.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 11:47:44 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/30 18:01:01 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/01 14:34:26 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef BETTERPOLL_HPP
-# define BETTERPOLL_HPP
+#ifndef BETTERSELECT_HPP
+# define BETTERSELECT_HPP
 
 # include "Server.hpp"
 # include "BetterSocket.hpp"
@@ -19,18 +19,24 @@
 
 # define POLL_TIMEOUT 1000
 
-struct	BetterPoll
+struct	BetterSelect
 {
-	pollfd					*_fds;
-	short					_size;
-	std::map<int, Server *>	_map;
+	fd_set			_all_fds;	
+	short			_tot_size;
+	connections_map	_servs_map;
+	connections_map	_clis_map;
 
-	BetterPoll() : _fds(NULL) {}
-	~BetterPoll() {delete[] _fds;}
+	BetterSelect() : _tot_size(0) {FD_ZERO(&_all_fds);}
+	~BetterSelect();
 
-	void					loadFds(std::list<Server *> &ls);
-	std::deque<Server *>	Poll();
-	pollfd					&findPollfd(int fd);
+	void			loadServFds(std::list<Server *> &ls);
+	void			addConnectionCli(int fd, Server *s);
+	void			delConnectionCli(int pfd);
+	void			addConnectionServ(int fd, Server *s);
+	void			delConnectionServ(int pfd);
+	void			selectAndDo();
+	int				getBiggestFd();
+
 };
 
 #endif

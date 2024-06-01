@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:37 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 17:27:47 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/01 16:11:40 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,15 +21,16 @@
 # include <sys/stat.h>
 # include <fcntl.h>
 # include <sys/socket.h>
+# include <sys/select.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <netinet/in.h>
-# include <poll.h>
 # include <csignal>
 # include <unistd.h>
 # include <list>
 # include <map>
 # include <deque>
+# include <cmath>
 # include "utils.hpp"
 
 # define ERROR RED
@@ -38,9 +39,21 @@
 # define INFO WHITE
 # define DONE GREEN
 
+# define DOWN_SERVER_TRIES_MAX 20
+# define DOWN_SERVER_SLEEP_MS 2000
+# define DOWN_SERVER_MAX 20
+# define NO_SERVER_SLEEP_TIME_MS 30000
+# define MAX_CONNECTIONS 100
+
 using std::string;
 using std::cout;
-typedef std::map<string, string>	conf_t;
+
+class Server;
+
+typedef std::map<string, string>		conf_t;
+typedef	short 							port_t;
+typedef	std::pair<int, Server *>	fd_serv_pair;
+typedef	std::map<int, Server *>	connections_map;
 
 typedef	enum	e_colors
 {

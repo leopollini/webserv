@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:01:08 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 19:31:57 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/01 13:02:20 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,13 @@
 
 struct	BetterSocket
 {
-	int					fd;
 	int					sock;
-	struct sockaddr_in	addr;
 	struct sockaddr_in	client;
 	socklen_t			len;
 
+	int					fd;
+	struct sockaddr_in	addr;
+	
 	void				init(short port, int address = INADDR_ANY)
 	{
 		if (fd >= 0)
@@ -50,7 +51,7 @@ struct	BetterSocket
 		close (fd);
 	}
 
-	BetterSocket() : fd(-1), sock(-1) {}
+	BetterSocket() : sock(-1), fd(-1)  {}
 
 	class FailedSocketCreation : public std::exception
 	{
