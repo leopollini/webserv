@@ -12,6 +12,13 @@
 
 #include "../include/BetterSelect.hpp"
 
+BetterSelect::BetterSelect() : _tot_size(0)
+{
+	FD_ZERO(&_read_pool);
+	FD_ZERO(&_write_pool);
+	// FD_SET(STDIN_FILENO, &_read_pool);
+}
+
 BetterSelect::~BetterSelect()
 {
 	FD_ZERO(&_read_pool);
@@ -22,11 +29,11 @@ BetterSelect::~BetterSelect()
 		close(i->first);
 }
 
-void	BetterSelect::loadServFds(std::list<Server *> &ls)
+void	BetterSelect::loadServFds(serv_list &ls)
 {
 	_tot_size = ls.size();
 	_servs_map.clear();
-	for (std::list<Server *>::iterator s = ls.begin(); s != ls.end(); s++)
+	for (serv_list::iterator s = ls.begin(); s != ls.end(); s++)
 		if ((*s)->getState() == 1)
 			addConnectionServ((*s)->getSockFd(), *s);
 }
@@ -81,30 +88,17 @@ int	BetterSelect::getBiggestFd()
 	return std::max((--_servs_map.end())->first, (--_clis_map.end())->first);
 }
 
-// void _print_pool(fd_set pool, std::string name)
-// {
-//     std::cout << "Now printing " << name << "fd pool" << std::endl;
-//     for ( uint i = 0; i < 1024; i++)
-//     {
-//         if (FD_ISSET(i, &pool))
-//             std::cout << i << ' ';
-//     }
-//     std::cout << std::endl;
-// }
-
-void	BetterSelect::selectAndDo()
+void _print_pool(fd_set pool, std::string name)
 {
-	int				t;
-	fd_set			readfds = _read_pool;
-	fd_set			writefds = _write_pool;
-	struct timeval	timeout = SEL_TIMEOUT;
-	
-	if (!_tot_size)
-		return ;
-	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
+    std::cout << "Now printing " << name << "fd pool" << std::endl;
+    for ( uint i = 0; i < 128; i++)
+        if (FD_ISSET(i, &pool))
+            std::cout << i << ' ';
+    std::cout << std::endl;
+}
 
-	if (t <= 0)
-		return ;
+void	BetterSelect::postSelect(fd_set &readfds, fd_set &writefds)
+{
 	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); i++)
 	{
 		if (FD_ISSET(i->first, &writefds))
@@ -139,7 +133,6 @@ void	BetterSelect::selectAndDo()
 		}
 	}
 	for (connections_map::iterator i = _servs_map.begin(); i != _servs_map.end(); i++)
-	{
 		if (FD_ISSET(i->first, &readfds))
 		{
 			int fd = i->second->Accept();
@@ -147,8 +140,22 @@ void	BetterSelect::selectAndDo()
 			_clis_map[fd] = i->second;
 			timestamp("Server at port " + itoa(i->second->getPort()) + " created new connection at fd " + itoa(fd) + '\n', INFO);
 		}
-		// else
-		// 	timestamp("Apparently server at port " + itoa(i->second->getPort()) + " shut down. LOL\n", ERROR);
-	}
+}
+
+void	BetterSelect::selectAndDo()
+{
+	int				t;
+	fd_set			readfds = _read_pool;
+	fd_set			writefds = _write_pool;
+	struct timeval	timeout = SEL_TIMEOUT;
+	
+	if (!_tot_size)
+		return ;
+	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
+	if (t <= 0)
+		return ;
+	// if (FD_ISSET(STDIN_FILENO, &_read_pool))
+	// 	input_command_manager();
+	postSelect(readfds, writefds);
 	return ;
 }

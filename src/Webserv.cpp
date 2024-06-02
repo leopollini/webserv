@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/02 18:09:10 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/02 18:44:39 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,9 @@ Webserv::~Webserv()
 {
 	timestamp("Destroying Webserv!\n", BLUE);
 	close(_conf_fd);
-	for (std::list<Server *>::iterator i = _servers_up.begin(); i != _servers_up.end(); i++)
+	for (serv_list::iterator i = _servers_up.begin(); i != _servers_up.end(); i++)
 		delete *i;
-	for (std::list<Server *>::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
+	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
 		delete *i;
 }
 
@@ -38,11 +38,10 @@ char	Webserv::parseConfig()
 {
 	if ((_conf_fd = open(_conf.c_str(), O_RDONLY)) < 0)
 		throw MissingConfigFile();
-
 	timestamp("Parsing config file!\n",YELLOW);
 
 	addServer(new Server(8080));
-
+	addServer(new Server(8081));
 
 	close(_conf_fd);
 	return 0;
@@ -61,10 +60,10 @@ void	Webserv::start()
 			sleep(2);
 			continue ;
 		}
-		cout << "Waitimg.\n";
+		// cout << "Waitimg.\n";
 		_sel.selectAndDo();
 
-		usleep(200000);
+		usleep(20000);
 	}
 	downAllServers();
 	_up = false;
@@ -86,7 +85,7 @@ void	Webserv::gracefullyQuit(int sig)
 
 void	Webserv::upAllServers()	// PLEASE REDO
 {
-	for (std::list<Server *>::iterator i = _servers_down.begin(); i != _servers_down.end() && _up; i++)
+	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end() && _up; i++)
 	{
 		try
 		{
@@ -94,7 +93,7 @@ void	Webserv::upAllServers()	// PLEASE REDO
 			(*i)->_down_count = 0;
 			_servers_up.push_front(*i);
 			_servers_down.erase(i, ++i);
-			std::advance(i, -2);
+			std::advance(i, -3);
 		}
 		catch(const std::exception& e)
 		{
@@ -109,7 +108,7 @@ void	Webserv::upAllServers()	// PLEASE REDO
 
 void	Webserv::downAllServers()
 {
-	for (std::list<Server *>::iterator i = _servers_up.begin(); i != _servers_up.end(); i++)
+	for (serv_list::iterator i = _servers_up.begin(); i != _servers_up.end(); i++)
 		(*i)->down();
 	_servers_down.insert(--_servers_down.end(), _servers_up.begin(), _servers_up.end());
 	_servers_up.clear();

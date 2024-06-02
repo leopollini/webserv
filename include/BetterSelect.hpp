@@ -27,10 +27,10 @@ struct	BetterSelect
 	connections_map	_servs_map;
 	connections_map	_clis_map;
 
-	BetterSelect() : _tot_size(0) {FD_ZERO(&_read_pool); FD_ZERO(&_write_pool);}
+	BetterSelect();
 	~BetterSelect();
 
-	void			loadServFds(std::list<Server *> &ls);
+	void			loadServFds(serv_list &ls);
 
 	void			addListeningConnection(int fd, Server *s);
 	void			delListeningConnection(int pfd);
@@ -40,6 +40,7 @@ struct	BetterSelect
 	void			delConnectionServ(int pfd);
 	
 	void			selectAndDo();
+	void			postSelect(fd_set &readfds, fd_set &writefds);
 	int				getBiggestFd();
 
 };

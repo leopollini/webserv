@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:37 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/02 18:07:46 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/02 18:28:58 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ typedef std::map<string, string>	conf_t;
 typedef	short 						port_t;
 typedef	std::pair<int, Server *>	fd_serv_pair;
 typedef	std::map<int, Server *>		connections_map;
+typedef	std::list<Server *>			serv_list;
 
 typedef	enum	e_colors
 {
@@ -96,6 +97,7 @@ typedef	enum	e_req
 	HEAD
 }				req_t;
 
+void _print_pool(fd_set pool, std::string name);
 void	timestamp(string s, colors c = WHITE, textype a = BOLD, bool do_timestamp = true);
 string	itoa(int arg);
 string	addr_to_str(int addr);

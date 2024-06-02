@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/02 18:11:41 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/02 18:53:15 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,8 +116,8 @@ req_t	Server::parseMsg(int fd)
 	
 	if (space_pos > msg.size())
 		return INVALID;
-	_current_request.dir = msg.substr(space_pos, msg.find(' ', space_pos ));
-		
+
+	_current_request.dir = msg.substr(space_pos + 1, msg.find(' ', space_pos + 1) - space_pos - 1);
 	_current_request.type = INVALID;
 	if (cmd == "GET")
 		_current_request.type = GET;
@@ -128,6 +128,6 @@ req_t	Server::parseMsg(int fd)
 	else if (cmd == "HEAD")
 		_current_request.type = HEAD;
 
-	std::cout << "requested dir be: " << _current_request.dir << '\n';
+	std::cout << "requested dir be: \'" << _current_request.dir << "\'\n";
 	return _current_request.type;
 }

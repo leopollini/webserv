@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/02 16:59:01 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/02 18:20:18 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,13 +26,13 @@ struct	BetterSelect;
 
 class	Webserv
 {
-	string				_conf;
-	int					_conf_fd;
-	static bool			_up;
-	std::list<Server *>	_servers_up;
-	std::list<Server *>	_servers_down;
-	struct BetterSelect	_sel;
-	conf_t				_env;
+	string			_conf;
+	int				_conf_fd;
+	static bool		_up;
+	serv_list		_servers_up;
+	serv_list		_servers_down;
+	BetterSelect	_sel;
+	conf_t			_env;
 
 	Webserv(const Webserv &copy) {(void)copy;}
 	Webserv&	operator=(const Webserv &assignment) {(void)assignment; return *this;}
