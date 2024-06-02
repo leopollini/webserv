@@ -17,23 +17,28 @@
 # include "BetterSocket.hpp"
 # include "utils.hpp"
 
-# define POLL_TIMEOUT 1000
+# define SEL_TIMEOUT {1, 0}
 
 struct	BetterSelect
 {
-	fd_set			_all_fds;	
+	fd_set			_read_pool;
+	fd_set			_write_pool;
 	short			_tot_size;
 	connections_map	_servs_map;
 	connections_map	_clis_map;
 
-	BetterSelect() : _tot_size(0) {FD_ZERO(&_all_fds);}
+	BetterSelect() : _tot_size(0) {FD_ZERO(&_read_pool); FD_ZERO(&_write_pool);}
 	~BetterSelect();
 
 	void			loadServFds(std::list<Server *> &ls);
-	void			addConnectionCli(int fd, Server *s);
-	void			delConnectionCli(int pfd);
+
+	void			addListeningConnection(int fd, Server *s);
+	void			delListeningConnection(int pfd);
+	void			addResponseConnection(int fd, Server *s);
+	void			delResponseConnection(int pfd);
 	void			addConnectionServ(int fd, Server *s);
 	void			delConnectionServ(int pfd);
+	
 	void			selectAndDo();
 	int				getBiggestFd();
 

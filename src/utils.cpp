@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:09 by lpollini          #+#    #+#             */
-/*   Updated: 2024/05/31 17:27:42 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/02 16:53:55 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,4 +44,27 @@ string addr_to_str(int addr)
 	sstr << std::dec << (int)((char *)&addr)[2] << '.';
 	sstr << std::dec << (int)((char *)&addr)[3];
 	return sstr.str();
+}
+
+timeval	t_delta_time(timeval &b, timeval &a)
+{
+	timeval res;
+
+	res.tv_sec = a.tv_sec - b.tv_sec + ((a.tv_usec < b.tv_usec) ? 1 : 0);
+	res.tv_usec = a.tv_usec < b.tv_usec ? b.tv_usec - a.tv_usec : a.tv_usec - b.tv_usec;
+	return res;
+}
+
+timeval	timeres(int reset)
+{
+	static timeval	start;
+	timeval			res;
+
+	if (reset)
+	{
+		gettimeofday(&start, NULL);
+		return start;
+	}
+	gettimeofday(&res, NULL);
+	return start.tv_sec ? t_delta_time(start, res) : start;
 }

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:01:08 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/01 13:02:20 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/02 16:39:59 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ struct	BetterSocket
 	
 	void				init(short port, int address = INADDR_ANY)
 	{
+		while (0); // prevent inline-ing
 		if (fd >= 0)
 			close(fd);
 		if ((fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) < 0)

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/01 16:33:54 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/02 18:09:10 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,12 @@
 
 bool	Webserv::_up;
 
-Webserv::Webserv(const string &filename) : _conf(filename), _servers_up()
+Webserv::Webserv(const char *filename) : _servers_up()
 {
+	if (!filename)
+		_conf = string(DEFAULT_CONF);
+	else
+		_conf = string(filename);
 	timestamp("Setting up Webserv!\n", CYAN);
 	signal(SIGINT, gracefullyQuit);
 }
@@ -32,12 +36,15 @@ Webserv::~Webserv()
 
 char	Webserv::parseConfig()
 {
-	timestamp("Parsing config file!\n",YELLOW);
 	if ((_conf_fd = open(_conf.c_str(), O_RDONLY)) < 0)
 		throw MissingConfigFile();
 
+	timestamp("Parsing config file!\n",YELLOW);
+
 	addServer(new Server(8080));
-	
+
+
+	close(_conf_fd);
 	return 0;
 }
 
@@ -48,8 +55,16 @@ void	Webserv::start()
 	upAllServers();
 	while (_up)
 	{
+		if (!_servers_up.size())
+		{
+			std::cout << "No servers up!\n";
+			sleep(2);
+			continue ;
+		}
 		cout << "Waitimg.\n";
 		_sel.selectAndDo();
+
+		usleep(200000);
 	}
 	downAllServers();
 	_up = false;
@@ -64,33 +79,29 @@ void	Webserv::gracefullyQuit(int sig)
 {
 	(void)sig;
 
-	timestamp("\b\bGracefully shutting Webserv!\n\t\tSend signal again to Force Close\n",GRAYI);
+	timestamp("\b\bGracefully shutting Webserv! Send signal again to Force Close\n", GRAYI);
 	signal(SIGINT, SIG_DFL);
 	_up = false;
 }
 
-void	Webserv::upAllServers()
+void	Webserv::upAllServers()	// PLEASE REDO
 {
-	for (int c = 0; c < DOWN_SERVER_TRIES_MAX && _servers_down.size() && _up; c++)
+	for (std::list<Server *>::iterator i = _servers_down.begin(); i != _servers_down.end() && _up; i++)
 	{
-		for (std::list<Server *>::iterator i = _servers_down.begin(); i != _servers_down.end() && _up; i++)
+		try
 		{
-			try
-			{
-				(*i)->up();
-				(*i)->_down_count = 0;
-				_servers_up.push_front(*i);
-				_servers_down.erase(i, ++i);
-				std::advance(i, -2);
-			}
-			catch(const std::exception& e)
-			{
-				if ((*i)->_down_count + 1 >= DOWN_SERVER_TRIES_MAX)
-					continue ;
-				timestamp("Failed to setup Port " + itoa((*i)->getPort()) + ": " + string(e.what()) + '\n', ERROR);
-				(*i)->_down_count++;
-			}
-			usleep(DOWN_SERVER_SLEEP_MS * 1000);
+			(*i)->up();
+			(*i)->_down_count = 0;
+			_servers_up.push_front(*i);
+			_servers_down.erase(i, ++i);
+			std::advance(i, -2);
+		}
+		catch(const std::exception& e)
+		{
+			if ((*i)->_down_count + 1 >= DOWN_SERVER_TRIES_MAX)
+				continue ;
+			timestamp("Failed to setup Port " + itoa((*i)->getPort()) + ": " + string(e.what()) + '\n', ERROR);
+			(*i)->_down_count++;
 		}
 	}
 	_sel.loadServFds(_servers_up);

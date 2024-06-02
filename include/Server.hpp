@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/01 16:58:54 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/02 17:40:45 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,42 +17,61 @@
 # include "BetterSocket.hpp"
 # include <stdio.h>
 
+# define HEAD_BUFFER 3000
+
+struct request_t
+{
+	req_t	type;
+	string	dir;
+};
+
+
 class	Server
 {
 	std::list<int>		_clientfds;
 
-	port_t				_port;
-	struct BetterSocket	_sock;
-	char				_state;
-	conf_t				_env;
+	port_t			_port;
+	BetterSocket	_sock;
+	char			_state;
+	conf_t			_env;
+	char			_recieved_head[HEAD_BUFFER];
+	uint			_msg_len;
+	request_t		_current_request;
 
-	Server&	operator=(const Server& assignment) {(void)assignment; return (*this);}
-	Server(const Server& copy) {(void)copy;}
+
+
+	Server&	operator=(const Server &assignment) {(void)assignment; return *this;}
+	Server(const Server &copy) {(void)copy;}
 public:
 	int					_down_count;
 	conf_t				_sconf;
 	
 
 	Server(port_t port);
+	Server() {};
 	~Server();
 
 	int		getSockFd();
 	int		getPort() {return _port;}
+	char	getState() {return _state;}
+	void	setPort(port_t port) {_port = port;}
 	int		Accept();
 
 	bool	tryup();
 	void	up();
 	void	down();
-	char	getState() {return _state;}
-	void	doServerStuff(int fd)
+	req_t	recieve(int fd);							// MUST return 1 in case of connection closing call. MUST return 0 otherwise
+	void	respond(int fd);
+	void	closeConnection(int fd);
+	req_t	parseMsg(int fd);
+
+	void	printHttpRequest(string &msg, int fd_from);
+	
+	class HeadMsgTooLong : public std::exception
 	{
-		std::cout << "Called server at port " << _port << "!\n";
-	}
-	void	closeConnection(int fd)
-	{
-		std::cout << "Closing connection at port  " << itoa(fd) << ", fd: " + itoa(fd) << "!\n";
-		close(fd);
-	}
+	public:
+		virtual const char	*what() const throw() {return "Recieved too long a request";}
+	};
 };
 
 #endif

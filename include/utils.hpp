@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:37 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/01 16:11:40 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/02 18:07:46 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <netinet/in.h>
+# include <sys/time.h>
 # include <csignal>
 # include <unistd.h>
 # include <list>
@@ -38,22 +39,26 @@
 # define DEBUG CYAN
 # define INFO WHITE
 # define DONE GREEN
+# define CONNECT MAGENTA
+# define REC_MSG_PRNT GRAYI,COLORII
 
 # define DOWN_SERVER_TRIES_MAX 20
 # define DOWN_SERVER_SLEEP_MS 2000
 # define DOWN_SERVER_MAX 20
 # define NO_SERVER_SLEEP_TIME_MS 30000
 # define MAX_CONNECTIONS 100
+# define DEFAULT_CONF "lolfile"
+# define LONGEST_MSG 6 // currently is DELETE. MUST update in case on change
 
 using std::string;
 using std::cout;
 
 class Server;
 
-typedef std::map<string, string>		conf_t;
-typedef	short 							port_t;
+typedef std::map<string, string>	conf_t;
+typedef	short 						port_t;
 typedef	std::pair<int, Server *>	fd_serv_pair;
-typedef	std::map<int, Server *>	connections_map;
+typedef	std::map<int, Server *>		connections_map;
 
 typedef	enum	e_colors
 {
@@ -81,10 +86,20 @@ typedef	enum	e_text
 	DISAPPEAR_LOL,
 	CROSSED
 }				textype;
+typedef	enum	e_req
+{
+	INVALID = 0,
+	FINISH,
+	GET,
+	POST,
+	DELETE,
+	HEAD
+}				req_t;
 
 void	timestamp(string s, colors c = WHITE, textype a = BOLD, bool do_timestamp = true);
 string	itoa(int arg);
-
 string	addr_to_str(int addr);
+timeval	t_delta_time(timeval &b, timeval &a);
+timeval	timeres(int reset);
 
 #endif
