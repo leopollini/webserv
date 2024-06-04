@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/02 18:44:39 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/04 15:52:46 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Webserv.hpp"
+#include <parsing_util.hpp>
 
 bool	Webserv::_up;
 
@@ -39,10 +40,9 @@ char	Webserv::parseConfig()
 	if ((_conf_fd = open(_conf.c_str(), O_RDONLY)) < 0)
 		throw MissingConfigFile();
 	timestamp("Parsing config file!\n",YELLOW);
-
+	
 	addServer(new Server(8080));
 	addServer(new Server(8081));
-
 	close(_conf_fd);
 	return 0;
 }
