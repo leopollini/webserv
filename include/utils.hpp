@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:37 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/02 18:28:58 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/05 17:54:36 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,11 @@
 # include <deque>
 # include <cmath>
 # include "utils.hpp"
+# include "parsing_util.hpp"
+# include <fstream>
+# include <algorithm>
 
-# define ERROR RED
+# define ERROR RED // do not expand
 # define WARNING YELLOW
 # define DEBUG CYAN
 # define INFO WHITE
@@ -47,7 +50,7 @@
 # define DOWN_SERVER_MAX 20
 # define NO_SERVER_SLEEP_TIME_MS 30000
 # define MAX_CONNECTIONS 100
-# define DEFAULT_CONF "lolfile"
+# define DEFAULT_CONF "test.config"
 # define LONGEST_MSG 6 // currently is DELETE. MUST update in case on change
 
 using std::string;

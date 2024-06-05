@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:39 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/02 16:59:30 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/05 17:51:59 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,10 @@ int main(int argn, char *argv[], char *envp[])
 	{
 		serv.parseConfig();
 		serv.start();
+	}
+	catch (Parsing::Error &e)
+	{
+		timestamp("Error parsing " + serv.get_conf() + ": " + string(e.what()) + "\n", ERROR);
 	}
 	catch(const std::exception& e)
 	{

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:09 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/02 16:53:55 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/05 17:29:10 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,9 @@ string itoa(int arg)
 
 void	timestamp(string s, colors c, textype a, bool do_timestamp)
 {
-	cout << "\e[" << c + 30 << ';' << a << 'm';
+	std::ostream &out = (c == ERROR)? std::cerr : cout;
+
+	out << "\e[" << c + 30 << ';' << a << 'm';
 	if (do_timestamp)
 	{
 		char date[50];
@@ -30,10 +32,10 @@ void	timestamp(string s, colors c, textype a, bool do_timestamp)
 		struct tm tm = *gmtime(&now);
 		tm.tm_hour += 2;
 		strftime(date, sizeof(date), "[%Y/%m/%d  %H:%M:%S]   ", &tm);
-		cout << date;
+		out << date;
 	}
-	cout << s;
-	cout << "\e[0m";
+	out << s;
+	out << "\e[0m";
 }
 
 string addr_to_str(int addr)

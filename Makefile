@@ -3,23 +3,24 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+         #
+#    By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/17 08:42:40 by lpollini          #+#    #+#              #
-#    Updated: 2024/06/01 14:43:41 by lpollini         ###   ########.fr        #
+#    Updated: 2024/06/05 17:18:49 by fedmarti         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		= webserv
 	
 CC			= c++
-FLAGS		= -Wall -Wextra -std=c++98 -g
+FLAGS		= -Wall -Wextra -g $(addprefix -I, $(INCLUDES)) -std=c++98
 RM			= rm -rf
 
 INCLUDES	= include/
 OBJDIR 		= .objFiles
 
-FILES		= main src/Webserv src/utils src/Server src/BetterSelect
+FILES		:= Parser Webserv utils Server BetterSelect Parsing_exceptions
+FILES		:= main $(addprefix src/, $(FILES))
 
 SRC			= $(FILES:=.cpp)
 OBJ			= $(addprefix $(OBJDIR)/, $(FILES:=.o))
@@ -42,12 +43,14 @@ endif
 all: $(NAME)
 
 $(NAME): $(OBJ) $(HEADER)
-	@$(CC) $(OBJ) $(OPTS) -o $(NAME)
+	$(CC) $(FLAGS) $(OBJ) $(OPTS) -o $(NAME)
 	@printf "$(_SUCCESS) $(GREEN)- Executable ready.\n$(RESET)"
 
-$(OBJDIR)/%.o: %.cpp $(HEADER) 
+$(OBJDIR)/%.o: %.cpp $(HEADER)
 	@mkdir -p $(dir $@)
-	@$(CC) $(FLAGS) $(OPTS) -c $< -o $@
+	@$(CC) $(FLAGS) $(OPTS) -c $< -o $@ 
+
+$(OBJDIR):
 
 clean:
 	@$(RM) $(OBJDIR) $(OBJ)

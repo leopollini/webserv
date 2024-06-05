@@ -6,12 +6,12 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/04 15:52:46 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/05 17:53:46 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/Webserv.hpp"
-#include <parsing_util.hpp>
+#include "Webserv.hpp"
+#include "parsing_util.hpp"
 
 bool	Webserv::_up;
 
@@ -37,9 +37,14 @@ Webserv::~Webserv()
 
 char	Webserv::parseConfig()
 {
-	if ((_conf_fd = open(_conf.c_str(), O_RDONLY)) < 0)
-		throw MissingConfigFile();
+	// if ((_conf_fd = open(_conf.c_str(), O_RDONLY)) < 0)
+		// throw MissingConfigFile();
+
 	timestamp("Parsing config file!\n",YELLOW);
+	
+	string fileContent = Parsing::read_file(get_conf());
+	list<Parsing::token> tokens = Parsing::tokenize(fileContent);
+	// Parsing::print_tokens(tokens);
 	
 	addServer(new Server(8080));
 	addServer(new Server(8081));
@@ -112,4 +117,9 @@ void	Webserv::downAllServers()
 		(*i)->down();
 	_servers_down.insert(--_servers_down.end(), _servers_up.begin(), _servers_up.end());
 	_servers_up.clear();
+}
+
+const string	&Webserv::get_conf() const
+{
+	return (_conf);
 }
