@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 17:42:48 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/06 18:58:04 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,15 +24,6 @@
 # define PORT "listen"
 # define LOCATION "location"
 # define LOC_ROOT "root"
-
-# define L_ALLOW "allow"
-# define L_DIR "location"
-
-# define F_GET 1
-# define F_POST 1 << 1
-# define F_DELETE 1 << 2
-# define F_HEAD 1 << 3
-# define F_DIR_LST 1 << 4
 
 struct request_t
 {
@@ -122,7 +113,7 @@ public:
 	size_t	getResLen() {return -1000;}
 	string	getResServer() {return "Lolserv";}
 
-	void	locReadEnv();
+	int Server::matchRequestLocation(request_t &request);
 
 	void	printServerStats()
 	{
