@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 16:07:51 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/06 17:14:38 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,6 @@
 # define PORT "listen"
 # define LOCATION "location"
 # define LOC_ROOT "root"
-
-# define F_GET 1
-# define F_POST 2
-# define F_DELETE 4
-# define F_HEAD 8
-# define F_DIR_LST 16
 
 struct request_t
 {
@@ -120,6 +114,8 @@ public:
 	string	getDocType() {return "default";}
 	size_t	getResLen() {return -1000;}
 	string	getResServer() {return "Lolserv";}
+
+	int Server::matchRequestLocation(request_t &request);
 
 	void	printServerStats()
 	{
