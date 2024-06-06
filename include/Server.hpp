@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 19:04:02 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/06 19:07:24 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 
 # include "BetterSocket.hpp"
 # include <stdio.h>
+# include "definitions.hpp"
 
 # define HEAD_BUFFER 3000
 
@@ -50,14 +51,12 @@ struct response_t
 	{
 		return head.size() + body.size();
 	}
-	~response_t() {}
 };
 
 struct	location_t
 {
 	conf_t	stuff;
 	string	dir;
-	string	root_dir;
 	char	allows;
 	string	res_403_dir;
 	string	res_404_dir;
@@ -115,15 +114,17 @@ public:
 	size_t	getResLen() {return -1000;}
 	string	getResServer() {return "Lolserv";}
 
-	void Server::matchRequestLocation(request_t &request)
+	void Server::matchRequestLocation(request_t &request);
 
 	void	printServerStats()
 	{
 		cout << "Server " << _id << ":\n";
 		cout << "\tName \'" << _env[NAME] << "\'\n";
 		cout << "\tPort " << _env[PORT] << "\n";
-		cout << "\tRoot " << _env[LOC_ROOT];
-		cout << '\n';
+		cout << "\tRoot " << _env[LOC_ROOT] << '\n';
+		cout << "\tlocations (" << _loc_ls.size() << ")\n";
+		for (locations_list::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
+			cout << "\t\t dir " << (*i)->stuff[L_DIR] << '\n';
 	}
 	
 	class HeadMsgTooLong : public std::exception

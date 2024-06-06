@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 16:16:13 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/06 18:07:28 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void	fill_line(conf_t *env, list<Parsing::token>::iterator &s)
 {
 	string	&t = (*env)[s->content];
 
-	while ((++s)->content != ";")
+	while ((++s)->content != ";" && s->content != "{")
 		t.append(s->content + ' ');
 	t[t.size() - 1] = '\0';
 }
@@ -52,7 +52,7 @@ char	Webserv::parseConfig()
 	
 	string fileContent = Parsing::read_file(get_conf());
 	list<Parsing::token> tokens = Parsing::tokenize(fileContent);
-	// Parsing::print_tokens(tokens);
+	Parsing::print_tokens(tokens);
 	
 	timestamp("Beginning servers configuration!\n", INFO);
 	Server		*current;
@@ -62,7 +62,7 @@ char	Webserv::parseConfig()
 	short		brackets = 0;
 	int			ln;
 	int			servs = 0;
-	for (list<Parsing::token>::iterator i = tokens.begin(); i != tokens.end(); i++)
+	for (list<Parsing::token>::iterator i = tokens.begin(); i != tokens.end(); ++i)
 	{
 		if (!i->content.size())
 			continue ;
@@ -79,28 +79,30 @@ char	Webserv::parseConfig()
 			{
 				if (i->content == LOCATION)
 				{
-					string	&t = (++i)->content;
-					if (brackets++ > 1 || (++i)->content != "{" )
-						throw Parsing::ErrorType();
 					current_loc = new location_t;
 					current->addLocation(current_loc);
+					env_loc = &current_loc->stuff;
+					fill_line(env_loc, i);
+					if (brackets++ > 1 || (i)->content != "{" )
+						throw Parsing::ErrorType();
 					++i;
 					while (brackets == 2 && i != tokens.end())
 					{
-						if (i->content == "}" && brackets--)
+						if (i->content == "}" && brackets-- && ++i != tokens.end())
 							break ;
-						fill_line(env, i);
-						i++;
+						fill_line(env_loc, i);
+						++i;
 					}
 				}
 				if (i->content == "}" && !--brackets)
 					break ;
 				fill_line(env, i);
-				// printf("called. (%i) %i, \'%s\'\n", brackets, i->line_n, i->content.c_str());
-				i++;
+				++i;
 			}
 		}
 	}
+	// for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
+	// 	(*i)->locReadEnv();
 	return 0;
 }
 
@@ -145,7 +147,8 @@ void	Webserv::upAllServers()	// PLEASE REDO
 			(*i)->up();
 			(*i)->_down_count = 0;
 			_servers_up.push_front(*i);
-			_servers_down.erase(std::prev(++i), i);
+			i++;
+			_servers_down.erase(std::prev(i), i);
 		}
 		catch(const std::exception& e)
 		{

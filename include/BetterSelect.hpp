@@ -26,6 +26,7 @@ struct	BetterSelect
 	short			_tot_size;
 	connections_map	_servs_map;
 	connections_map	_clis_map;
+	timeout_fd		_timeout_map;
 
 	BetterSelect();
 	~BetterSelect();
@@ -42,6 +43,8 @@ struct	BetterSelect
 	void			selectAndDo();
 	void			postSelect(fd_set &readfds, fd_set &writefds);
 	int				getBiggestFd();
+
+	void			rmFd(int fd, Server *s);
 
 };
 

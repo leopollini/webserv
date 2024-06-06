@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 19:03:48 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/06 19:08:19 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,30 +171,6 @@ void Server::buildResponseHeader()
 	_current_response.head.append("Context-Length: " + itoa(getResLen()) + CRNL);
 	_current_response.head.append("Server: " + _env[NAME] + CRNL);
 }
-
-
-
-/*
-struct request_t
-	qww{
-	req_t		type;
-	string		dir;
-	string		host;
-	location_t	*loc;
-};
-
-{
-	struct	location_t
-{
-	conf_t	stuff;
-	string	dir;
-	char	allows;
-	string	res_403_dir;
-	string	res_404_dir;
-};
-}
-*/
-
 
 //matches the request directory with a location and sets its location_t pointer
 void Server::matchRequestLocation(request_t &request)
