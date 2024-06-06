@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:09 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/02 16:53:55 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/05 11:42:57 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,4 +67,13 @@ timeval	timeres(int reset)
 	}
 	gettimeofday(&res, NULL);
 	return start.tv_sec ? t_delta_time(start, res) : start;
+}
+
+void _print_pool(fd_set &pool, std::string name)
+{
+    std::cout << "Now printing " << name << "fd pool" << std::endl;
+    for ( uint i = 0; i < 128; i++)
+        if (FD_ISSET(i, &pool))
+            std::cout << i << ' ';
+    std::cout << std::endl;
 }

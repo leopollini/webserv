@@ -6,13 +6,13 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/02 18:53:15 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/03 11:13:32 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 
-Server::Server(port_t port) : _port(port), _down_count(0), _state(0), _clientfds()
+Server::Server(port_t port) : _clientfds(), _port(port), _state(0), _down_count(0)
 {
 	timestamp("Added server at port " + itoa(_port) + "!\n", CYAN);
 	
@@ -24,7 +24,7 @@ Server::~Server()
 	down();
 	if (_sock.sock >= 0)
 		close(_sock.sock);
-	for (std::list<int>::iterator i = _clientfds.begin(); i != _clientfds.end(); i++)
+	for (fd_list::iterator i = _clientfds.begin(); i != _clientfds.end(); i++)
 		close(*i);
 }
 
@@ -36,15 +36,9 @@ int	Server::Accept()
 	getsockname(_clientfds.front(), (sockaddr *)&_sock.client, &_sock.len);
 	
 	timestamp("Server at " + itoa(_port) + " caught a client! IP: " + addr_to_str(_sock.client.sin_addr.s_addr) + '\n', CONNECT);
-	
 
-	// fcntl(_clientfd, F_SETFL, fcntl(_clientfd, F_GETFL, 0) | O_NONBLOCK);
-	
-	// write(_clientfds.front(), "Hahalol\n", 8);
-	
-	// close(_clientfds.front());
-	// _clientfds.pop_front();
-	// close(_sock.sock);
+	fcntl(_clientfds.front(), F_SETFL, fcntl(_clientfds.front(), F_GETFL, 0) | O_NONBLOCK);
+
 	return _clientfds.front();
 }
 
@@ -90,7 +84,19 @@ req_t	Server::recieve(int fd)
 
 void	Server::respond(int fd)
 {
-	std::cout << "Called server at port " << _port << ", responding...!\n";
+	std::cout << "Called fd " << fd << " for response!\n";
+
+	int file = open("file.html", O_RDONLY);
+	char	asd[200];
+	int	readed;
+	do
+	{
+	readed = read(file, asd, 199);
+	asd[readed] = 0;
+	for (int i = 0; asd[i]; i++)
+		write(fd, asd + i, 1);
+	} while (readed == 199);
+	write(fd, "\r\n", 2);
 }
 
 void	Server::closeConnection(int fd)

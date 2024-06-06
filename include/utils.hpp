@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:37 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/02 18:28:58 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/03 10:42:49 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@
 # define NO_SERVER_SLEEP_TIME_MS 30000
 # define MAX_CONNECTIONS 100
 # define DEFAULT_CONF "lolfile"
-# define LONGEST_MSG 6 // currently is DELETE. MUST update in case on change
+// # define LONGEST_MSG 6 // currently is DELETE. MUST update in case on change
 
 using std::string;
 using std::cout;
@@ -60,6 +60,7 @@ typedef	short 						port_t;
 typedef	std::pair<int, Server *>	fd_serv_pair;
 typedef	std::map<int, Server *>		connections_map;
 typedef	std::list<Server *>			serv_list;
+typedef	std::list<int>				fd_list;
 
 typedef	enum	e_colors
 {
@@ -74,6 +75,7 @@ typedef	enum	e_colors
 	GRAYII,
 	GRAYIII,
 }				colors;
+
 typedef	enum	e_text
 {
 	WHITE_O = 0,
@@ -87,6 +89,7 @@ typedef	enum	e_text
 	DISAPPEAR_LOL,
 	CROSSED
 }				textype;
+
 typedef	enum	e_req
 {
 	INVALID = 0,
@@ -97,7 +100,7 @@ typedef	enum	e_req
 	HEAD
 }				req_t;
 
-void _print_pool(fd_set pool, std::string name);
+void	_print_pool(fd_set &pool, std::string &name);
 void	timestamp(string s, colors c = WHITE, textype a = BOLD, bool do_timestamp = true);
 string	itoa(int arg);
 string	addr_to_str(int addr);

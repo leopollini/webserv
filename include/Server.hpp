@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/02 17:40:45 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/04 11:24:33 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,16 @@ struct request_t
 	string	dir;
 };
 
+struct	Response
+{
+	string	resp;
+	
+};
+
 
 class	Server
 {
-	std::list<int>		_clientfds;
+	fd_list			_clientfds;
 
 	port_t			_port;
 	BetterSocket	_sock;
@@ -37,8 +43,6 @@ class	Server
 	char			_recieved_head[HEAD_BUFFER];
 	uint			_msg_len;
 	request_t		_current_request;
-
-
 
 	Server&	operator=(const Server &assignment) {(void)assignment; return *this;}
 	Server(const Server &copy) {(void)copy;}
@@ -60,7 +64,7 @@ public:
 	bool	tryup();
 	void	up();
 	void	down();
-	req_t	recieve(int fd);							// MUST return 1 in case of connection closing call. MUST return 0 otherwise
+	req_t	recieve(int fd);
 	void	respond(int fd);
 	void	closeConnection(int fd);
 	req_t	parseMsg(int fd);
