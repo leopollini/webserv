@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:37 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/03 10:42:49 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/06 10:48:37 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,11 @@
 # include <deque>
 # include <cmath>
 # include "utils.hpp"
+# include "parsing_util.hpp"
+# include <fstream>
+# include <algorithm>
 
-# define ERROR RED
+# define ERROR RED // do not expand
 # define WARNING YELLOW
 # define DEBUG CYAN
 # define INFO WHITE
@@ -48,7 +51,7 @@
 # define NO_SERVER_SLEEP_TIME_MS 30000
 # define MAX_CONNECTIONS 100
 # define DEFAULT_CONF "lolfile"
-// # define LONGEST_MSG 6 // currently is DELETE. MUST update in case on change
+# define LONGEST_MSG 6 // currently is DELETE. MUST update in case on change
 
 using std::string;
 using std::cout;

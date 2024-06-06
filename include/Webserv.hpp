@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/02 18:20:18 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/05 17:50:43 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ struct	BetterSelect;
 
 class	Webserv
 {
-	string			_conf;
+	string			_conf = DEFAULT_CONF;
 	int				_conf_fd;
 	static bool		_up;
 	serv_list		_servers_up;
@@ -50,6 +50,8 @@ public:
 
 	void	upAllServers();
 	void	downAllServers();
+
+	const string	&get_conf() const;
 
 	class MissingConfigFile : public std::exception
 	{
