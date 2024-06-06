@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/04 11:24:33 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/06 16:07:51 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,30 +19,71 @@
 
 # define HEAD_BUFFER 3000
 
+# define NEW_SERVER "server"
+# define NAME "server_name"
+# define PORT "listen"
+# define LOCATION "location"
+# define LOC_ROOT "root"
+
+# define F_GET 1
+# define F_POST 2
+# define F_DELETE 4
+# define F_HEAD 8
+# define F_DIR_LST 16
+
 struct request_t
 {
-	req_t	type;
-	string	dir;
+	req_t		type;
+	string		dir;
+	string		host;
+	location_t	*loc;
 };
 
-struct	Response
+struct response_t
 {
-	string	resp;
-	
+	string		head;
+	string		body;
+	string		dir;
+	location_t	*loc;
+
+	void	Clear()
+	{
+		head.clear();
+		body.clear();
+		dir.clear();
+	}
+	size_t	Size()
+	{
+		return head.size() + body.size();
+	}
+	~response_t() {}
 };
 
+struct	location_t
+{
+	conf_t	stuff;
+	string	dir;
+	string	root_dir;
+	char	allows;
+	string	res_403_dir;
+	string	res_404_dir;
+};
 
 class	Server
 {
 	fd_list			_clientfds;
 
-	port_t			_port;
+	short			_id;
 	BetterSocket	_sock;
 	char			_state;
 	conf_t			_env;
 	char			_recieved_head[HEAD_BUFFER];
-	uint			_msg_len;
+	size_t			_msg_len;
+	locations_list	_loc_ls;
+
 	request_t		_current_request;
+	response_t		_current_response;
+	short			_res_code;
 
 	Server&	operator=(const Server &assignment) {(void)assignment; return *this;}
 	Server(const Server &copy) {(void)copy;}
@@ -51,15 +92,18 @@ public:
 	conf_t				_sconf;
 	
 
-	Server(port_t port);
-	Server() {};
+	// Server(port_t port);
+	Server(port_t port, string name);
+	Server(short id);
 	~Server();
 
+	conf_t	*getEnv() {return &_env;}
 	int		getSockFd();
-	int		getPort() {return _port;}
+	int		getPort() {return atoi(_env[PORT].c_str());}
 	char	getState() {return _state;}
-	void	setPort(port_t port) {_port = port;}
 	int		Accept();
+	int		getId() {return _id;}
+	void	addLocation(location_t *l) {_loc_ls.push_back(l);}
 
 	bool	tryup();
 	void	up();
@@ -70,6 +114,21 @@ public:
 	req_t	parseMsg(int fd);
 
 	void	printHttpRequest(string &msg, int fd_from);
+
+	void	buildResponseHeader();
+	string	badExplain(short code) {return itoa(code);}
+	string	getDocType() {return "default";}
+	size_t	getResLen() {return -1000;}
+	string	getResServer() {return "Lolserv";}
+
+	void	printServerStats()
+	{
+		cout << "Server " << _id << ":\n";
+		cout << "\tName \'" << _env[NAME] << "\'\n";
+		cout << "\tPort " << _env[PORT] << "\n";
+		cout << "\tRoot " << _env[LOC_ROOT];
+		cout << '\n';
+	}
 	
 	class HeadMsgTooLong : public std::exception
 	{

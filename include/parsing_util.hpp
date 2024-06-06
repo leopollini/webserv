@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_util.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 15:44:11 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/05 17:20:17 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/06 12:35:59 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ namespace Parsing
 	list<token>	tokenize (string content) throw (Error);
 	string 		read_file (string filename) throw (BadFile);
 
-	// void	print_tokens(list<token> lst); for debugging
+	void	print_tokens(list<token> lst);  // for debugging
 };
 
 

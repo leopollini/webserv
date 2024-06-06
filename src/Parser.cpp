@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 13:07:36 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/05 16:51:47 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/06 12:35:19 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ static token new_token(string &string, size_t start, size_t &end) throw (ErrorTy
 	return (new_t);
 }
 
-/*
+
 #include <iostream>
 #include <algorithm>
 //Will be removed
@@ -107,7 +107,7 @@ static void _print_token(token tkn)
 void	Parsing::print_tokens(list<token> lst)
 {
 	std::for_each(lst.begin(), lst.end(), _print_token);
-}*/
+}
 
 void	error_position(string &str, size_t pos)
 {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/05 17:50:43 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/06 13:55:33 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,7 @@ struct	BetterSelect;
 
 class	Webserv
 {
-	string			_conf = DEFAULT_CONF;
-	int				_conf_fd;
+	string			_conf;
 	static bool		_up;
 	serv_list		_servers_up;
 	serv_list		_servers_down;
@@ -38,13 +37,13 @@ class	Webserv
 	Webserv&	operator=(const Webserv &assignment) {(void)assignment; return *this;}
 	Webserv() {};
 public:
-	Webserv(const char *filename);
+	Webserv(const char *filename = DEFAULT_CONF);
 	~Webserv();
 
 	char	parseConfig();
 	void	start();
 
-	void	addServer(Server *s);
+	void	addServer(Server *s) {_servers_down.push_back(s);}
 
 	static void	gracefullyQuit(int sig);
 

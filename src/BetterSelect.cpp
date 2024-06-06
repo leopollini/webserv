@@ -151,6 +151,6 @@ void	BetterSelect::postSelect(fd_set &readfds, fd_set &writefds)
 			int fd = i->second->Accept();
 			FD_SET(fd, &_read_pool);
 			_clis_map[fd] = i->second;
-			timestamp("Server at port " + itoa(i->second->getPort()) + " created new connection at fd " + itoa(fd) + '\n', INFO);
+			timestamp("Server " + itoa(i->second->getId()) + " created new connection at fd " + itoa(fd) + '\n', INFO);
 		}
 }

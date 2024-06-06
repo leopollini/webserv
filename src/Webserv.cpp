@@ -3,14 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2024/06/03 10:24:23 by lpollini         ###   ########.fr       */
-=======
-/*   Updated: 2024/06/05 17:53:46 by fedmarti         ###   ########.fr       */
->>>>>>> 1e0860cf572eb293f40f95035b0ca6adfa24e9cd
+/*   Updated: 2024/06/06 16:16:13 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +28,19 @@ Webserv::Webserv(const char *filename) : _servers_up()
 Webserv::~Webserv()
 {
 	timestamp("Destroying Webserv!\n", BLUE);
-	close(_conf_fd);
-	for (serv_list::iterator i = _servers_up.begin(); i != _servers_up.end(); i++)
-		delete *i;
+	// for (serv_list::iterator i = _servers_up.begin(); i != _servers_up.end(); i++)
+	// 	delete *i;
 	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
 		delete *i;
+}
+
+void	fill_line(conf_t *env, list<Parsing::token>::iterator &s)
+{
+	string	&t = (*env)[s->content];
+
+	while ((++s)->content != ";")
+		t.append(s->content + ' ');
+	t[t.size() - 1] = '\0';
 }
 
 char	Webserv::parseConfig()
@@ -50,9 +54,53 @@ char	Webserv::parseConfig()
 	list<Parsing::token> tokens = Parsing::tokenize(fileContent);
 	// Parsing::print_tokens(tokens);
 	
-	addServer(new Server(8080));
-	addServer(new Server(8081));
-	close(_conf_fd);
+	timestamp("Beginning servers configuration!\n", INFO);
+	Server		*current;
+	conf_t		*env;
+	location_t	*current_loc;
+	conf_t		*env_loc;
+	short		brackets = 0;
+	int			ln;
+	int			servs = 0;
+	for (list<Parsing::token>::iterator i = tokens.begin(); i != tokens.end(); i++)
+	{
+		if (!i->content.size())
+			continue ;
+		if (i->content == NEW_SERVER)
+		{
+			if (brackets++ > 0 || (++i)->content != "{" )
+				throw Parsing::ErrorType();
+			++i;
+			current = new Server(servs);
+			addServer(current);
+			env = current->getEnv();
+			servs++;
+			while (brackets == 1 && i != tokens.end())
+			{
+				if (i->content == LOCATION)
+				{
+					string	&t = (++i)->content;
+					if (brackets++ > 1 || (++i)->content != "{" )
+						throw Parsing::ErrorType();
+					current_loc = new location_t;
+					current->addLocation(current_loc);
+					++i;
+					while (brackets == 2 && i != tokens.end())
+					{
+						if (i->content == "}" && brackets--)
+							break ;
+						fill_line(env, i);
+						i++;
+					}
+				}
+				if (i->content == "}" && !--brackets)
+					break ;
+				fill_line(env, i);
+				// printf("called. (%i) %i, \'%s\'\n", brackets, i->line_n, i->content.c_str());
+				i++;
+			}
+		}
+	}
 	return 0;
 }
 
@@ -78,11 +126,6 @@ void	Webserv::start()
 	_up = false;
 }
 
-void	Webserv::addServer(Server *s)
-{	
-	_servers_down.push_front(s);
-}
-
 void	Webserv::gracefullyQuit(int sig)
 {
 	(void)sig;
@@ -96,20 +139,19 @@ void	Webserv::upAllServers()	// PLEASE REDO
 {
 	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end() && _up; i++)
 	{
+		(*i)->printServerStats();
 		try
 		{
 			(*i)->up();
 			(*i)->_down_count = 0;
 			_servers_up.push_front(*i);
-			_servers_down.erase(i, ++i);
-			std::advance(i, -3);
+			_servers_down.erase(std::prev(++i), i);
 		}
 		catch(const std::exception& e)
 		{
-			if ((*i)->_down_count + 1 >= DOWN_SERVER_TRIES_MAX)
+			if (++(*i)->_down_count >= DOWN_SERVER_TRIES_MAX)
 				continue ;
 			timestamp("Failed to setup Port " + itoa((*i)->getPort()) + ": " + string(e.what()) + '\n', ERROR);
-			(*i)->_down_count++;
 		}
 	}
 	_sel.loadServFds(_servers_up);
