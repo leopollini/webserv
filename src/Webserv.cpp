@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 17:25:13 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/06 18:07:28 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,8 @@ void	Webserv::upAllServers()	// PLEASE REDO
 			(*i)->up();
 			(*i)->_down_count = 0;
 			_servers_up.push_front(*i);
-			_servers_down.erase(std::prev(++i), i);
+			i++;
+			_servers_down.erase(std::prev(i), i);
 		}
 		catch(const std::exception& e)
 		{

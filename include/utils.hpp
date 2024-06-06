@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:37 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 12:21:20 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/06 18:01:02 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@
 # define DOWN_SERVER_TRIES_MAX 20
 # define DOWN_SERVER_SLEEP_MS 2000
 # define DOWN_SERVER_MAX 20
+# define SOCKET_TIMEOUT 1
 # define NO_SERVER_SLEEP_TIME_MS 30000
 # define MAX_CONNECTIONS 100
 # define DEFAULT_CONF "test.config"
@@ -68,6 +69,7 @@ typedef	std::map<int, Server *>		connections_map;
 typedef	std::list<Server *>			serv_list;
 typedef	std::list<int>				fd_list;
 typedef	std::list<location_t *>		locations_list;
+typedef std::map<int, int>			timeout_fd;
 
 typedef	enum	e_colors
 {
