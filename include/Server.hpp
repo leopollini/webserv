@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 17:14:38 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/06 19:04:02 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ public:
 	size_t	getResLen() {return -1000;}
 	string	getResServer() {return "Lolserv";}
 
-	int Server::matchRequestLocation(request_t &request);
+	void Server::matchRequestLocation(request_t &request)
 
 	void	printServerStats()
 	{
