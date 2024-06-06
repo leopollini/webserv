@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 19:03:18 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/06 19:22:10 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 
 # include "BetterSocket.hpp"
 # include <stdio.h>
+# include "definitions.hpp"
 
 # define HEAD_BUFFER 3000
 
@@ -114,7 +115,7 @@ public:
 	size_t	getResLen() {return -1000;}
 	string	getResServer() {return "Lolserv";}
 
-	int 	matchRequestLocation(request_t &request);
+	void 	matchRequestLocation(request_t &request);
 
 	void	printServerStats()
 	{
