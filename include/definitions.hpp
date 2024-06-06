@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   definitions.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/06 19:05:02 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/06 19:23:43 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,7 @@ typedef enum	e_status_code
 	LOOP_DETECTED,
 	NOT_EXTENDED = 510,
 	NETWORK_AUTHENTICATION_REQUIRED
-};
+} status_code;
 
 void	_print_pool(fd_set &pool, std::string &name);
 void	timestamp(string s, colors c = WHITE, textype a = BOLD, bool do_timestamp = true);
