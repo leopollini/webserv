@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 18:58:04 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/06 19:03:18 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # define PORT "listen"
 # define LOCATION "location"
 # define LOC_ROOT "root"
+# define L_DIR "location"
 
 struct request_t
 {
@@ -113,7 +114,7 @@ public:
 	size_t	getResLen() {return -1000;}
 	string	getResServer() {return "Lolserv";}
 
-	int Server::matchRequestLocation(request_t &request);
+	int 	matchRequestLocation(request_t &request);
 
 	void	printServerStats()
 	{

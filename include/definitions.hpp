@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   definitions.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/06 18:00:32 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/06 19:05:02 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ typedef	std::map<int, Server *>		connections_map;
 typedef	std::list<Server *>			serv_list;
 typedef	std::list<int>				fd_list;
 typedef	std::list<location_t *>		locations_list;
+typedef	std::map<int, int>			timeout_fd;
 
 typedef	enum	e_colors
 {
@@ -78,7 +79,7 @@ typedef	enum	e_text
 
 # define F_GET 1
 # define F_POST 1 << 1
-# define F_DELETE 1 < 2
+# define F_DELETE 1 << 2
 # define F_HEAD 1 << 3
 # define F_DIR_LST 1 << 4
 
@@ -89,7 +90,7 @@ typedef	enum	e_req
 	HEAD = F_HEAD,
 	POST = F_POST,
 	DELETE = F_DELETE,
-	FINISH
+	FINISH = 3
 }				req_t;
 
 typedef enum	e_status_code
