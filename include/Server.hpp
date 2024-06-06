@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 19:22:10 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/06 20:06:00 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,8 +115,10 @@ public:
 	size_t	getResLen() {return -1000;}
 	string	getResServer() {return "Lolserv";}
 
-	void 	matchRequestLocation(request_t &request);
-
+	void 	matchRequestLocation(request_t &request) const; 
+	
+	status_code	validateLocation(request_t &request) const;
+	
 	void	printServerStats()
 	{
 		cout << "Server " << _id << ":\n";

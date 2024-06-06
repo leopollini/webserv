@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:09 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 10:48:20 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/06 20:48:21 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,4 +78,28 @@ void _print_pool(fd_set &pool, std::string name)
         if (FD_ISSET(i, &pool))
             std::cout << i << ' ';
     std::cout << std::endl;
+}
+
+char	checkCharacteristics(const char *path)
+{
+	char c = 0;
+
+	if (access(path, F_OK))
+		return (c);
+	if (!access(path, R_OK))
+		c |= C_READ;
+	if (!access(path, W_OK))
+		c |= C_WRITE;
+	if (!access(path, X_OK))
+		c |= C_EXEC;
+	
+	struct stat statbuff = {0};
+	
+	stat(path, &statbuff);
+	if (S_ISREG(statbuff.st_mode))
+		c |= C_FILE;
+	else if (S_ISDIR(statbuff.st_mode))
+		c |= C_DIR;
+
+	return (c);
 }

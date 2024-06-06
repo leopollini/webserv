@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 19:08:19 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/06 20:48:08 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,7 +173,7 @@ void Server::buildResponseHeader()
 }
 
 //matches the request directory with a location and sets its location_t pointer
-void Server::matchRequestLocation(request_t &request)
+void Server::matchRequestLocation(request_t &request) const
 {
 	if (request.type == INVALID)
 		*(int *)(0); //crash
@@ -195,4 +195,20 @@ void Server::matchRequestLocation(request_t &request)
 		}
 	}
 	request.loc = location;
+}
+
+status_code	Server::validateLocation(request_t &request) const
+{
+	if (!(request.loc->allows & request.type))
+		return (METHOD_NOT_ALLOWED);
+	
+	string path = _env.at(LOC_ROOT) + request.dir.substr(1);
+	char flags = checkCharacteristics(path.c_str());
+
+	struct stat statbuff;	
+	if (stat(path.c_str(), &statbuff))
+		return (INTERNAL_SEVER_ERROR);
+	
+
+	return (OK);
 }

@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/06 19:23:43 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/06 20:48:44 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,3 +166,21 @@ string	itoa(int arg);
 string	addr_to_str(int addr);
 timeval	t_delta_time(timeval &b, timeval &a);
 timeval	timeres(int reset);
+
+//does the file/directory exist
+# define C_OK(x) (x != 0)
+//(x & C_READ) read access?
+# define C_READ 1
+//(x & C_WRITE) write access?
+# define C_WRITE 1 << 1
+//(x & C_EXEC) execution access?
+# define C_EXEC 1 << 2
+//(x & C_FILE) is it a file?
+# define C_FILE 1 << 3
+//(x & C_DIR) is it a directory?
+# define C_DIR 1 << 4
+
+//controls if file exists if it's a directory, and sets rwx flags:
+//C_OK(c) exists?
+//(c & C_READ) read access..
+char	checkCharacteristics(const char *path);
