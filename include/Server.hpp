@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 16:07:51 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/06 17:17:06 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,14 @@
 # define LOCATION "location"
 # define LOC_ROOT "root"
 
+# define L_ALLOW "allow"
+# define L_DIR "location"
+
 # define F_GET 1
-# define F_POST 2
-# define F_DELETE 4
-# define F_HEAD 8
-# define F_DIR_LST 16
+# define F_POST 1 << 1
+# define F_DELETE 1 << 2
+# define F_HEAD 1 << 3
+# define F_DIR_LST 1 << 4
 
 struct request_t
 {
@@ -56,14 +59,12 @@ struct response_t
 	{
 		return head.size() + body.size();
 	}
-	~response_t() {}
 };
 
 struct	location_t
 {
 	conf_t	stuff;
 	string	dir;
-	string	root_dir;
 	char	allows;
 	string	res_403_dir;
 	string	res_404_dir;
@@ -121,13 +122,17 @@ public:
 	size_t	getResLen() {return -1000;}
 	string	getResServer() {return "Lolserv";}
 
+	void	locReadEnv();
+
 	void	printServerStats()
 	{
 		cout << "Server " << _id << ":\n";
 		cout << "\tName \'" << _env[NAME] << "\'\n";
 		cout << "\tPort " << _env[PORT] << "\n";
-		cout << "\tRoot " << _env[LOC_ROOT];
-		cout << '\n';
+		cout << "\tRoot " << _env[LOC_ROOT] << '\n';
+		cout << "\tlocations (" << _loc_ls.size() << ")\n";
+		for (locations_list::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
+			cout << "\t\t dir " << (*i)->stuff[L_DIR] << '\n';
 	}
 	
 	class HeadMsgTooLong : public std::exception
