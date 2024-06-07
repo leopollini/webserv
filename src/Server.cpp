@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/07 22:48:34 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/07 23:29:58 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,25 +200,35 @@ void Server::matchRequestLocation(request_t &request) const
 	request.loc = location;
 }
 
-status_code	Server::validateLocation(request_t &request) const
+status_code_t	Server::validateLocation(request_t &request) const
 {
 	if (!(request.loc->allows & request.type))
 		return (METHOD_NOT_ALLOWED);
 	
-	string path = request.root + request.dir.substr(1);
+	string path = request.root + request.dir; // check '//'
+	string target_file;
 	char flags = checkCharacteristics(path.c_str());
 
 	if (!C_OK(flags))
 		return (NOT_FOUND);
 	if (flags & C_DIR)// is a directory
 	{
-		
-	}
-
-	struct stat statbuff;	
-	if (stat(path.c_str(), &statbuff))
-		return (INTERNAL_SEVER_ERROR);
-	
+		target_file = getEnv(L_INDEX, request.loc); //searches for index files
+		/*
+		DIR LISTING ON:
+			look for index (default be index.html) in
+				location,
+				server ,
+				html
+			list dirs e basta
+		DIR LISTIN OFF:
+			look for index (default be index.html)
+			404
+			
+		*/
+		if (path == "")
+			return (NOT_FOUND);
+	}	
 
 	return (OK);
 }
@@ -230,12 +240,12 @@ string	Server::getEnv(string key, location_t *location) const
 
 	if (location)
 	{
-		var = std::find(location->stuff.begin(), location->stuff.end(), key);
-		if (var != location->stuff.end())
+		var = location->stuff.find(key);
+		if (var != location->stuff.end() && var->second != "")
 			return (var->second);
 	}
 	
-	var = std::find(_env.begin(), _env.end(), key);
+	var = _env.find(key);
 	
 	if (var != _env.end())
 		return (var->second);

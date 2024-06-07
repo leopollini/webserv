@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/07 22:47:14 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/07 23:07:36 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@
 # define LOCATION "location"
 # define LOC_ROOT "root"
 # define L_DIR "location"
+# define L_INDEX "index"
+# define L_DIR_LISTING "autoindex"
 
 struct request_t
 {
@@ -121,7 +123,7 @@ public:
 
 	void 	matchRequestLocation(request_t &request) const; 
 	
-	status_code	validateLocation(request_t &request) const;
+	status_code_t	validateLocation(request_t &request) const;
 	
 	void	printServerStats()
 	{
