@@ -1,6 +1,0 @@
-webserv
-*/*.o
-*/*.vscode
-.vscode
-*/*.txt
-*/*/*.o

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 17:53:57 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/07 13:08:40 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,11 @@ public:
 	{
 	public:
 		virtual const char	*what() const throw() {return "Config file missing";}
+	};
+	class FailedServerSetup : public std::exception
+	{
+	public:
+		virtual const char	*what() const throw() {return "Failed server setup";}
 	};
 };
 

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/06 19:05:02 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/07 18:39:36 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <set>
 
 # define ERROR RED // do not expand
 # define WARNING YELLOW
@@ -32,6 +33,7 @@
 # define DEFAULT_CONF "test.config"
 # define LONGEST_MSG 6 // currently is DELETE. MUST update in case on change
 # define CRNL "\r\n"
+# define CONNECTION_TIMEOUT 60 // measured in secs
 
 using std::string;
 using std::cout;
@@ -47,7 +49,7 @@ typedef	std::map<int, Server *>		connections_map;
 typedef	std::list<Server *>			serv_list;
 typedef	std::list<int>				fd_list;
 typedef	std::list<location_t *>		locations_list;
-typedef	std::map<int, int>			timeout_fd;
+typedef	std::map<int, long>			timeout_fd;
 
 typedef	enum	e_colors
 {
@@ -158,7 +160,7 @@ typedef enum	e_status_code
 	LOOP_DETECTED,
 	NOT_EXTENDED = 510,
 	NETWORK_AUTHENTICATION_REQUIRED
-};
+}				status_code_t;
 
 void	_print_pool(fd_set &pool, std::string &name);
 void	timestamp(string s, colors c = WHITE, textype a = BOLD, bool do_timestamp = true);
