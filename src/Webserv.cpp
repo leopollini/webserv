@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/07 20:19:47 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/07 22:48:57 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ char	Webserv::parseConfig( void )
 	
 	string fileContent = Parsing::read_file(getConf());
 	list<Parsing::token> tokens = Parsing::tokenize(fileContent);
-	Parsing::print_tokens(tokens);
+	// Parsing::print_tokens(tokens);
 	
 	timestamp("Beginning servers configuration!\n", INFO);
 	Server		*current;
@@ -62,7 +62,6 @@ char	Webserv::parseConfig( void )
 	location_t	*current_loc;
 	conf_t		*env_loc;
 	short		brackets = 0;
-	int			ln;
 	int			servs = 0;
 	for (list<Parsing::token>::iterator i = tokens.begin(); i != tokens.end(); ++i)
 	{
@@ -73,7 +72,7 @@ char	Webserv::parseConfig( void )
 			if (brackets++ > 0 || (++i)->content != "{" )
 				throw Parsing::ErrorType();
 			++i;
-			current = new Server(servs);
+			current = new Server(servs++);
 			addServer(current);
 			env = &(current->getEnvMap());
 			servs++;
@@ -82,7 +81,6 @@ char	Webserv::parseConfig( void )
 				if (i->content == LOCATION)
 				{
 					current_loc = new location_t;
-					current->addLocation(current_loc);
 					env_loc = &current_loc->stuff;
 					fill_line(env_loc, i);
 					if (brackets++ > 1 || (i)->content != "{" )
@@ -95,7 +93,10 @@ char	Webserv::parseConfig( void )
 						fill_line(env_loc, i);
 						++i;
 					}
+					current->addLocation(current_loc);
+					continue ;
 				}
+						// printf("called. (%i) \'%s\'\n", i->line_n, i->content.c_str());
 				if (i->content == "}" && !--brackets)
 					break ;
 				fill_line(env, i);
@@ -112,7 +113,19 @@ void	Webserv::start()
 {
 	timestamp("Starting Webserv!\n",GREEN);
 	_up = true;
-	upAllServers();
+	try
+	{
+		upAllServers();
+	}
+	catch(const std::exception& e)
+	{
+		// timestamp("Internal server error: " + string(e.what()) + '\n', ERROR);
+
+		// _up = false;
+		// downAllServers();
+		// return ;
+	}
+	
 	while (_up)
 	{
 		if (!_servers_up.size())
@@ -149,7 +162,7 @@ void	Webserv::upAllServers()	// PLEASE REDO
 			(*i)->up();
 			(*i)->_down_count = 0;
 			_servers_up.push_front(*i);
-			i++;
+			++i;
 			_servers_down.erase(std::prev(i), i);
 		}
 		catch(const std::exception& e)
@@ -160,6 +173,8 @@ void	Webserv::upAllServers()	// PLEASE REDO
 		}
 	}
 	_sel.loadServFds(_servers_up);
+	if (_servers_down.size())
+		throw FailedServerSetup();
 }
 
 void	Webserv::downAllServers()

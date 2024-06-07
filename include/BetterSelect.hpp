@@ -27,6 +27,7 @@ struct	BetterSelect
 	connections_map	_servs_map;
 	connections_map	_clis_map;
 	timeout_fd		_timeout_map;
+	fd_list			_del_lst;
 
 	BetterSelect();
 	~BetterSelect();

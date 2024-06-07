@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/07 20:36:13 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/07 22:48:34 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,18 @@ int Server::Accept()
 	return _clientfds.front();
 }
 
+void	Server::addLocation(location_t *l)
+{
+	l->dir = l->stuff[L_DIR];
+	for (locations_list::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
+		if ((*i)->dir == l->dir)
+		{
+			printf("called. %s\n", l->dir.c_str());
+			throw DuplicateServLocation();
+		}
+	_loc_ls.push_back(l);
+}
+
 int Server::getSockFd()
 {
 	return _sock.fd;
@@ -90,7 +102,7 @@ void Server::down()
 
 req_t Server::recieve(int fd)
 {
-
+	cout << "Readimg from " << fd << "...\n";
 	if (!(_msg_len = read(fd, _recieved_head, HEAD_BUFFER)))
 		return FINISH;
 	if (_msg_len == HEAD_BUFFER)
@@ -142,19 +154,9 @@ void Server::respond(int fd)
 {
 	std::cout << "Server " + itoa(_id) + ": Called fd " << fd << " for response!\n";
 
-	_res_code = 200;
+	_res_code = OK;
 
-	// int file = open("file.html", O_RDONLY);
-	// char	asd[200];
-	// int	readed;
-	// do
-	// {
-	// readed = read(file, asd, 199);
-	// asd[readed] = 0;
-	// for (int i = 0; asd[i]; i++)
-	// 	write(fd, asd + i, 1);
-	// } while (readed == 199);
-	// write(fd, "\r\n", 2);
+	_current_response.body = Parsing::read_file("file.html") + CRNL;
 
 	_current_response.head = "HTTP/1.1 " + itoa(_res_code) + ' ' + badExplain(_res_code) + CRNL;
 	buildResponseHeader();
@@ -165,18 +167,19 @@ void Server::respond(int fd)
 void Server::buildResponseHeader()
 {
 	time_t now = time(0);
-	_current_response.head.append(ctime(&now));
-	_current_response.head += '\r';
-	_current_response.head.append("Context-Type: " + getDocType() + CRNL);
-	_current_response.head.append("Context-Length: " + itoa(getResLen()) + CRNL);
+	_current_response.head.append("Content-Type: " + getDocType() + CRNL);
+	_current_response.head.append("Content-Length: " + itoa(getResLen()) + CRNL);
 	_current_response.head.append("Server: " + _env[NAME] + CRNL);
+	_current_response.head.append(ctime(&now));
+	_current_response.head += CRNL;
 }
 
 //matches the request directory with a location and sets its location_t pointer
 void Server::matchRequestLocation(request_t &request) const
 {
 	if (request.type == INVALID)
-		*(int *)(0); //crash
+		// *(int *)(0); //crash
+		return ;
 
 	size_t max_len = 0;
 	location_t *location = NULL;

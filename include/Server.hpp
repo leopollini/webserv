@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/07 20:26:46 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/07 22:47:14 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,16 +92,16 @@ public:
 	Server(short id);
 	~Server();
 
+	int		getSockFd();
+	int		Accept();
+	void	addLocation(location_t *l);
 	conf_t	&getEnvMap() {return _env;}
 
 	//returns environment variable given key
 	string	getEnv(string key, location_t *location = NULL) const;
-	int		getSockFd();
 	int		getPort() {return atoi(_env[PORT].c_str());}
 	char	getState() {return _state;}
-	int		Accept();
 	int		getId() {return _id;}
-	void	addLocation(location_t *l) {_loc_ls.push_back(l);}
 
 	bool	tryup();
 	void	up();
@@ -114,9 +114,9 @@ public:
 	void	printHttpRequest(string &msg, int fd_from);
 
 	void	buildResponseHeader();
-	string	badExplain(short code) {return itoa(code);}
-	string	getDocType() {return "default";}
-	size_t	getResLen() {return -1000;}
+	string	badExplain(short code) {return "OK";}
+	string	getDocType() {return "text/html";}
+	size_t	getResLen() {return _current_response.body.size();}
 	string	getResServer() {return "Lolserv";}
 
 	void 	matchRequestLocation(request_t &request) const; 
@@ -138,6 +138,11 @@ public:
 	{
 	public:
 		virtual const char	*what() const throw() {return "Recieved too long a request";}
+	};
+	class DuplicateServLocation : public std::exception
+	{
+	public:
+		virtual const char	*what() const throw() {return "Parser tried to insert the same location twice";}
 	};
 };
 
