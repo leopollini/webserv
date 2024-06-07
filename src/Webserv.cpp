@@ -3,24 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 18:07:28 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/07 20:19:47 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Webserv.hpp"
 #include "parsing_util.hpp"
 
-bool	Webserv::_up;
+bool	Webserv::_up = false;
+Webserv Webserv::_Singleton;
 
-Webserv::Webserv(const char *filename) : _servers_up()
+Webserv &Webserv::getInstance()
 {
-	if (!filename)
-		_conf = string(DEFAULT_CONF);
-	else
-		_conf = string(filename);
+	return (_Singleton);
+}
+
+Webserv::Webserv() : _conf(DEFAULT_CONF)
+{
 	timestamp("Setting up Webserv!\n", CYAN);
 	signal(SIGINT, gracefullyQuit);
 }
@@ -38,19 +40,19 @@ void	fill_line(conf_t *env, list<Parsing::token>::iterator &s)
 {
 	string	&t = (*env)[s->content];
 
-	while ((++s)->content != ";" && s->content != "{")
+	while ((++s)->type != ';' && s->type != '{')
 		t.append(s->content + ' ');
 	t[t.size() - 1] = '\0';
 }
 
-char	Webserv::parseConfig()
+char	Webserv::parseConfig( void )
 {
 	// if ((_conf_fd = open(_conf.c_str(), O_RDONLY)) < 0)
 		// throw MissingConfigFile();
 
 	timestamp("Parsing config file!\n",YELLOW);
 	
-	string fileContent = Parsing::read_file(get_conf());
+	string fileContent = Parsing::read_file(getConf());
 	list<Parsing::token> tokens = Parsing::tokenize(fileContent);
 	Parsing::print_tokens(tokens);
 	
@@ -73,7 +75,7 @@ char	Webserv::parseConfig()
 			++i;
 			current = new Server(servs);
 			addServer(current);
-			env = current->getEnv();
+			env = &(current->getEnvMap());
 			servs++;
 			while (brackets == 1 && i != tokens.end())
 			{
@@ -168,7 +170,16 @@ void	Webserv::downAllServers()
 	_servers_up.clear();
 }
 
-const string	&Webserv::get_conf() const
+
+const string	&Webserv::getConf() const
 {
 	return (_conf);
 }
+
+//doesn't reload configuration
+void	Webserv::setConf(string file_name)
+{
+	if (!_up)
+		_conf = file_name;
+}
+

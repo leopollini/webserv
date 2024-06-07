@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_util.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 15:44:11 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/06 12:35:59 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/07 19:38:04 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,10 +67,16 @@ namespace Parsing
 	};
 	class BadFile : public Error
 	{
+		string _err_str;
+		public:
+		BadFile() throw();
+		BadFile(string) throw();
+		~BadFile() throw();
 		const char *what() const throw()
 		{
-			return ("Bad file");
+			return (_err_str.c_str());
 		}
+
 	};
 	class ErrorType : public Error
 	{

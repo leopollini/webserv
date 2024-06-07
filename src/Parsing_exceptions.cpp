@@ -6,12 +6,27 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 17:14:53 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/05 17:25:04 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/07 19:40:27 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <utils.hpp>
 using namespace Parsing;
+
+BadFile::BadFile( void ) throw() : _err_str("Bad file")
+{
+	;
+}
+
+BadFile::BadFile(string str) throw() : _err_str("Bad file: " + str)
+{
+	;
+}
+
+BadFile::~BadFile() throw()
+{
+	;
+}
 
 UnclosedQuote::UnclosedQuote() throw() : _err_str("Unclosed Quote")
 {

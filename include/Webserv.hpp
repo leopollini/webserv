@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 17:53:57 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/07 20:35:56 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@ struct	BetterSelect;
 
 class	Webserv
 {
+	//single instance
+	static Webserv	_Singleton;
+	
 	string			_conf;
 	static bool		_up;
 	serv_list		_servers_up;
@@ -35,10 +38,11 @@ class	Webserv
 
 	Webserv(const Webserv &copy) {(void)copy;}
 	Webserv&	operator=(const Webserv &assignment) {(void)assignment; return *this;}
-	Webserv() {};
-public:
-	Webserv(const char *filename = DEFAULT_CONF);
+	Webserv();
+	// Webserv(const char *filename = DEFAULT_CONF);
 	~Webserv();
+public:
+	static Webserv &getInstance();
 
 	char	parseConfig();
 	void	start();
@@ -49,14 +53,17 @@ public:
 
 	void	upAllServers();
 	void	downAllServers();
+	
+	const string	&getConf() const;
+	void			setConf(string file_name);
 
-	const string	&get_conf() const;
-
+	string getEnv( string key) const {return (_env.at(key));}
 	class MissingConfigFile : public std::exception
 	{
 	public:
 		virtual const char	*what() const throw() {return "Config file missing";}
 	};
+
 };
 
 #endif

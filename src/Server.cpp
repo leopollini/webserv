@@ -6,12 +6,12 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 20:48:08 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/07 20:36:13 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
-
+#include "Webserv.hpp"
 // //Deprecated. Don't use
 // Server::Server(port_t port) : _clientfds(), _state(0), _down_count(0)
 // {
@@ -202,8 +202,15 @@ status_code	Server::validateLocation(request_t &request) const
 	if (!(request.loc->allows & request.type))
 		return (METHOD_NOT_ALLOWED);
 	
-	string path = _env.at(LOC_ROOT) + request.dir.substr(1);
+	string path = request.root + request.dir.substr(1);
 	char flags = checkCharacteristics(path.c_str());
+
+	if (!C_OK(flags))
+		return (NOT_FOUND);
+	if (flags & C_DIR)// is a directory
+	{
+		
+	}
 
 	struct stat statbuff;	
 	if (stat(path.c_str(), &statbuff))
@@ -211,4 +218,26 @@ status_code	Server::validateLocation(request_t &request) const
 	
 
 	return (OK);
+}
+
+string	Server::getEnv(string key, location_t *location) const
+{
+	string value;
+	conf_t::const_iterator var;
+
+	if (location)
+	{
+		var = std::find(location->stuff.begin(), location->stuff.end(), key);
+		if (var != location->stuff.end())
+			return (var->second);
+	}
+	
+	var = std::find(_env.begin(), _env.end(), key);
+	
+	if (var != _env.end())
+		return (var->second);
+
+	Webserv &singleton = Webserv::getInstance();
+
+	return (singleton.getEnv(key));
 }

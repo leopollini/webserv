@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/06 20:06:00 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/07 20:26:46 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ struct request_t
 	req_t		type;
 	string		dir;
 	string		host;
+	string		root;
 	location_t	*loc;
 };
 
@@ -91,7 +92,10 @@ public:
 	Server(short id);
 	~Server();
 
-	conf_t	*getEnv() {return &_env;}
+	conf_t	&getEnvMap() {return _env;}
+
+	//returns environment variable given key
+	string	getEnv(string key, location_t *location = NULL) const;
 	int		getSockFd();
 	int		getPort() {return atoi(_env[PORT].c_str());}
 	char	getState() {return _state;}
