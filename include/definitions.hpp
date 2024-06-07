@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/07 18:39:36 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/07 22:40:07 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,7 @@ typedef enum	e_status_code
 	LOOP_DETECTED,
 	NOT_EXTENDED = 510,
 	NETWORK_AUTHENTICATION_REQUIRED
-}				status_code_t;
+} status_code_t;
 
 void	_print_pool(fd_set &pool, std::string &name);
 void	timestamp(string s, colors c = WHITE, textype a = BOLD, bool do_timestamp = true);
@@ -168,3 +168,21 @@ string	itoa(int arg);
 string	addr_to_str(int addr);
 timeval	t_delta_time(timeval &b, timeval &a);
 timeval	timeres(int reset);
+
+//does the file/directory exist
+# define C_OK(x) (x != 0)
+//(x & C_READ) read access?
+# define C_READ 1
+//(x & C_WRITE) write access?
+# define C_WRITE 1 << 1
+//(x & C_EXEC) execution access?
+# define C_EXEC 1 << 2
+//(x & C_FILE) is it a file?
+# define C_FILE 1 << 3
+//(x & C_DIR) is it a directory?
+# define C_DIR 1 << 4
+
+//controls if file exists if it's a directory, and sets rwx flags:
+//C_OK(c) exists?
+//(c & C_READ) read access..
+char	checkCharacteristics(const char *path);

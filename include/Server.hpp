@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/07 20:16:57 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/07 22:40:55 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,8 +115,10 @@ public:
 	size_t	getResLen() {return _current_response.body.size();}
 	string	getResServer() {return "Lolserv";}
 
-	void 	matchRequestLocation(request_t &request);
-
+	void 	matchRequestLocation(request_t &request) const; 
+	
+	status_code	validateLocation(request_t &request) const;
+	
 	void	printServerStats()
 	{
 		cout << "Server " << _id << ":\n";
