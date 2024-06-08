@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/08 19:33:32 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/08 20:20:46 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,7 @@ void	Webserv::gracefullyQuit(int sig)
 
 void	Webserv::upAllServers()	// PLEASE REDO
 {
-	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end() && _up; i++)
+	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end() && _up;)
 	{
 		(*i)->printServerStats();
 		try
@@ -153,14 +153,14 @@ void	Webserv::upAllServers()	// PLEASE REDO
 			(*i)->up();
 			(*i)->_down_count = 0;
 			_servers_up.push_front(*i);
-			++i;
-			_servers_down.erase(std::prev(i), i);
+			_servers_down.erase(i++);
 		}
 		catch(const std::exception& e)
 		{
 			if (++(*i)->_down_count >= DOWN_SERVER_TRIES_MAX)
 				continue ;
 			timestamp("Failed to setup Port " + itoa((*i)->getPort()) + ": " + string(e.what()) + '\n', ERROR);
+			i++;
 		}
 	}
 	_sel.loadServFds(_servers_up);
