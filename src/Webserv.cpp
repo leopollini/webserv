@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/07 22:48:57 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/08 19:33:32 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,13 @@ Webserv::~Webserv()
 
 void	fill_line(conf_t *env, list<Parsing::token>::iterator &s)
 {
-	string	&t = (*env)[s->content];
+	if (s->content.empty())
+		return ;
 
+	string	&t = (*env)[s->content];
 	while ((++s)->type != ';' && s->type != '{')
 		t.append(s->content + ' ');
-	t[t.size() - 1] = '\0';
+	t = t.substr(0, t.size() - 1);
 }
 
 char	Webserv::parseConfig( void )
@@ -65,17 +67,16 @@ char	Webserv::parseConfig( void )
 	int			servs = 0;
 	for (list<Parsing::token>::iterator i = tokens.begin(); i != tokens.end(); ++i)
 	{
-		if (!i->content.size())
+		if (i->content.empty() || i->type == '}')
 			continue ;
 		if (i->content == NEW_SERVER)
 		{
-			if (brackets++ > 0 || (++i)->content != "{" )
+			if (brackets++ > 0 || (++i)->type != '{' )
 				throw Parsing::ErrorType();
 			++i;
 			current = new Server(servs++);
 			addServer(current);
 			env = &(current->getEnvMap());
-			servs++;
 			while (brackets == 1 && i != tokens.end())
 			{
 				if (i->content == LOCATION)
@@ -83,26 +84,27 @@ char	Webserv::parseConfig( void )
 					current_loc = new location_t;
 					env_loc = &current_loc->stuff;
 					fill_line(env_loc, i);
-					if (brackets++ > 1 || (i)->content != "{" )
+					if (brackets++ > 1 || (i)->type != '{')
 						throw Parsing::ErrorType();
 					++i;
-					while (brackets == 2 && i != tokens.end())
+					for (; brackets == 2 && i != tokens.end(); ++i)
 					{
-						if (i->content == "}" && brackets-- && ++i != tokens.end())
+						if (i->type == '}' && brackets-- && ++i != tokens.end())
 							break ;
 						fill_line(env_loc, i);
-						++i;
 					}
 					current->addLocation(current_loc);
 					continue ;
 				}
-						// printf("called. (%i) \'%s\'\n", i->line_n, i->content.c_str());
+				// printf("called. (%i) \'%s\'\n", i->line_n, i->content.c_str());
 				if (i->content == "}" && !--brackets)
 					break ;
 				fill_line(env, i);
 				++i;
 			}
+			continue ;
 		}
+		fill_line(&_env, i);
 	}
 	// for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
 	// 	(*i)->locReadEnv();
@@ -113,18 +115,7 @@ void	Webserv::start()
 {
 	timestamp("Starting Webserv!\n",GREEN);
 	_up = true;
-	try
-	{
-		upAllServers();
-	}
-	catch(const std::exception& e)
-	{
-		// timestamp("Internal server error: " + string(e.what()) + '\n', ERROR);
-
-		// _up = false;
-		// downAllServers();
-		// return ;
-	}
+	upAllServers();
 	
 	while (_up)
 	{
@@ -173,8 +164,6 @@ void	Webserv::upAllServers()	// PLEASE REDO
 		}
 	}
 	_sel.loadServFds(_servers_up);
-	if (_servers_down.size())
-		throw FailedServerSetup();
 }
 
 void	Webserv::downAllServers()

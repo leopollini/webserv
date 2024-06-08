@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 13:07:36 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/07 20:03:19 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/08 14:53:21 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ using std::list;
 
 typedef string::iterator strIt;
 
-
+// any implementation MUST handle exception!!!
 string Parsing::read_file(string filename) throw (BadFile)
 {
 	char flags = checkCharacteristics(filename.c_str());
@@ -41,16 +41,12 @@ string Parsing::read_file(string filename) throw (BadFile)
 		throw (BadFile());
 	}
 
-	string content = "";
-	char c = file.get();
-	while (file)
-	{
-		content += c;
-		c = file.get();
-	}
+    std::ostringstream ss;
+	ss << file.rdbuf();
+	
 	// std::cout << content;
 	file.close();
-	return (content);
+	return (ss.str());
 }
 
 //assigns the line and column variables by iterating over the string up to the given position

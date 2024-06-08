@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/07 22:40:07 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/08 19:50:04 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@
 # define NO_SERVER_SLEEP_TIME_MS 30000
 # define MAX_CONNECTIONS 100
 # define DEFAULT_CONF "test.config"
-# define LONGEST_MSG 6 // currently is DELETE. MUST update in case on change
 # define CRNL "\r\n"
 # define CONNECTION_TIMEOUT 60 // measured in secs
 
@@ -50,6 +49,7 @@ typedef	std::list<Server *>			serv_list;
 typedef	std::list<int>				fd_list;
 typedef	std::list<location_t *>		locations_list;
 typedef	std::map<int, long>			timeout_fd;
+
 
 typedef	enum	e_colors
 {
@@ -94,6 +94,16 @@ typedef	enum	e_req
 	DELETE = F_DELETE,
 	FINISH = 3
 }				req_t;
+
+
+struct request_t
+{
+	req_t		type;
+	string		dir;
+	string		host;
+	string		root;
+	location_t	*loc;
+};
 
 typedef enum	e_status_code
 {

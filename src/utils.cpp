@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:09 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/07 17:25:23 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/08 19:02:43 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void _print_pool(fd_set &pool, std::string name)
             std::cout << i << ' ';
     std::cout << std::endl;
 }
-
+// non funziona >:(
 char	checkCharacteristics(const char *path)
 {
 	char c = 0;
@@ -93,7 +93,7 @@ char	checkCharacteristics(const char *path)
 	if (!access(path, X_OK))
 		c |= C_EXEC;
 	
-	struct stat statbuff = {0};
+	struct stat statbuff;
 	
 	stat(path, &statbuff);
 	if (S_ISREG(statbuff.st_mode))

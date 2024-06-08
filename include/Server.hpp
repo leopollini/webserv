@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/07 23:07:36 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/08 20:08:32 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include "BetterSocket.hpp"
 # include <stdio.h>
 # include "definitions.hpp"
+# include "Responser.hpp"
 
 # define HEAD_BUFFER 3000
 
@@ -29,33 +30,7 @@
 # define L_INDEX "index"
 # define L_DIR_LISTING "autoindex"
 
-struct request_t
-{
-	req_t		type;
-	string		dir;
-	string		host;
-	string		root;
-	location_t	*loc;
-};
-
-struct response_t
-{
-	string		head;
-	string		body;
-	string		dir;
-	location_t	*loc;
-
-	void	Clear()
-	{
-		head.clear();
-		body.clear();
-		dir.clear();
-	}
-	size_t	Size()
-	{
-		return head.size() + body.size();
-	}
-};
+class Responser;
 
 struct	location_t
 {
@@ -79,18 +54,13 @@ class	Server
 	locations_list	_loc_ls;
 
 	request_t		_current_request;
-	response_t		_current_response;
-	short			_res_code;
+	Responser		_resp;
 
 	Server&	operator=(const Server &assignment) {(void)assignment; return *this;}
-	Server(const Server &copy) {(void)copy;}
+	Server(const Server &copy) : _resp(this) {(void)copy;}
 public:
 	int					_down_count;
-	conf_t				_sconf;
-	
 
-	// Server(port_t port);
-	Server(port_t port, string name);
 	Server(short id);
 	~Server();
 
@@ -101,6 +71,7 @@ public:
 
 	//returns environment variable given key
 	string	getEnv(string key, location_t *location = NULL) const;
+	string	serverGetEnv(string key) const {return _env.at(key);}
 	int		getPort() {return atoi(_env[PORT].c_str());}
 	char	getState() {return _state;}
 	int		getId() {return _id;}
@@ -115,15 +86,10 @@ public:
 
 	void	printHttpRequest(string &msg, int fd_from);
 
-	void	buildResponseHeader();
-	string	badExplain(short code) {return "OK";}
-	string	getDocType() {return "text/html";}
-	size_t	getResLen() {return _current_response.body.size();}
-	string	getResServer() {return "Lolserv";}
 
 	void 	matchRequestLocation(request_t &request) const; 
 	
-	status_code_t	validateLocation(request_t &request) const;
+	status_code_t	validateLocation();
 	
 	void	printServerStats()
 	{
