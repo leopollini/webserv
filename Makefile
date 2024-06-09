@@ -6,7 +6,7 @@
 #    By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/17 08:42:40 by lpollini          #+#    #+#              #
-#    Updated: 2024/06/08 15:26:55 by lpollini         ###   ########.fr        #
+#    Updated: 2024/06/09 19:46:53 by lpollini         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,7 @@ RM			= rm -rf
 INCLUDES	= include/
 OBJDIR 		= .objFiles
 
-FILES		:= Parser Webserv utils Server BetterSelect Parsing_exceptions Responser
+FILES		:= Parser Webserv utils Server BetterSelect Parsing_exceptions Responser Server_utils
 FILES		:= main $(addprefix src/, $(FILES))
 
 SRC			= $(FILES:=.cpp)

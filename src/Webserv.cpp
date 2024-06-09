@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/08 20:20:46 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/09 21:37:14 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ Webserv &Webserv::getInstance()
 Webserv::Webserv() : _conf(DEFAULT_CONF)
 {
 	timestamp("Setting up Webserv!\n", CYAN);
+	docTypesInit();
 	signal(SIGINT, gracefullyQuit);
 }
 
@@ -34,6 +35,15 @@ Webserv::~Webserv()
 	// 	delete *i;
 	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
 		delete *i;
+}
+
+// add anything useful. Every not recgnized extension is mapped to "default", which tells the browser to download the file
+void	Webserv::docTypesInit()
+{
+	_doc_types[".html"] = "text/html";
+	_doc_types[".css"] = "text/css";
+	_doc_types[".cpp"] = "text/html";
+	_doc_types[".hpp"] = "text/html";
 }
 
 void	fill_line(conf_t *env, list<Parsing::token>::iterator &s)
@@ -47,6 +57,8 @@ void	fill_line(conf_t *env, list<Parsing::token>::iterator &s)
 	t = t.substr(0, t.size() - 1);
 }
 
+// Very ugly. Sorry, just don't look at it.
+// Format be: env[FIRST_WORD] = TRAILING WORDS SEPARATED BY SPACES (no trailing space :) )
 char	Webserv::parseConfig( void )
 {
 	// if ((_conf_fd = open(_conf.c_str(), O_RDONLY)) < 0)
@@ -67,7 +79,7 @@ char	Webserv::parseConfig( void )
 	int			servs = 0;
 	for (list<Parsing::token>::iterator i = tokens.begin(); i != tokens.end(); ++i)
 	{
-		if (i->content.empty() || i->type == '}')
+		if (i->content.empty() || i->type == '}' || i->content == "http")
 			continue ;
 		if (i->content == NEW_SERVER)
 		{
@@ -106,7 +118,8 @@ char	Webserv::parseConfig( void )
 		}
 		fill_line(&_env, i);
 	}
-	// for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
+	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
+		(*i)->setup();
 	// 	(*i)->locReadEnv();
 	return 0;
 }
@@ -125,9 +138,8 @@ void	Webserv::start()
 			sleep(2);
 			continue ;
 		}
-		// cout << "Waitimg.\n";
+		cout << "Waitimg.\n";
 		_sel.selectAndDo();
-
 		usleep(20000);
 	}
 	downAllServers();
@@ -143,7 +155,8 @@ void	Webserv::gracefullyQuit(int sig)
 	_up = false;
 }
 
-void	Webserv::upAllServers()	// PLEASE REDO
+// tries to setup all servers. If one fails it just keeps on building the others
+void	Webserv::upAllServers()
 {
 	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end() && _up;)
 	{

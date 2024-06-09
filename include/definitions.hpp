@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/08 19:50:04 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/09 21:15:57 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ typedef	std::list<Server *>			serv_list;
 typedef	std::list<int>				fd_list;
 typedef	std::list<location_t *>		locations_list;
 typedef	std::map<int, long>			timeout_fd;
+typedef	std::set<string>			str_set;
 
 
 typedef	enum	e_colors
@@ -95,18 +96,10 @@ typedef	enum	e_req
 	FINISH = 3
 }				req_t;
 
-
-struct request_t
-{
-	req_t		type;
-	string		dir;
-	string		host;
-	string		root;
-	location_t	*loc;
-};
-
 typedef enum	e_status_code
 {
+	_ZERO = 0,
+	_REQUEST_DIR_LISTING = 1,
 	CONTINUE = 100,
 	SWITCHING_PROTOCOLS,
 	PROCESSING,
@@ -196,3 +189,8 @@ timeval	timeres(int reset);
 //C_OK(c) exists?
 //(c & C_READ) read access..
 char	checkCharacteristics(const char *path);
+char	checkFastAccess(const char *path);
+char	checkDir(const char *path);
+bool	isOkToSend(char flags);
+bool	exists(char flags);
+char	read_allows(string &allow);

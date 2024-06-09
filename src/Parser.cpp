@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 13:07:36 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/08 14:53:21 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/09 11:51:58 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,12 @@ typedef string::iterator strIt;
 // any implementation MUST handle exception!!!
 string Parsing::read_file(string filename) throw (BadFile)
 {
-	char flags = checkCharacteristics(filename.c_str());
-
-	if (!C_OK(flags))
-		throw (BadFile("file does not exist"));
-	if (!(C_READ & flags))
-		throw (BadFile("missing read permissions"));
-	if (C_DIR & flags)
-		throw (BadFile("is a directory"));
+	// if (!C_OK(flags))
+	// 	throw (BadFile("file does not exist"));
+	// if (!(C_READ & flags))
+	// 	throw (BadFile("missing read permissions"));
+	// if (C_DIR & flags)
+	// 	throw (BadFile("is a directory"));
 
 	std::ifstream file(filename.c_str());
 

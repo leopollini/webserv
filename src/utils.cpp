@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:09 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/08 19:02:43 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/09 21:15:43 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,7 @@ char	checkCharacteristics(const char *path)
 {
 	char c = 0;
 
+	
 	if (access(path, F_OK))
 		return (c);
 	if (!access(path, R_OK))
@@ -100,6 +101,49 @@ char	checkCharacteristics(const char *path)
 		c |= C_FILE;
 	else if (S_ISDIR(statbuff.st_mode))
 		c |= C_DIR;
-
 	return (c);
+}
+// non funziona >:(
+char	checkFastAccess(const char *path)
+{	
+	if (access(path, R_OK))
+		return 0;
+	struct stat statbuff;
+	
+	stat(path, &statbuff);
+	if (!S_ISREG(statbuff.st_mode))
+		return 0;
+
+	return 1;
+}
+
+bool	isOkToSend(char flags)
+{
+	if (flags & (C_READ | C_FILE))
+		return true;
+	return false;
+}
+
+bool	exists(char flags)
+{
+	if (flags & (C_FILE | C_DIR))
+		return true;
+	return false;
+}
+
+char	read_allows(string &allow)
+{
+	char	res = 0;
+
+	if (allow.find("GET") != string::npos)
+		res |= F_GET;
+	if (allow.find("POST") != string::npos)
+		res |= F_POST;
+	if (allow.find("DELETE") != string::npos)
+		res |= F_DELETE;
+	if (allow.find("HEAD") != string::npos)
+		res |= F_HEAD;
+	if (!res)
+		res = ~0;
+	return res;
 }

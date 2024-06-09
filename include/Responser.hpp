@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/08 20:05:14 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/09 20:48:36 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,10 @@ class Responser
 	string		_body;
 	string		_dir;
 	location_t	*_loc;
+	char		_file_flags;
 
 public:
+	bool		keepalive;
 	short		_res_code;
 
 	Responser(Server *s) : _serv(s) {}
@@ -34,6 +36,7 @@ public:
 	void	buildResponseHeader();
 	void	buildResponseBody();
 
+	location_t	*getLoc() {return _loc;}
 
 	void	clear()
 	{
@@ -45,8 +48,11 @@ public:
 	{
 		return _head.size() + _body.size();
 	}
+
+	// Implement error for too long message bodies
 	void	Send(int fd)
 	{
+		cout << "Trying to send " << size() << " bytes to " << fd << "...\n";
 		send(fd, (_head + _body).c_str(), (size()), MSG_EOR);
 	}
 	Responser &operator=(const request_t &t)
@@ -56,12 +62,14 @@ public:
 		return *this;
 	}
 
-
-
-	string	badExplain(short code) {return "OK";}
-	string	getDocType() {return "text/html";}
+	char	&getFileFlags() {return _file_flags;}
+	string	&getDir() {return _dir;}
+	string	badExplain(short code) {return "LOL";}
 	size_t	getBodyLen() {return _body.size();}
 	string	getResServer() {return "Lolserv";}
+	string	getDocType();
+
+	string	res_404();
 };
 
 #endif

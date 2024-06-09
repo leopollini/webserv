@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/08 19:58:01 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/09 20:36:37 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ class	Webserv
 	serv_list		_servers_down;
 	BetterSelect	_sel;
 	conf_t			_env;
+	conf_t			_doc_types;
 
 	Webserv(const Webserv &copy) {(void)copy;}
 	Webserv&	operator=(const Webserv &assignment) {(void)assignment; return *this;}
@@ -44,6 +45,7 @@ class	Webserv
 public:
 	static Webserv &getInstance();
 
+	void	docTypesInit();
 	char	parseConfig();
 	void	start();
 
@@ -57,7 +59,9 @@ public:
 	const string	&getConf() const;
 	void			setConf(string file_name);
 
-	string getEnv( string key) const {return (_env.at(key));}
+	string	&getEnv( string key) {return (_env[key]);}
+	string	findDocType(const string &s) {return _doc_types.find(s)->second;}
+
 	class MissingConfigFile : public std::exception
 	{
 	public:

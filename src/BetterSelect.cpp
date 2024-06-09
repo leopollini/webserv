@@ -121,16 +121,18 @@ void	BetterSelect::postSelect(fd_set &readfds, fd_set &writefds)
 	{
 		if (FD_ISSET(i->first, &writefds))
 		{
-			i->second->respond(i->first);
+			if (!i->second->respond(i->first))
+				rmFd(i->first, i->second);
 			FD_CLR(i->first, &_write_pool);
 			_timeout_map[i->first] = time(NULL);
+				return ;
 		}
 		if (FD_ISSET(i->first, &readfds))
 		{
 			switch (i->second->recieve(i->first))
 			{
 				case (FINISH) :
-					std::cout << "Concluding connection at " << i->first << '\n';
+					std::cout << "Client concluded connection at " << i->first << '\n';
 					rmFd(i->first, i->second);
 					return ;
 				case (INVALID) :
