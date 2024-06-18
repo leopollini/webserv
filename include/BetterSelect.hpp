@@ -41,12 +41,12 @@ struct	BetterSelect
 	void			addConnectionServ(int fd, Server *s);
 	void			delConnectionServ(int pfd);
 	
-	void			selectAndDo();
+	void			selectReadAndWrite();
 	void			postSelect(fd_set &readfds, fd_set &writefds);
 	int				getBiggestFd();
 
+	bool			closeTimedOut();
 	void			rmFd(int fd, Server *s);
-
 };
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 21:37:14 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/18 18:42:48 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,7 @@ void	Webserv::start()
 			continue ;
 		}
 		cout << "Waitimg.\n";
-		_sel.selectAndDo();
+		_sel.selectReadAndWrite();
 		usleep(20000);
 	}
 	downAllServers();

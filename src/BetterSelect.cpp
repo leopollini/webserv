@@ -89,7 +89,28 @@ int	BetterSelect::getBiggestFd()
 	return std::max((--_servs_map.end())->first, (--_clis_map.end())->first);
 }
 
-void	BetterSelect::selectAndDo()
+//iterates through connection map and if anyone has outlived its expiration time it's closed
+// returns whether any connection has been closed
+bool	BetterSelect::closeTimedOut()
+{
+	bool closed_any = false;
+	if (!_clis_map.size())
+		return (closed_any);
+		
+	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); )
+	{
+		if (time(NULL) - _timeout_map[i->first] > CONNECTION_TIMEOUT)
+		{
+			closed_any = true;
+			rmFd(i->first, (i++)->second);
+		}
+		else
+			i++;
+	}
+	return (closed_any);
+}
+
+void	BetterSelect::selectReadAndWrite()
 {
 	int				t;
 	fd_set			readfds = _read_pool;
@@ -98,10 +119,10 @@ void	BetterSelect::selectAndDo()
 	
 	if (!_tot_size)
 		return ;
-	if (_clis_map.size())
-		for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); i++)
-			if (time(NULL) - _timeout_map[i->first] > CONNECTION_TIMEOUT)
-				return (void)rmFd(i->first, i->second);
+
+	if (closeTimedOut())
+		return ;
+	
 	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
 	if (t <= 0)
 		return ;
@@ -115,46 +136,63 @@ void	BetterSelect::rmFd(int fd, Server *s)
 	delListeningConnection(fd);
 }
 
+static void	log_request(req_t type, const int socket_fd)
+{
+	switch (type)
+		{
+	case (FINISH) :
+		std::cout << "Client concluded connection at " << socket_fd << '\n';
+		break ;
+	case (INVALID) :
+		std::cout << "Invalid request. Closing\n";
+		return ;
+	case (GET) :
+		std::cout << "Got a GET request!\n";
+		break ;
+	case (POST) :
+		std::cout << "Got a POST request!\n";
+		break ;
+	case (HEAD) :
+		std::cout << "Got a HEAD request!\n";
+		break ;
+	case (DELETE) :
+		std::cout << "Got a DELETE request!\n";
+		break ;
+	default:
+		break ;
+	}
+}
+
 void	BetterSelect::postSelect(fd_set &readfds, fd_set &writefds)
 {
-	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); i++)
+	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ) //removed i++ to avoid segfault
 	{
-		if (FD_ISSET(i->first, &writefds))
+		if (FD_ISSET(i->first, &readfds)) //if the socket is ready to be read
 		{
-			if (!i->second->respond(i->first))
-				rmFd(i->first, i->second);
-			FD_CLR(i->first, &_write_pool);
-			_timeout_map[i->first] = time(NULL);
-				return ;
-		}
-		if (FD_ISSET(i->first, &readfds))
-		{
-			switch (i->second->recieve(i->first))
+			req_t request_type = i->second->recieve(i->first);
+
+			log_request(request_type, i->first);
+			if (request_type == FINISH || request_type == INVALID)
 			{
-				case (FINISH) :
-					std::cout << "Client concluded connection at " << i->first << '\n';
-					rmFd(i->first, i->second);
-					return ;
-				case (INVALID) :
-					std::cout << "Invalid request. Closing\n";
-					rmFd(i->first, i->second);
-					return ;
-				case (GET) :
-					std::cout << "Got a GET request!\n";
-				 break ;
-				case (POST) :
-					std::cout << "Got a POST request!\n";
-				 break ;
-				case (HEAD) :
-					std::cout << "Got a HEAD request!\n";
-				 break ;
-				case (DELETE) :
-					std::cout << "Got a DELETE request!\n";
-				 break ;
+				rmFd(i->first, (i++)->second); // (i++) is important
+				continue ;
 			}
-			FD_SET(i->first, &_write_pool);
+		
+			FD_SET(i->first, &_write_pool); //can allow next bloc to be executed
 			_timeout_map[i->first] = time(NULL);
 		}
+
+		if (FD_ISSET(i->first, &writefds)) //if the socket is ready to be written on
+		{
+			FD_CLR(i->first, &_write_pool);
+			if (!i->second->respond(i->first))
+			{
+				rmFd(i->first, (i++)->second); // (i++) avoids segfault 
+				continue ;
+			}
+			_timeout_map[i->first] = time(NULL);
+		}
+		i++;
 	}
 	for (connections_map::iterator i = _servs_map.begin(); i != _servs_map.end(); i++)
 		if (FD_ISSET(i->first, &readfds))
@@ -164,3 +202,4 @@ void	BetterSelect::postSelect(fd_set &readfds, fd_set &writefds)
 			timestamp("Server " + itoa(i->second->getId()) + " created new connection at fd " + itoa(fd) + '\n', INFO);
 		}
 }
+
