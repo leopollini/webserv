@@ -110,25 +110,19 @@ bool	BetterSelect::closeTimedOut()
 	return (closed_any);
 }
 
-void	BetterSelect::selectReadAndWrite()
+void	BetterSelect::_acceptNewConnections(fd_set &read_fds)
 {
-	int				t;
-	fd_set			readfds = _read_pool;
-	fd_set			writefds = _write_pool;
-	struct timeval	timeout = SEL_TIMEOUT;
-	
-	if (!_tot_size)
-		return ;
-
-	if (closeTimedOut())
-		return ;
-	
-	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
-	if (t <= 0)
-		return ;
-	postSelect(readfds, writefds);
-	return ;
+	for (connections_map::iterator i = _servs_map.begin(); i != _servs_map.end(); i++)
+	{
+		if (FD_ISSET(i->first, &read_fds))
+		{
+			int fd = i->second->Accept();
+			addListeningConnection(fd, i->second);
+			timestamp("Server " + itoa(i->second->getId()) + " created new connection at fd " + itoa(fd) + '\n', INFO);
+		}
+	}
 }
+
 
 void	BetterSelect::rmFd(int fd, Server *s)
 {
@@ -163,7 +157,7 @@ static void	log_request(req_t type, const int socket_fd)
 	}
 }
 
-void	BetterSelect::postSelect(fd_set &readfds, fd_set &writefds)
+void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 {
 	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ) //removed i++ to avoid segfault
 	{
@@ -178,7 +172,7 @@ void	BetterSelect::postSelect(fd_set &readfds, fd_set &writefds)
 				continue ;
 			}
 		
-			FD_SET(i->first, &_write_pool); //can allow next bloc to be executed
+			FD_SET(i->first, &_write_pool); //can allow next block to be executed
 			_timeout_map[i->first] = time(NULL);
 		}
 
@@ -194,12 +188,25 @@ void	BetterSelect::postSelect(fd_set &readfds, fd_set &writefds)
 		}
 		i++;
 	}
-	for (connections_map::iterator i = _servs_map.begin(); i != _servs_map.end(); i++)
-		if (FD_ISSET(i->first, &readfds))
-		{
-			int fd = i->second->Accept();
-			addListeningConnection(fd, i->second);
-			timestamp("Server " + itoa(i->second->getId()) + " created new connection at fd " + itoa(fd) + '\n', INFO);
-		}
 }
 
+void	BetterSelect::selectReadAndWrite()
+{
+	int				t;
+	fd_set			readfds = _read_pool;
+	fd_set			writefds = _write_pool;
+	struct timeval	timeout = SEL_TIMEOUT;
+	
+	if (!_tot_size)
+		return ;
+
+	if (closeTimedOut())
+		return ;
+	
+	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
+	if (t <= 0)
+		return ;
+	_acceptNewConnections(readfds);
+	_handleRequestResponse(readfds, writefds);
+	return ;
+}
