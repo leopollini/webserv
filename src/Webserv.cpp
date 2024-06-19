@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/18 18:42:48 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/19 19:15:42 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ void	Webserv::start()
 			sleep(2);
 			continue ;
 		}
-		cout << "Waitimg.\n";
+		cout << "Waiting.\n";
 		_sel.selectReadAndWrite();
 		usleep(20000);
 	}
