@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:09 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 21:15:43 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/21 21:16:33 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,4 +146,48 @@ char	read_allows(string &allow)
 	if (!res)
 		res = ~0;
 	return res;
+}
+
+//analyzes line and returns the method type
+req_t	request_method(string request_line)
+{
+	size_t	first_not_space = request_line.find_first_not_of(' '), space_pos;
+	if (first_not_space == string::npos)
+		return (INVALID);
+		
+	space_pos = request_line.find(' ', first_not_space);
+	if (space_pos == string::npos)
+		return (INVALID);
+	string method = request_line.substr(first_not_space, space_pos);
+	
+	if (method == "GET")
+		return (GET);
+	else if (method == "POST")
+		return (POST);
+	else if (method == "DELETE")
+		return (DELETE);
+	else if (method == "HEAD")
+		return (HEAD);
+	
+	return (INVALID);
+}
+
+string	request_type_str(req_t type)
+{
+	switch (type)
+	{
+		case GET:
+			return ("GET");
+		case POST:
+			return ("POST");
+		case HEAD:
+			return ("HEAD");
+		case DELETE:
+			return ("DELETE");
+		case INVALID:
+			return ("INVALID"); 
+		default:
+			return ("");
+	}
+	// return ("");
 }

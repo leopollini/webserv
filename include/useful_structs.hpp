@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   useful_structs.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/09 16:58:53 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 17:05:12 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/21 22:32:54 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 # define USEFUL_STRUCTS_HPP
 
 # include "utils.hpp"
+
+typedef std::map<string, string> var_map_t;
 
 struct	location_t
 {
@@ -27,6 +29,9 @@ struct request_t
 {
 	req_t		type;
 	string		dir;
+	var_map_t	header;
+	char		http_version[4];
+	string		body;
 	string		host;
 	string		root;
 	location_t	*loc;

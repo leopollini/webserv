@@ -3,20 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   Server_utils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 21:36:04 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/21 23:31:56 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 #include "../include/Responser.hpp"
 #include "Webserv.hpp"
-
+#include <poll.h>
 
 Server::Server(short id) : _id(id), _clientfds(), _state(0), _down_count(0), _resp(this)
 {
+	// _received_head[HEAD_BUFFER] = 0;
 	timestamp("Added new Server! Id: " + itoa(_id) + "!\n", CYAN);
 }
 
@@ -160,15 +161,158 @@ string	&Server::getEnv(string key, location_t *location)
 	return (Webserv::getInstance().getEnv(key));
 }
 
+//sets method type, url and protocol version
+static void parse_request_line(request_t &request, const string &req_line)
+{	
+	size_t	field_begin;
+	if (!req_line.compare(0, 4, "GET "))
+	{
+		request.type = GET;
+		field_begin = 4;
+	}
+	else if (!req_line.compare(0, 5, "POST "))
+	{
+		request.type = POST;
+		field_begin = 5;
+	}
+	else if (!req_line.compare(0, 7, "DELETE "))
+	{
+		request.type = DELETE;
+		field_begin = 7;
+	}
+	else if (!req_line.compare(0, 5, "HEAD "))
+	{
+		request.type = HEAD;
+		field_begin = 5;
+	}
+	else
+	{
+		request.type = INVALID;
+		return ;
+	}
+
+	field_begin = req_line.find_first_not_of(' ', field_begin);
+	if (field_begin == string::npos)
+	{
+		request.type = INVALID;
+		return ;
+	}
+
+	size_t	field_end = req_line.find(' ', field_begin);
+	size_t	protocol_version = req_line.find("HTTP/");
+	if (field_end == string::npos || protocol_version == string::npos)
+	{
+		if (field_end != string::npos)
+		{
+			request.type = INVALID;
+			return ;
+		}
+		string(DEFAULT_PROTOCOL).copy(request.http_version, 4, 0);
+		request.dir = req_line.substr(field_begin);
+		return ;
+	}
+	request.dir = req_line.substr(field_begin, field_end - field_begin);
+	
+	req_line.copy(request.http_version, 4, protocol_version + 5);
+	//checks if http_version matches "1.n" or "1"
+	if (request.http_version[0] != '1' ||
+	(request.http_version[1] != '\0' && (request.http_version[1] != '.' || !isdigit(request.http_version[2]))))
+		request.type = INVALID;
+}	
+
+// splits line at the first \n then header from body at "\r\n\r\n"
+static void	split_request(string &line, string &header, string &body)
+{
+	header = "";
+	body = "";
+	size_t line_start = line.find_first_not_of(' ');
+	if (line_start == string::npos)
+		return ;
+
+	size_t header_start = line.find('\n');
+	if (header_start == string::npos)
+		return ;
+
+	size_t body_start = line.find("\r\n\r\n", header_start);
+	if (body_start != string::npos)
+		body = line.substr(body_start + 4);
+	else
+		body_start = line.size();
+	header = line.substr(header_start + 1, body_start - header_start);
+	line = line.substr(line_start, header_start - line_start);
+}
+
+static string read_remaining_body(char *read_buffer, size_t to_read, int fd)
+{
+	string	body_tail = "";
+	pollfd	ps = {fd, POLLIN, 0};
+	int		bytes_read = 1;
+	
+	while (to_read && bytes_read > 0)
+	{
+		if (poll(&ps, 1, 1) || !(ps.revents & POLLIN))
+			return (body_tail);
+		
+		bytes_read = read(fd, read_buffer, std::min(to_read, static_cast<size_t>(HEAD_BUFFER)));
+		if (bytes_read < 0)
+			break;
+			
+		read_buffer[bytes_read] = 0;
+		body_tail += read_buffer;
+		to_read -= bytes_read;
+	}
+	return (body_tail);
+}
+
+static void parse_request_header(string header, request_t &request)
+{
+	//parses header into request variable map (request.header)
+}
+
 req_t Server::recieve(int fd)
 {
+	request_t	&request = _current_request;
+	string		req_line;
+	string		req_header;
+	size_t		msg_len;
+	char		read_buffer[HEAD_BUFFER + 1];
+	read_buffer[HEAD_BUFFER] = 0;
 	cout << "Readimg from " << fd << "...\n";
-	if (!(_msg_len = read(fd, _recieved_head, HEAD_BUFFER)))
+	
+	msg_len = read(fd, read_buffer, HEAD_BUFFER); // this also reads the body. What if the body exceeds the head_buffer size?
+	
+	if (!msg_len)
 		return FINISH;
-	if (_msg_len == HEAD_BUFFER)
-		throw HeadMsgTooLong();
-	_recieved_head[_msg_len] = 0;
-	return parseMsg(fd);
+
+	req_line = string(read_buffer, msg_len);
+	size_t head_end = req_line.find("\r\n\r\n");
+	if (msg_len == HEAD_BUFFER && head_end == string::npos)
+		throw HeadMsgTooLong(); // html error 431 (request header too large)
+	
+	split_request(req_line, req_header, request.body);
+	printHttpRequest(req_line, fd);
+	parse_request_line(request, req_line);
+	if (request.type == INVALID)
+		return (INVALID);
+	
+	parse_request_header(req_header, _current_request);
+	_current_request.littel_parse(this);
+	matchRequestLocation(_current_request);
+
+	size_t body_size = static_cast<size_t>(atoi(request.header[H_BODY_SIZE].c_str()));
+	if (body_size > atoi(getEnv(L_MAX_BODY_SIZE, request.loc).c_str()))
+		throw BodyMsgTooLong();
+
+	if (msg_len == HEAD_BUFFER && body_size > request.body.size())
+		request.body += read_remaining_body(read_buffer, body_size - request.body.size());
+	
+	
+	
+
+
+	// truncate location identification part of dir
+	// return parseMsg(fd);
+	return request.type;
 }
 
 //	################ Here are other function definitions of classes that depend to Server / to which Server is dependant. Sorry i could not create a separate file ):
@@ -212,4 +356,3 @@ string	Responser::getDocType()
 		return "default";
 	return t;
 }
-

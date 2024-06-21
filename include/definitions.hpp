@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   definitions.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/09 21:15:57 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/21 23:26:48 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,26 @@
 # define NO_SERVER_SLEEP_TIME_MS 30000
 # define MAX_CONNECTIONS 100
 # define DEFAULT_CONF "test.config"
+# define DEFAULT_PROTOCOL "1.0"
 # define CRNL "\r\n"
 # define CONNECTION_TIMEOUT 60 // measured in secs
+
+# define NEW_SERVER "server"
+# define NAME "server_name"
+# define PORT "listen"
+# define LOCATION "location"
+# define LOC_ROOT "root"
+# define L_DIR "location"
+# define L_INDEX "index"
+# define L_DIR_LISTING "autoindex"
+# define E_405 "e_405"
+# define E_404 "e_404"
+# define E_403 "e_403"
+# define L_AUTOINDEX "autoindex"
+# define L_ALLOW_METHODS "allow_methods"
+# define L_MAX_BODY_SIZE "max_body_size"
+
+# define H_BODY_SIZE "Content-Length" 
 
 using std::string;
 using std::cout;
@@ -194,3 +212,6 @@ char	checkDir(const char *path);
 bool	isOkToSend(char flags);
 bool	exists(char flags);
 char	read_allows(string &allow);
+req_t	request_method(string request_line);
+//returns string according to type
+string	request_type_str(req_t type);

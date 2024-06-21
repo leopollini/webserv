@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 21:36:49 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/21 01:17:24 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,26 +16,14 @@
 
 req_t Server::parseMsg(int fd)
 {
-	string	msg(_recieved_head);
-	string	cmd;
+	string	msg(_received_head);
+	string	method;
 	size_t	space_pos;
 
 	msg = msg.substr(0, msg.find('\n'));
-	printHttpRequest(msg, fd);
-	cmd = msg.substr(0, space_pos = msg.find(' '));
-
-	if (space_pos > msg.size())
-		return INVALID;
-	//  FIND HOST!!!
-	_current_request.type = INVALID;
-	if (cmd == "GET")
-		_current_request.type = GET;
-	else if (cmd == "POST")
-		_current_request.type = POST;
-	else if (cmd == "DELETE")
-		_current_request.type = DELETE;
-	else if (cmd == "HEAD")
-		_current_request.type = HEAD;
+	// printHttpRequest(msg, fd);
+	method = msg.substr(0, space_pos = msg.find(' '));
+	_current_request.type = request_method(_received_head);
 
 	_current_request.dir = msg.substr(space_pos + 1, msg.find(' ', space_pos + 1) - space_pos - 1);
 
@@ -43,7 +31,7 @@ req_t Server::parseMsg(int fd)
 	// truncate location identification part of dir
 	_current_request.littel_parse(this);
 	return _current_request.type;
-}
+}								
 
 static bool location_isvalid(const location_t *loc, string &req)
 {

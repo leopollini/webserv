@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 21:19:23 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/21 23:28:35 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # include "Responser.hpp"
 # include "useful_structs.hpp"
 
-# define HEAD_BUFFER 3000
+# define HEAD_BUFFER 3000u
 # define HEAD_RESERVE 130
 
 class Responser;
@@ -33,8 +33,6 @@ class	Server
 	BetterSocket	_sock;
 	char			_state;
 	conf_t			_env;
-	char			_recieved_head[HEAD_BUFFER];
-	size_t			_msg_len;
 	locations_list	_loc_ls;
 
 	request_t		_current_request;
@@ -109,6 +107,11 @@ public:
 	{
 	public:
 		virtual const char	*what() const throw() {return "Detected location directive without trailing directory";}
+	};
+	class BodyMsgTooLong : public std::exception
+	{
+	public:
+		virtual const char	*what() const throw() {return "Content size exceeded allowed body size";}
 	};
 };
 
