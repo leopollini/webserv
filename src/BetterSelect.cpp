@@ -163,7 +163,7 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 	{
 		if (FD_ISSET(i->first, &readfds)) //if the socket is ready to be read
 		{
-			req_t request_type = i->second->recieve(i->first);
+			req_t request_type = i->second->receive(i->first);
 
 			log_request(request_type, i->first);
 			if (request_type == FINISH || request_type == INVALID)

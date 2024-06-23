@@ -3,17 +3,17 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+         #
+#    By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/17 08:42:40 by lpollini          #+#    #+#              #
-#    Updated: 2024/06/09 19:46:53 by lpollini         ###   ########.fr        #
+#    Updated: 2024/06/22 18:07:18 by fedmarti         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		= webserv
 	
 CC			= c++
-FLAGS		= -Wall -Wextra -g $(addprefix -I, $(INCLUDES)) #-std=c++98
+FLAGS		= -Wall -Wextra -g $(addprefix -I, $(INCLUDES)) -std=c++98
 RM			= rm -rf
 
 INCLUDES	= include/

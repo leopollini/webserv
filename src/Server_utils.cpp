@@ -6,7 +6,7 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/21 23:31:56 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/23 02:03:02 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "Webserv.hpp"
 #include <poll.h>
 
-Server::Server(short id) : _id(id), _clientfds(), _state(0), _down_count(0), _resp(this)
+Server::Server(short id) : _id(id), _clientfds(), _state(0), _down_count(0), _resp(this), _current_request()
 {
 	// _received_head[HEAD_BUFFER] = 0;
 	timestamp("Added new Server! Id: " + itoa(_id) + "!\n", CYAN);
@@ -105,9 +105,9 @@ void Server::closeConnection(int fd)
 	close(fd);
 }
 
-void Server::printHttpRequest(string &msg, int fd_from)
+void Server::HttpRequestLog(string &request_line, int fd_from)
 {
-	timestamp("Server " + itoa(_id) + ": Recieved from connection at fd " + itoa(fd_from) + ":\n\t" + msg + "\n", REC_MSG_PRNT);
+	timestamp("Server " + itoa(_id) + ": Recieved from connection at fd " + itoa(fd_from) + ":\n\t" + request_line + "\n", REC_MSG_PRNT);
 }
 
 status_code_t	Server::manageDir()
@@ -161,7 +161,7 @@ string	&Server::getEnv(string key, location_t *location)
 	return (Webserv::getInstance().getEnv(key));
 }
 
-//sets method type, url and protocol version
+//sets method type, url and protocol version (GET, /, HTTP/1.1)
 static void parse_request_line(request_t &request, const string &req_line)
 {	
 	size_t	field_begin;
@@ -207,13 +207,13 @@ static void parse_request_line(request_t &request, const string &req_line)
 			request.type = INVALID;
 			return ;
 		}
-		string(DEFAULT_PROTOCOL).copy(request.http_version, 4, 0);
+		string(DEFAULT_PROTOCOL).copy(request.http_version, 3, 0);
 		request.dir = req_line.substr(field_begin);
 		return ;
 	}
 	request.dir = req_line.substr(field_begin, field_end - field_begin);
 	
-	req_line.copy(request.http_version, 4, protocol_version + 5);
+	req_line.copy(request.http_version, 3, protocol_version + 5);
 	//checks if http_version matches "1.n" or "1"
 	if (request.http_version[0] != '1' ||
 	(request.http_version[1] != '\0' && (request.http_version[1] != '.' || !isdigit(request.http_version[2]))))
@@ -229,7 +229,7 @@ static void	split_request(string &line, string &header, string &body)
 	if (line_start == string::npos)
 		return ;
 
-	size_t header_start = line.find('\n');
+	size_t header_start = line.find("\r\n");
 	if (header_start == string::npos)
 		return ;
 
@@ -238,7 +238,7 @@ static void	split_request(string &line, string &header, string &body)
 		body = line.substr(body_start + 4);
 	else
 		body_start = line.size();
-	header = line.substr(header_start + 1, body_start - header_start);
+	header = line.substr(header_start + 2, body_start - header_start);
 	line = line.substr(line_start, header_start - line_start);
 }
 
@@ -267,50 +267,69 @@ static string read_remaining_body(char *read_buffer, size_t to_read, int fd)
 static void parse_request_header(string header, request_t &request)
 {
 	//parses header into request variable map (request.header)
+	std::map<string, string> &map = request.header;
+	
+	map.clear();
+	for (size_t i = 0, endl; i < header.size(); i = endl + 1)
+	{
+		endl = header.find("\r\n", i);
+		if (endl == string::npos)
+			endl = header.size();
+		
+		string key, value;
+		size_t	separator = header.find(':', i);
+		if (separator == string::npos)
+			continue;
+		key = strip(header.substr(i, separator - i), " \n\r");
+		value = strip(header.substr(separator + 1, endl - separator), " \n\r");
+		map[key] = value;
+	}
+
 }
 
-req_t Server::recieve(int fd)
+req_t Server::receive(int fd)
 {
 	request_t	&request = _current_request;
 	string		req_line;
 	string		req_header;
-	size_t		msg_len;
+	size_t		bytes_read;
 	char		read_buffer[HEAD_BUFFER + 1];
 	read_buffer[HEAD_BUFFER] = 0;
 	cout << "Readimg from " << fd << "...\n";
 	
-	msg_len = read(fd, read_buffer, HEAD_BUFFER); // this also reads the body. What if the body exceeds the head_buffer size?
+	bytes_read = read(fd, read_buffer, HEAD_BUFFER); // this also reads the body. What if the body exceeds the head_buffer size?
 	
-	if (!msg_len)
+	if (!bytes_read)
 		return FINISH;
 
-	req_line = string(read_buffer, msg_len);
+	req_line = string(read_buffer, bytes_read);
 	size_t head_end = req_line.find("\r\n\r\n");
-	if (msg_len == HEAD_BUFFER && head_end == string::npos)
+	if (bytes_read == HEAD_BUFFER && head_end == string::npos)
 		throw HeadMsgTooLong(); // html error 431 (request header too large)
 	
 	split_request(req_line, req_header, request.body);
-	printHttpRequest(req_line, fd);
+	HttpRequestLog(req_line, fd);
 	parse_request_line(request, req_line);
 	if (request.type == INVALID)
 		return (INVALID);
 	
-	parse_request_header(req_header, _current_request);
-	_current_request.littel_parse(this);
-	matchRequestLocation(_current_request);
-
-	size_t body_size = static_cast<size_t>(atoi(request.header[H_BODY_SIZE].c_str()));
-	if (body_size > atoi(getEnv(L_MAX_BODY_SIZE, request.loc).c_str()))
-		throw BodyMsgTooLong();
-
-	if (msg_len == HEAD_BUFFER && body_size > request.body.size())
-		request.body += read_remaining_body(read_buffer, body_size - request.body.size());
-	
-	
-	
-
-
+	parse_request_header(req_header, request);
 	// truncate location identification part of dir
+	matchRequestLocation(request);
+	request.littel_parse(this); //wtf does this even do
+
+	if (request.type == POST || request.type == DELETE) // all handled methods with body
+	{
+		size_t body_size = static_cast<size_t>(atoi(request.header.at(H_BODY_SIZE).c_str()));
+		string &max_body_size = getEnv(L_MAX_BODY_SIZE, request.loc);
+
+		if (max_body_size != "" && body_size > atoi(max_body_size.c_str()))
+			throw BodyMsgTooLong();
+
+		if (bytes_read == HEAD_BUFFER && body_size > request.body.size())
+			request.body += read_remaining_body(read_buffer, body_size - request.body.size(), fd);
+	}
+	// printHttpRequest(request, std::cout);
 	// return parseMsg(fd);
 	return request.type;
 }

@@ -6,12 +6,12 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:09 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/21 21:16:33 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/22 18:08:45 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/utils.hpp"
-
+#include "useful_structs.hpp"
 string itoa(int arg)
 {
 	std::ostringstream sstr;
@@ -190,4 +190,35 @@ string	request_type_str(req_t type)
 			return ("");
 	}
 	// return ("");
+}
+
+string	strip(string str, char *charset)
+{
+	size_t start, end;
+
+	start = str.find_first_not_of(charset);
+	end = str.find_last_not_of(charset);
+	if (start == string::npos)
+		return ("");
+	return (str.substr(start, end - start + 1));
+}
+
+void	printHttpRequest(request_t &request, std::ostream &out)
+{
+	if (request.type == INVALID)
+	{
+		std::cout << "Invalid request" << std::endl;
+		return;
+	}
+
+	out << request_type_str(request.type);
+
+	out << " " << request.dir;
+	out << " HTTP/" << request.http_version << '\n';
+	for (var_map_t::const_iterator it = request.header.begin(); it != request.header.end(); it++)
+	{
+		out << it->first << ": " << it->second << '\n';
+	}
+	out << "\r\n\r\n";
+	out << request.body << std::endl;
 }

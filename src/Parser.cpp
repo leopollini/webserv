@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 13:07:36 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/09 11:51:58 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/22 18:10:53 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ static token new_token(string &string, size_t start, size_t &end) throw (ErrorTy
 
 #include <iostream>
 #include <algorithm>
+/*
 //Will be removed
 const std::map<enum type, const char *> E_NAME = {{BASIC, "Basic"},
 		{STRINGLITERAL, "StringLiteral"},
@@ -95,6 +96,7 @@ const std::map<enum type, const char *> E_NAME = {{BASIC, "Basic"},
 		{BREAKLINE, "BreakLine"},
 		{COMMENT, "Comment"}	
 	};
+	*/
 
 static void _print_token(token tkn)
 {

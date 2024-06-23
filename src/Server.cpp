@@ -6,7 +6,7 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/21 01:17:24 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/22 18:04:19 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,14 @@
 #include "../include/Responser.hpp"
 #include "Webserv.hpp"
 
-req_t Server::parseMsg(int fd)
+/*req_t Server::parseMsg(int fd)
 {
 	string	msg(_received_head);
 	string	method;
 	size_t	space_pos;
 
 	msg = msg.substr(0, msg.find('\n'));
-	// printHttpRequest(msg, fd);
+	// HttpRequestLog(msg, fd);
 	method = msg.substr(0, space_pos = msg.find(' '));
 	_current_request.type = request_method(_received_head);
 
@@ -31,7 +31,7 @@ req_t Server::parseMsg(int fd)
 	// truncate location identification part of dir
 	_current_request.littel_parse(this);
 	return _current_request.type;
-}								
+}*/				
 
 static bool location_isvalid(const location_t *loc, string &req)
 {

@@ -6,7 +6,7 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/21 23:26:48 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/22 18:20:19 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,3 +215,7 @@ char	read_allows(string &allow);
 req_t	request_method(string request_line);
 //returns string according to type
 string	request_type_str(req_t type);
+string	strip(string str, char *charset);
+
+typedef struct request_t;
+void	printHttpRequest(request_t &request, std::ostream &out);

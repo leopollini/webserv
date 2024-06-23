@@ -6,7 +6,7 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/21 23:28:35 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/22 18:04:34 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,13 +63,12 @@ public:
 	void	tryup();
 	void	up();
 	void	down();
-	req_t	recieve(int fd);
+	req_t	receive(int fd);
 	bool	respond(int fd);
 	void	closeConnection(int fd);
-	req_t	parseMsg(int fd);
+	// req_t	parseMsg(int fd);
 
-	void	printHttpRequest(string &msg, int fd_from);
-
+	void	HttpRequestLog(string &request_line, int fd_from);
 
 	void 	matchRequestLocation(request_t &request) const; 
 	
