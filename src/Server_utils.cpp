@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_utils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/23 02:03:02 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/24 23:13:22 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,7 +242,7 @@ static void	split_request(string &line, string &header, string &body)
 	line = line.substr(line_start, header_start - line_start);
 }
 
-static string read_remaining_body(char *read_buffer, size_t to_read, int fd)
+/*static string read_remaining_body(char *read_buffer, size_t to_read, int fd)
 {
 	string	body_tail = "";
 	pollfd	ps = {fd, POLLIN, 0};
@@ -250,8 +250,8 @@ static string read_remaining_body(char *read_buffer, size_t to_read, int fd)
 	
 	while (to_read && bytes_read > 0)
 	{
-		if (poll(&ps, 1, 1) || !(ps.revents & POLLIN))
-			return (body_tail);
+		// if (poll(&ps, 1, 1) < 1 || !(ps.revents & POLLIN))
+			// return (body_tail);
 		
 		bytes_read = read(fd, read_buffer, std::min(to_read, static_cast<size_t>(HEAD_BUFFER)));
 		if (bytes_read < 0)
@@ -262,7 +262,7 @@ static string read_remaining_body(char *read_buffer, size_t to_read, int fd)
 		to_read -= bytes_read;
 	}
 	return (body_tail);
-}
+}*/
 
 static void parse_request_header(string header, request_t &request)
 {
@@ -287,6 +287,27 @@ static void parse_request_header(string header, request_t &request)
 
 }
 
+//reads n bytes from the given fd to complete a previously incomplete request
+static	req_t continue_incomplete_request(request_t &request, char *read_buffer, int fd)
+{
+	size_t	tot_size = static_cast<size_t>(atoi(request.header[H_BODY_SIZE].c_str()));
+	string	body_tail = "";
+	int		bytes_read = 1;
+	
+	bytes_read = read(fd, read_buffer, std::min(tot_size - request.body.size() + 1, static_cast<size_t>(HEAD_BUFFER)));
+	if (bytes_read < 0)
+		return (INVALID);
+	read_buffer[bytes_read] = 0;
+	body_tail += read_buffer;
+	request.body += body_tail;
+	if (tot_size > request.body.size())
+		return (INCOMPLETE);
+
+	request.complete = true;
+	printHttpRequest(request);
+	return (request.type);
+}
+
 req_t Server::receive(int fd)
 {
 	request_t	&request = _current_request;
@@ -296,6 +317,9 @@ req_t Server::receive(int fd)
 	char		read_buffer[HEAD_BUFFER + 1];
 	read_buffer[HEAD_BUFFER] = 0;
 	cout << "Readimg from " << fd << "...\n";
+	
+	if (!request.complete)
+		return (continue_incomplete_request(request, read_buffer, fd)); //can also return incomplete
 	
 	bytes_read = read(fd, read_buffer, HEAD_BUFFER); // this also reads the body. What if the body exceeds the head_buffer size?
 	
@@ -320,16 +344,19 @@ req_t Server::receive(int fd)
 
 	if (request.type == POST || request.type == DELETE) // all handled methods with body
 	{
-		size_t body_size = static_cast<size_t>(atoi(request.header.at(H_BODY_SIZE).c_str()));
+		size_t body_size = static_cast<size_t>(atoi(request.header[H_BODY_SIZE].c_str()));
 		string &max_body_size = getEnv(L_MAX_BODY_SIZE, request.loc);
 
 		if (max_body_size != "" && body_size > atoi(max_body_size.c_str()))
 			throw BodyMsgTooLong();
 
-		if (bytes_read == HEAD_BUFFER && body_size > request.body.size())
-			request.body += read_remaining_body(read_buffer, body_size - request.body.size(), fd);
+		if ( bytes_read == HEAD_BUFFER && body_size > request.body.size())
+		{
+			request.complete = false;
+			return INCOMPLETE;
+		}
 	}
-	// printHttpRequest(request, std::cout);
+	printHttpRequest(request);
 	// return parseMsg(fd);
 	return request.type;
 }

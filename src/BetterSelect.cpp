@@ -171,8 +171,9 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 				rmFd(i->first, (i++)->second); // (i++) is important
 				continue ;
 			}
-		
-			FD_SET(i->first, &_write_pool); //can allow next block to be executed
+			if (request_type == INCOMPLETE)
+				continue;
+			FD_SET(i->first, &_write_pool);
 			_timeout_map[i->first] = time(NULL);
 		}
 

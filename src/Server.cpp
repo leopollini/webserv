@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/22 18:04:19 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/24 19:30:23 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ static bool location_isvalid(const location_t *loc, string &req)
 }
 
 //matches the request directory with a location and sets its location_t pointer
-void	Server::matchRequestLocation(request_t &request) const
+void	Server:: matchRequestLocation(request_t &request) const
 {
 	if (request.type == INVALID)
 		// *(int *)(0); //crash
@@ -126,7 +126,7 @@ bool Server::respond(int fd)
 	if (_resp._res_code == _REQUEST_DIR_LISTING)
 	// 	autoindexManager();
 	//					To be implemented...
-		_resp.getDir() = "";
+	_resp.getDir() = "";
 	_resp.buildResponseBody();
 	_resp.buildResponseHeader();
 	_resp.Send(fd);

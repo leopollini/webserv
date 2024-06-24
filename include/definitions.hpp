@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   definitions.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/22 18:20:19 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/24 21:58:59 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,8 @@ typedef	enum	e_req
 	HEAD = F_HEAD,
 	POST = F_POST,
 	DELETE = F_DELETE,
-	FINISH = 3
+	FINISH = 3,
+	INCOMPLETE = 5
 }				req_t;
 
 typedef enum	e_status_code
@@ -218,4 +219,4 @@ string	request_type_str(req_t type);
 string	strip(string str, char *charset);
 
 typedef struct request_t;
-void	printHttpRequest(request_t &request, std::ostream &out);
+void	printHttpRequest(request_t &request, std::ostream &out = std::cout);

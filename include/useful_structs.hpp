@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   useful_structs.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/09 16:58:53 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/22 18:27:35 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/24 22:25:38 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,10 @@ struct request_t
 	string		body;
 	string		root;
 	location_t	*loc;
+	bool		complete;
 
 	void	littel_parse(Server *s);
-	request_t() : type(INVALID), dir(""), header(), http_version(DEFAULT_PROTOCOL), body(""), root(""), loc(NULL) {};
+	request_t() : type(INVALID), dir(""), header(), http_version(DEFAULT_PROTOCOL), body(""), root(""), loc(NULL), complete(true) {};
 };
 
 #endif
