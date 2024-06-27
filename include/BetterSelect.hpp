@@ -19,6 +19,7 @@
 
 # define SEL_TIMEOUT {1, 0}
 
+
 struct	BetterSelect
 {
 	fd_set			_read_pool;
@@ -48,6 +49,7 @@ struct	BetterSelect
 	bool			closeTimedOut();
 	void			rmFd(int fd, Server *s);
 private:
+
 	void			_handleRequestResponse(fd_set &readfds, fd_set &writefds);
 	void			_acceptNewConnections(fd_set &read_fds);
 };

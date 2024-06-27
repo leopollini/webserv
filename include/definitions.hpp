@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/24 21:58:59 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/27 22:07:09 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@
 # define CONNECT MAGENTA
 # define REC_MSG_PRNT GRAYI,COLORII
 
+# define SERVER_RETRY_TIME 200000
+# define SHORT_REVIVE_TIME 20000
 # define DOWN_SERVER_TRIES_MAX 20
 # define DOWN_SERVER_SLEEP_MS 2000
 # define DOWN_SERVER_MAX 20

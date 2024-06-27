@@ -10,7 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/BetterSelect.hpp"
+#include "BetterSelect.hpp"
+#include "Webserv.hpp"
 
 BetterSelect::BetterSelect() : _tot_size(0)
 {

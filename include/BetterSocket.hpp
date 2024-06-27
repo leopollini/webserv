@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BetterSocket.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:01:08 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 21:18:58 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/27 22:40:06 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define BETTERSOCKET_HPP
 
 # include "utils.hpp"
+# include "definitions.hpp"
 
 # define CLIENTS_MAX 10
 

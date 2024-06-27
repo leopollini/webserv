@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/22 18:04:34 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/27 22:36:54 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@
 # include "Responser.hpp"
 # include "useful_structs.hpp"
 
-# define HEAD_BUFFER 3000u
 # define HEAD_RESERVE 130
 
 class Responser;
@@ -37,6 +36,7 @@ class	Server
 
 	request_t		_current_request;
 	Responser		_resp;
+	time_t			_lastUpAttempt;
 
 	Server&	operator=(const Server &assignment) {(void)assignment; return *this;}
 	Server(const Server &copy) : _resp(this) {(void)copy;}
@@ -60,7 +60,7 @@ public:
 	
 	void	setup();
 	
-	void	tryup();
+	bool	tryUp(time_t retry_time);
 	void	up();
 	void	down();
 	req_t	receive(int fd);

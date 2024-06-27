@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 20:36:37 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/06/27 23:31:49 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 # include "BetterSelect.hpp"
 # include "Server.hpp"
 # include "Webserv.hpp"
+
+# define BUFFER_SIZE 3000ul
 
 class	Server;
 
@@ -43,6 +45,7 @@ class	Webserv
 	// Webserv(const char *filename = DEFAULT_CONF);
 	~Webserv();
 public:
+	char 			read_buff[BUFFER_SIZE + 1];
 	static Webserv &getInstance();
 
 	void	docTypesInit();
@@ -54,7 +57,13 @@ public:
 	static void	gracefullyQuit(int sig);
 
 	void	upAllServers();
+	void	reviveServers(ulong retry_time = SERVER_RETRY_TIME);
 	void	downAllServers();
+	void	downServer(Server *serv);
+	void	downServer(int fd);
+
+	static int	socketRead(int fd, char **dest, size_t size = BUFFER_SIZE);
+
 	
 	const string	&getConf() const;
 	void			setConf(string file_name);

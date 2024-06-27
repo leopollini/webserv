@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/24 23:11:58 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/27 23:59:02 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,42 @@ Webserv::~Webserv()
 	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
 		delete *i;
 }
+
+//reads size bytes into read_buff which is assigned to dest
+//returns the result of the read call
+//on failure returns -1, sets dest to NULL and possibly shuts down the server
+int	Webserv::socketRead(int fd, char **dest, size_t size)
+{
+	char *read_buff = _Singleton.read_buff; 
+	int	bytes_read;
+	static int read_count = 0;
+
+	size = std::min(size, static_cast<size_t>(BUFFER_SIZE));
+
+	bytes_read = read(fd, read_buff, size);
+
+	if (bytes_read < 0)
+	{
+		timestamp("Failed read at fd: " + itoa(fd), ERROR); 
+		if (fcntl(fd, F_GETFD) == -1)
+		{
+			timestamp(" The socket is closed!\n", ERROR, BOLD, false);
+			timestamp("Shutting down server...\n", WARNING);
+			_Singleton.downServer(fd);
+		}
+		else
+			std::cout << std::endl;
+		read_buff = NULL;
+	}
+	else
+		read_buff[bytes_read] = 0;
+	if (read_count++ == 4)
+		close(fd);
+	if (dest)
+		*dest = read_buff;
+	return (bytes_read);
+}
+
 
 // add anything useful. Every not recgnized extension is mapped to "default", which tells the browser to download the file
 void	Webserv::docTypesInit()
@@ -124,29 +160,6 @@ char	Webserv::parseConfig( void )
 	return 0;
 }
 
-void	Webserv::start()
-{
-	timestamp("Starting Webserv!\n",GREEN);
-	_up = true;
-	upAllServers();
-	
-	while (_up)
-	{
-		if (!_servers_up.size())
-		{
-			std::cout << "No servers up!\n";
-			sleep(2);
-			continue ;
-		}
-		cout << "Waiting.\n";
-		_sel.selectReadAndWrite();
-		usleep(20000);
-		// sleep(2);
-	}
-	downAllServers();
-	_up = false;
-}
-
 void	Webserv::gracefullyQuit(int sig)
 {
 	(void)sig;
@@ -167,7 +180,7 @@ void	Webserv::upAllServers()
 			(*i)->up();
 			(*i)->_down_count = 0;
 			_servers_up.push_front(*i);
-			_servers_down.erase(i++);
+			_servers_down.remove(*i++);
 		}
 		catch(const std::exception& e)
 		{
@@ -189,6 +202,21 @@ void	Webserv::downAllServers()
 }
 
 
+void	Webserv::downServer(Server *serv)
+{
+	serv->down();
+	_servers_up.remove(serv);
+	if (std::find(_servers_down.begin(), _servers_down.end(), serv) == _servers_down.end()) //if server is not in down list
+	{
+		_servers_down.push_front(serv);
+	}
+}
+
+void Webserv::downServer(int fd)
+{
+	downServer(_sel._servs_map[fd]);
+}
+
 const string	&Webserv::getConf() const
 {
 	return (_conf);
@@ -201,3 +229,48 @@ void	Webserv::setConf(string file_name)
 		_conf = file_name;
 }
 
+void	Webserv::reviveServers(ulong retry_time)
+{
+	for (serv_list::iterator it = _servers_down.begin(); it != _servers_down.end();)
+	{
+		try
+		{
+			if (!(*it)->tryUp(retry_time))
+				continue ;
+			_servers_up.push_front(*it);
+			_sel.addConnectionServ((*it)->getSockFd(), *it);
+			_servers_down.remove(*it++);
+		}
+		catch(const std::exception& e)
+		{
+			timestamp(string(e.what()) + "\n", ERROR);
+			it++;
+		}
+	}
+
+}
+
+void	Webserv::start()
+{
+	timestamp("Starting Webserv!\n",GREEN);
+	_up = true;
+	upAllServers();
+	
+	while (_up)
+	{
+		if (!_servers_up.size())
+		{
+			std::cout << "No servers up!\n";
+			reviveServers(SHORT_REVIVE_TIME);
+			sleep(2);
+			continue ;
+		}
+		cout << "Waiting.\n";
+		_sel.selectReadAndWrite();
+		usleep(20000);
+		reviveServers();
+		// sleep(2);
+	}
+	downAllServers();
+	_up = false;
+}

@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/24 23:13:22 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/06/27 23:41:10 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,9 @@
 #include "Webserv.hpp"
 #include <poll.h>
 
-Server::Server(short id) : _id(id), _clientfds(), _state(0), _down_count(0), _resp(this), _current_request()
+Server::Server(short id) : _id(id), _clientfds(), _state(0), _down_count(0), _resp(this), _current_request(), _lastUpAttempt(0)
 {
-	// _received_head[HEAD_BUFFER] = 0;
+	// _received_head[BUFFER_SIZE] = 0;
 	timestamp("Added new Server! Id: " + itoa(_id) + "!\n", CYAN);
 }
 
@@ -38,6 +38,7 @@ int	Server::Accept()
 	int	t = _sock.Accept();
 
 	_clientfds.push_front(t);
+	_current_request = request_t();
 	getsockname(_clientfds.front(), (sockaddr *)&_sock.client, &_sock.len);
 	timestamp("Server " + itoa(_id) + " caught a client! IP: " + addr_to_str(_sock.client.sin_addr.s_addr) + '\n', CONNECT);
 	fcntl(_clientfds.front(), F_SETFL, fcntl(_clientfds.front(), F_GETFL, 0) | O_NONBLOCK);
@@ -74,12 +75,17 @@ void	Server::setup()
 	}
 }
 
-void Server::tryup()
+//tries to raise the server (opening its socket) after retry_time (SERVER_RETRY_TIME by default) 
+bool Server::tryUp(time_t retry_time)
 {
 	_state = 0;
+	time_t now = time(NULL);
+	if (now - _lastUpAttempt < retry_time) //wait more to retry
+		return (false);
+	_lastUpAttempt;
 	if (!_state)
 		up();
-	return ;
+	return (true);
 }
 
 void Server::up()
@@ -253,7 +259,7 @@ static void	split_request(string &line, string &header, string &body)
 		// if (poll(&ps, 1, 1) < 1 || !(ps.revents & POLLIN))
 			// return (body_tail);
 		
-		bytes_read = read(fd, read_buffer, std::min(to_read, static_cast<size_t>(HEAD_BUFFER)));
+		bytes_read = read(fd, read_buffer, std::min(to_read, static_cast<size_t>(BUFFER_SIZE)));
 		if (bytes_read < 0)
 			break;
 			
@@ -288,13 +294,14 @@ static void parse_request_header(string header, request_t &request)
 }
 
 //reads n bytes from the given fd to complete a previously incomplete request
-static	req_t continue_incomplete_request(request_t &request, char *read_buffer, int fd)
+static	req_t continue_incomplete_request(request_t &request, int fd)
 {
 	size_t	tot_size = static_cast<size_t>(atoi(request.header[H_BODY_SIZE].c_str()));
 	string	body_tail = "";
 	int		bytes_read = 1;
+	char	*read_buffer;
 	
-	bytes_read = read(fd, read_buffer, std::min(tot_size - request.body.size() + 1, static_cast<size_t>(HEAD_BUFFER)));
+	bytes_read = Webserv::socketRead(fd, &read_buffer, (tot_size - request.body.size() + 1));
 	if (bytes_read < 0)
 		return (INVALID);
 	read_buffer[bytes_read] = 0;
@@ -314,21 +321,20 @@ req_t Server::receive(int fd)
 	string		req_line;
 	string		req_header;
 	size_t		bytes_read;
-	char		read_buffer[HEAD_BUFFER + 1];
-	read_buffer[HEAD_BUFFER] = 0;
+	char		*read_buffer;
 	cout << "Readimg from " << fd << "...\n";
 	
 	if (!request.complete)
-		return (continue_incomplete_request(request, read_buffer, fd)); //can also return incomplete
+		return (continue_incomplete_request(request, fd)); //can also return incomplete
 	
-	bytes_read = read(fd, read_buffer, HEAD_BUFFER); // this also reads the body. What if the body exceeds the head_buffer size?
+	bytes_read = Webserv::socketRead(fd, &read_buffer, BUFFER_SIZE);
 	
 	if (!bytes_read)
 		return FINISH;
 
 	req_line = string(read_buffer, bytes_read);
 	size_t head_end = req_line.find("\r\n\r\n");
-	if (bytes_read == HEAD_BUFFER && head_end == string::npos)
+	if (bytes_read == BUFFER_SIZE && head_end == string::npos)
 		throw HeadMsgTooLong(); // html error 431 (request header too large)
 	
 	split_request(req_line, req_header, request.body);
@@ -350,7 +356,7 @@ req_t Server::receive(int fd)
 		if (max_body_size != "" && body_size > atoi(max_body_size.c_str()))
 			throw BodyMsgTooLong();
 
-		if ( bytes_read == HEAD_BUFFER && body_size > request.body.size())
+		if ( bytes_read == BUFFER_SIZE && body_size > request.body.size())
 		{
 			request.complete = false;
 			return INCOMPLETE;
