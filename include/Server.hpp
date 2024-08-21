@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/27 22:36:54 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/08/21 17:20:11 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,8 @@ class Responser;
 
 class	Server
 {
+	Responser		_resp;
 	fd_list			_clientfds;
-
 	short			_id;
 	BetterSocket	_sock;
 	char			_state;
@@ -35,7 +35,6 @@ class	Server
 	locations_list	_loc_ls;
 
 	request_t		_current_request;
-	Responser		_resp;
 	time_t			_lastUpAttempt;
 
 	Server&	operator=(const Server &assignment) {(void)assignment; return *this;}

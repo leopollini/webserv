@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_utils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/27 23:41:10 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/08/21 17:24:41 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "Webserv.hpp"
 #include <poll.h>
 
-Server::Server(short id) : _id(id), _clientfds(), _state(0), _down_count(0), _resp(this), _current_request(), _lastUpAttempt(0)
+Server::Server(short id) : _resp(this), _clientfds(), _id(id), _state(0), _current_request(), _lastUpAttempt(0), _down_count(0)
 {
 	// _received_head[BUFFER_SIZE] = 0;
 	timestamp("Added new Server! Id: " + itoa(_id) + "!\n", CYAN);
@@ -82,7 +82,7 @@ bool Server::tryUp(time_t retry_time)
 	time_t now = time(NULL);
 	if (now - _lastUpAttempt < retry_time) //wait more to retry
 		return (false);
-	_lastUpAttempt;
+	// _lastUpAttempt;
 	if (!_state)
 		up();
 	return (true);
@@ -353,7 +353,7 @@ req_t Server::receive(int fd)
 		size_t body_size = static_cast<size_t>(atoi(request.header[H_BODY_SIZE].c_str()));
 		string &max_body_size = getEnv(L_MAX_BODY_SIZE, request.loc);
 
-		if (max_body_size != "" && body_size > atoi(max_body_size.c_str()))
+		if (max_body_size != "" && body_size > (size_t)atoi(max_body_size.c_str()))
 			throw BodyMsgTooLong();
 
 		if ( bytes_read == BUFFER_SIZE && body_size > request.body.size())

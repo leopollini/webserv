@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 20:48:36 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/21 17:17:43 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ public:
 
 	char	&getFileFlags() {return _file_flags;}
 	string	&getDir() {return _dir;}
-	string	badExplain(short code) {return "LOL";}
+	string	badExplain(short code) {(void) code; return "LOL";}		// THIS IS USELESS
 	size_t	getBodyLen() {return _body.size();}
 	string	getResServer() {return "Lolserv";}
 	string	getDocType();

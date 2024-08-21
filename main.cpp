@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:39 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/07 19:44:24 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/08/21 17:18:16 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ int main(int argn, char *argv[], char *envp[])
 {
 	Webserv	&serv = Webserv::getInstance();
 
+	(void)argn;
+	(void)envp;
 	if (argv[1])
 		serv.setConf(argv[1]);
 

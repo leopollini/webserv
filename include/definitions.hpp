@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   definitions.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/27 22:07:09 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/08/21 17:24:38 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -218,7 +218,7 @@ char	read_allows(string &allow);
 req_t	request_method(string request_line);
 //returns string according to type
 string	request_type_str(req_t type);
-string	strip(string str, char *charset);
+string	strip(string str, string charset);
 
-typedef struct request_t;
+struct request_t;
 void	printHttpRequest(request_t &request, std::ostream &out = std::cout);
