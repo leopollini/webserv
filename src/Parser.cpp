@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 13:07:36 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/09 11:51:58 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/24 12:22:45 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,17 +84,17 @@ static token new_token(string &string, size_t start, size_t &end) throw (ErrorTy
 }
 
 
-#include <iostream>
-#include <algorithm>
+// #include <iostream>
+// #include <algorithm>
 //Will be removed
-const std::map<enum type, const char *> E_NAME = {{BASIC, "Basic"},
-		{STRINGLITERAL, "StringLiteral"},
-		{ASSIGNMENT , "Assignment"},
-		{OPENBLOCK, "OpenBlock"},
-		{CLOSEBLOCK, "CloseBlock"},
-		{BREAKLINE, "BreakLine"},
-		{COMMENT, "Comment"}	
-	};
+// const std::map<enum type, const char *> E_NAME = {{BASIC, "Basic"},
+// 		{STRINGLITERAL, "StringLiteral"},
+// 		{ASSIGNMENT , "Assignment"},
+// 		{OPENBLOCK, "OpenBlock"},
+// 		{CLOSEBLOCK, "CloseBlock"},
+// 		{BREAKLINE, "BreakLine"},
+// 		{COMMENT, "Comment"}	
+// 	};
 
 static void _print_token(token tkn)
 {

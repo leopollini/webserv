@@ -49,7 +49,7 @@ void	BetterSelect::addListeningConnection(int fd, Server *s)
 void	BetterSelect::delListeningConnection(int fd)
 {
 	FD_CLR(fd, &_read_pool);
-	_clis_map.erase(fd);
+	_clis_map[fd] = NULL;
 	_tot_size--;
 }
 
@@ -159,8 +159,10 @@ static void	log_request(req_t type, const int socket_fd)
 
 void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 {
-	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ) //removed i++ to avoid segfault
+	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); i++) //removed i++ to avoid segfault
 	{
+		if (!i->second)
+			continue;
 		if (FD_ISSET(i->first, &readfds)) //if the socket is ready to be read
 		{
 			req_t request_type = i->second->recieve(i->first);
@@ -168,7 +170,7 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 			log_request(request_type, i->first);
 			if (request_type == FINISH || request_type == INVALID)
 			{
-				rmFd(i->first, (i++)->second); // (i++) is important
+				rmFd(i->first, i->second); // (i++) is important
 				continue ;
 			}
 		
@@ -181,12 +183,11 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 			FD_CLR(i->first, &_write_pool);
 			if (!i->second->respond(i->first))
 			{
-				rmFd(i->first, (i++)->second); // (i++) avoids segfault 
+				rmFd(i->first, i->second); // (i++) avoids segfault
 				continue ;
 			}
 			_timeout_map[i->first] = time(NULL);
 		}
-		i++;
 	}
 }
 
@@ -200,8 +201,8 @@ void	BetterSelect::selectReadAndWrite()
 	if (!_tot_size)
 		return ;
 
-	if (closeTimedOut())
-		return ;
+	// if (closeTimedOut())
+	// 	return ;
 	
 	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
 	if (t <= 0)

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/09 16:58:53 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 17:05:12 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/24 17:46:29 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,12 @@ struct request_t
 	location_t	*loc;
 
 	void	littel_parse(Server *s);
+};
+
+struct __return_info
+{
+	int		code;
+	string	dir;
 };
 
 #endif

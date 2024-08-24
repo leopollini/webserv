@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 21:36:49 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/24 18:47:37 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,23 @@ static bool location_isvalid(const location_t *loc, string &req)
 	return false;
 }
 
+void	Server::manageReturn(string &s)
+{
+	try
+	{
+		_return_info.code = atoi(s.c_str());
+	}
+	catch(const std::exception& e)
+	{
+		cout << "Redirection read invalid return code. Returning default\n";
+		_return_info.code = DEFAULT_REDIR_RESCODE;
+	}
+	_return_info.dir = s.substr(s.find(' ') + 1);
+	cout << "#### REDIR INFO: " << _return_info.code << " " << _return_info.dir << "###\n";
+}
+
 //matches the request directory with a location and sets its location_t pointer
-void	Server::matchRequestLocation(request_t &request) const
+void	Server::matchRequestLocation(request_t &request)
 {
 	if (request.type == INVALID)
 		// *(int *)(0); //crash
@@ -88,15 +103,29 @@ void	Server::matchRequestLocation(request_t &request) const
 	{
 		cout << "Found location: " << location->dir << '\n';
 		cout << "\tlocation's root: " << location->stuff[LOC_ROOT] << '\n';
+		if (!getEnv(LOC_RETURN, location).empty())
+		{
+			cout << "Warning! Location is trying to redirect...\n";
+			try
+			{
+				manageReturn(getEnv(LOC_RETURN, location));
+			}
+			catch(const std::exception& e)
+			{
+				cout << "Redirection failed: " << e.what() << '\n';
+			}
+			_resp._is_redirecting = true;
+		}
 	}
 }
 
 status_code_t	Server::validateLocation()
 {
-	cout << "Looking for " << _current_request.dir << ". Allowed mwthod flag: " << (int)_current_request.loc->allows << "\n";
+	cout << "Looking for " << _current_request.dir << ". Allowed method flag: " << (int)_current_request.loc->allows << "\n";
 	_resp = _current_request;	// overloaded. Copies members dir and loc pointer
 	string target_file;
 	status_code_t	t;
+
 
 	if (_current_request.dir.empty())
 		return (INTERNAL_SEVER_ERROR);
@@ -112,6 +141,9 @@ status_code_t	Server::validateLocation()
 	if (!(_resp.getLoc()->allows & _current_request.type))
 		return (METHOD_NOT_ALLOWED);
 		
+	if (_resp._is_redirecting)
+		return ((status_code_t)(_resp._res_code = _return_info.code));
+		
 	if (isOkToSend(_resp.getFileFlags()))
 		return OK;
 		
@@ -122,12 +154,10 @@ status_code_t	Server::validateLocation()
 }
 
 
-
 bool Server::respond(int fd)
 {
 	std::cout << "Server " + itoa(_id) + ": Called by fd " << fd << " for response!\n";
 
-	// FIND correct location
 	// Set Responser's location
 	// Launch Responser buildBody and buildHeader
 	// Send response
@@ -151,32 +181,36 @@ bool Server::respond(int fd)
 void Responser::buildResponseBody()
 {
 	//check file existance
-	string file = "";
-
 	try
 	{
 		switch (_res_code)
 		{
 		case OK :
-			cout << "Reading \'" << _dir << "\'\n";
-		break ;
+			cout << "Reading \n";
+		 break ;
 		case NOT_FOUND :
 			_dir = _serv->getEnv(E_404, _loc);
-		break ;
+			cout << "Looking for 404 response" <<  "'\n";
+		 break ;
 		case FORBIDDEN :
 			_dir = _serv->getEnv(E_403, _loc);
-		break ;
+			cout << "Looking for 403 response in \n";
+		 break ;
 		case METHOD_NOT_ALLOWED :
 			_dir = _serv->getEnv(E_405, _loc);
-			cout << "Looking for 405 response in '" << file <<  "'\n";
-		break ;
+			cout << "Looking for 405 response in \n";
+		 break ;
+		case MOVED_PERMANENTLY :
+			_extra_args["Location"] = _serv->_return_info.dir;
+			_dir = DEFAULT_REDIR_FILE;
+			cout << "Preparing 301 response\n";
+		 break ;
 		default:
 			timestamp("Could not send file at path \'" + _dir + "\'. Res code: " + itoa(_res_code) + '\n', ERROR);
 			return ;
 		}
-		if (file.size())
-			file = _serv->getEnv(LOC_ROOT) + '/' + file.substr(0, file.find(' '));
 		_body = Parsing::read_file(_dir);
+		
 	}
 	catch(const std::exception& e)
 	{

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/19 19:15:42 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/08/24 18:14:22 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ void	fill_line(conf_t *env, list<Parsing::token>::iterator &s)
 		return ;
 
 	string	&t = (*env)[s->content];
+	t.clear();
 	while ((++s)->type != ';' && s->type != '{')
 		t.append(s->content + ' ');
 	t = t.substr(0, t.size() - 1);
@@ -138,7 +139,7 @@ void	Webserv::start()
 			sleep(2);
 			continue ;
 		}
-		cout << "Waiting.\n";
+	// cout << "Waiting.\n";
 		_sel.selectReadAndWrite();
 		usleep(20000);
 	}

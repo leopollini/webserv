@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 20:48:36 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/24 18:45:58 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,23 +26,36 @@ class Responser
 	string		_dir;
 	location_t	*_loc;
 	char		_file_flags;
+	conf_t		_extra_args;
 
 public:
+
+	class LocNull : public std::exception
+	{
+		const char *what() const throw()
+		{
+			return ("For some reason, _loc inside a server was NULL");
+		}
+
+	};
 	bool		keepalive;
 	short		_res_code;
+	bool		_is_redirecting;
 
-	Responser(Server *s) : _serv(s) {}
+	Responser(Server *s) : _serv(s), _loc(NULL), _is_redirecting(false) {}
 
 	void	buildResponseHeader();
 	void	buildResponseBody();
 
-	location_t	*getLoc() {return _loc;}
+	location_t	*getLoc() const {if (!_loc) cout << "getLoc() got a NULL??\n"; return _loc;}
 
 	void	clear()
 	{
 		_head.clear();
 		_body.clear();
 		_dir.clear();
+		_extra_args.clear();
+		_is_redirecting = false;
 	}
 	size_t	size()
 	{
@@ -52,8 +65,9 @@ public:
 	// Implement error for too long message bodies
 	void	Send(int fd)
 	{
-		cout << "Trying to send " << size() << " bytes to " << fd << "...\n";
+		cout << "Trying to send " << size() << " bytes to " << fd << "... ";
 		send(fd, (_head + _body).c_str(), (size()), MSG_EOR);
+		timestamp("Done!\n", DONE, BOLD, false);
 	}
 	Responser &operator=(const request_t &t)
 	{

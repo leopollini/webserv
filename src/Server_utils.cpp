@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 21:36:04 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/24 18:50:15 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,9 @@
 Server::Server(short id) : _id(id), _clientfds(), _state(0), _down_count(0), _resp(this)
 {
 	timestamp("Added new Server! Id: " + itoa(_id) + "!\n", CYAN);
+	_env[PORT] = SERVER_DEFAULT_PORT;
+	_env[LOC_ROOT] = SERVER_DEFAULT_ROOT;
+	_env[NAME] = SERVER_DEFAULT_NAME;
 }
 
 Server::~Server()
@@ -194,9 +197,9 @@ void Responser::buildResponseHeader()
 	_head.append("Content-Type: " + getDocType() + CRNL);
 	_head.append("Content-Length: " + itoa(getBodyLen()) + CRNL);
 	_head.append("Server: " + _serv->getEnv(NAME) + CRNL);
-	_head.append("Date: " + string(ctime(&now)));
-	if (_res_code == MOVED_PERMANENTLY)						// this happens during redirection
-		_head.append("Location: " + _dir);
+	for (conf_t::iterator i = _extra_args.begin(); i != _extra_args.end(); i++)
+		_head.append(i->first + ": " + i->second + CRNL);
+	_head.append("Date: " + string(ctime(&now)) + CRNL);
 	_head += CRNL;
 }
 

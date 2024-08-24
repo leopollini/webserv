@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 21:19:23 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/24 17:45:13 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,23 +27,29 @@ class Responser;
 
 class	Server
 {
-	fd_list			_clientfds;
+	fd_list				_clientfds;
 
-	short			_id;
-	BetterSocket	_sock;
-	char			_state;
-	conf_t			_env;
-	char			_recieved_head[HEAD_BUFFER];
-	size_t			_msg_len;
-	locations_list	_loc_ls;
+	short				_id;
+	BetterSocket		_sock;
+	char				_state;
+	conf_t				_env;
+	char				_recieved_head[HEAD_BUFFER];
+	size_t				_msg_len;
+	locations_list		_loc_ls;
+	
 
+
+	
 	request_t		_current_request;
 	Responser		_resp;
 
+
 	Server&	operator=(const Server &assignment) {(void)assignment; return *this;}
 	Server(const Server &copy) : _resp(this) {(void)copy;}
+
 public:
-	int					_down_count;
+	int						_down_count;
+	struct __return_info	_return_info;
 
 	Server(short id);
 	~Server();
@@ -65,6 +71,7 @@ public:
 	void	tryup();
 	void	up();
 	void	down();
+	void	manageReturn(string &s);
 	req_t	recieve(int fd);
 	bool	respond(int fd);
 	void	closeConnection(int fd);
@@ -73,7 +80,7 @@ public:
 	void	printHttpRequest(string &msg, int fd_from);
 
 
-	void 	matchRequestLocation(request_t &request) const; 
+	void 	matchRequestLocation(request_t &request); 
 	
 	status_code_t	validateLocation();
 	status_code_t	manageDir();
@@ -91,6 +98,7 @@ public:
 			for (str_set::iterator a = (*i)->allowed_extensions.begin(); a != (*i)->allowed_extensions.end(); a++)
 				cout << *a << " ";
 			cout << "| " << (int)(*i)->allows;
+			cout << " | redirection: " << (getEnv(LOC_RETURN, *i).empty() ? "none" : getEnv(LOC_RETURN, *i));
 			cout << '\n';
 		}
 	}

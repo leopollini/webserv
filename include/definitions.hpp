@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/09 21:15:57 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/24 18:47:33 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,16 @@
 # define DOWN_SERVER_SLEEP_MS 2000
 # define DOWN_SERVER_MAX 20
 # define NO_SERVER_SLEEP_TIME_MS 30000
-# define MAX_CONNECTIONS 100
+# define MAX_CONNECTIONS 1
 # define DEFAULT_CONF "test.config"
 # define CRNL "\r\n"
 # define CONNECTION_TIMEOUT 60 // measured in secs
+# define SERVER_DEFAULT_PORT "8080"
+# define SERVER_DEFAULT_ROOT "."
+# define SERVER_DEFAULT_NAME "default_server_name"
+# define DEFAULT_REDIR_RESCODE 301
+# define DEFAULT_REDIR_FILE "redirect_file.html"
+
 
 using std::string;
 using std::cout;
@@ -122,7 +128,7 @@ typedef enum	e_status_code
 	USE_PROXY,
 	UNUSED,
 	TEMPORARY_REDIRECT,
-	PERMANENT_READIRECT,
+	PERMANENT_REDIRECT,
 	BAD_REQUEST = 400,
 	UNAUTHORIZED,
 	PAYMENT_REQUIRED,
