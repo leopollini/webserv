@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/24 18:47:37 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/25 20:24:17 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,9 +36,11 @@ req_t Server::parseMsg(int fd)
 		_current_request.type = DELETE;
 	else if (cmd == "HEAD")
 		_current_request.type = HEAD;
+	// else
+	// 	throw RequestNotHandled();
 
 	_current_request.dir = msg.substr(space_pos + 1, msg.find(' ', space_pos + 1) - space_pos - 1);
-
+	_full_request_dir = _current_request.dir;
 	matchRequestLocation(_current_request);
 	// truncate location identification part of dir
 	_current_request.littel_parse(this);
@@ -67,7 +69,7 @@ void	Server::manageReturn(string &s)
 	catch(const std::exception& e)
 	{
 		cout << "Redirection read invalid return code. Returning default\n";
-		_return_info.code = DEFAULT_REDIR_RESCODE;
+		_return_info.code = DEFAULT_RETURN_RESCODE;
 	}
 	_return_info.dir = s.substr(s.find(' ') + 1);
 	cout << "#### REDIR INFO: " << _return_info.code << " " << _return_info.dir << "###\n";
@@ -114,8 +116,26 @@ void	Server::matchRequestLocation(request_t &request)
 			{
 				cout << "Redirection failed: " << e.what() << '\n';
 			}
-			_resp._is_redirecting = true;
+			_resp._is_returning = true;
 		}
+	}
+}
+
+void	Server::lookForPlaceholders()
+{
+	size_t	pos;
+	
+	if ((pos = _return_info.dir.find('~')) != string::npos)
+	{
+		_return_info.dir.erase(pos, 1);
+		_return_info.dir.insert(pos, _resp.getDir());
+		cout << "#### New address after placeholder (~): " << _return_info.dir << std::endl;
+	}
+	else if ((pos = _return_info.dir.find('%')) != string::npos)
+	{
+		_return_info.dir.erase(pos, 1);
+		_return_info.dir.insert(pos, _full_request_dir);
+		cout << "#### New address after placeholder (%): " << _return_info.dir << std::endl;
 	}
 }
 
@@ -127,6 +147,12 @@ status_code_t	Server::validateLocation()
 	status_code_t	t;
 
 
+	if (_resp._is_returning)
+	{
+		lookForPlaceholders();
+		return ((status_code_t)(_resp._res_code = _return_info.code));
+	}
+	
 	if (_current_request.dir.empty())
 		return (INTERNAL_SEVER_ERROR);
 		
@@ -141,8 +167,6 @@ status_code_t	Server::validateLocation()
 	if (!(_resp.getLoc()->allows & _current_request.type))
 		return (METHOD_NOT_ALLOWED);
 		
-	if (_resp._is_redirecting)
-		return ((status_code_t)(_resp._res_code = _return_info.code));
 		
 	if (isOkToSend(_resp.getFileFlags()))
 		return OK;
@@ -154,7 +178,7 @@ status_code_t	Server::validateLocation()
 }
 
 
-bool Server::respond(int fd)
+bool	Server::respond(int fd)
 {
 	std::cout << "Server " + itoa(_id) + ": Called by fd " << fd << " for response!\n";
 
@@ -202,9 +226,24 @@ void Responser::buildResponseBody()
 		 break ;
 		case MOVED_PERMANENTLY :
 			_extra_args["Location"] = _serv->_return_info.dir;
-			_dir = DEFAULT_REDIR_FILE;
-			cout << "Preparing 301 response\n";
+			_dir = DEFAULT_MOVED_FILE;
+			cout << "Preparing 301 response. Redir: " << _serv->_return_info.dir << "\n";
 		 break ;
+		case FOUND :
+			_extra_args["Location"] = _serv->_return_info.dir;
+			_dir = DEFAULT_MOVED_FILE;
+			cout << "Preparing 302 response. Redir: " << _serv->_return_info.dir << "\n";
+		 break ;
+		case PERMANENT_REDIRECT :
+			cout << "Preparing 308 response. New URL: " << _serv->_return_info.dir << "\n";
+			_dir = DEFAULT_MOVED_FILE;
+			_body = REDIR_URL(_serv->_return_info.dir);
+		 return ;
+		case TEMPORARY_REDIRECT :
+			cout << "Preparing 307 response. New URL: " << _serv->_return_info.dir << "\n";
+			_dir = DEFAULT_MOVED_FILE;
+			_body = REDIR_URL(_serv->_return_info.dir);
+		 return ;
 		default:
 			timestamp("Could not send file at path \'" + _dir + "\'. Res code: " + itoa(_res_code) + '\n', ERROR);
 			return ;

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/24 18:50:15 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/25 18:04:17 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "Webserv.hpp"
 
 
-Server::Server(short id) : _id(id), _clientfds(), _state(0), _down_count(0), _resp(this)
+Server::Server(short id) : _clientfds(), _id(id), _state(0), _resp(this), _down_count(0)
 {
 	timestamp("Added new Server! Id: " + itoa(_id) + "!\n", CYAN);
 	_env[PORT] = SERVER_DEFAULT_PORT;
@@ -194,11 +194,11 @@ void Responser::buildResponseHeader()
 	time_t now = time(0);
 	_head.reserve(HEAD_RESERVE);
 	_head = "HTTP/1.1 " + itoa(_res_code) + ' ' + badExplain(_res_code) + CRNL;
+	for (conf_t::iterator i = _extra_args.begin(); i != _extra_args.end(); ++i)
+		_head.append(i->first + ": " + i->second + CRNL);
 	_head.append("Content-Type: " + getDocType() + CRNL);
 	_head.append("Content-Length: " + itoa(getBodyLen()) + CRNL);
 	_head.append("Server: " + _serv->getEnv(NAME) + CRNL);
-	for (conf_t::iterator i = _extra_args.begin(); i != _extra_args.end(); i++)
-		_head.append(i->first + ": " + i->second + CRNL);
 	_head.append("Date: " + string(ctime(&now)) + CRNL);
 	_head += CRNL;
 }

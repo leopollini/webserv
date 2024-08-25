@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/24 17:45:13 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/25 20:24:24 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,21 +27,21 @@ class Responser;
 
 class	Server
 {
-	fd_list				_clientfds;
+	fd_list			_clientfds;
 
-	short				_id;
-	BetterSocket		_sock;
-	char				_state;
-	conf_t				_env;
-	char				_recieved_head[HEAD_BUFFER];
-	size_t				_msg_len;
-	locations_list		_loc_ls;
+	short			_id;
+	BetterSocket	_sock;
+	char			_state;
+	conf_t			_env;
+	char			_recieved_head[HEAD_BUFFER];
+	size_t			_msg_len;
+	locations_list	_loc_ls;
 	
 
-
-	
 	request_t		_current_request;
 	Responser		_resp;
+
+	string			_full_request_dir;
 
 
 	Server&	operator=(const Server &assignment) {(void)assignment; return *this;}
@@ -82,6 +82,8 @@ public:
 
 	void 	matchRequestLocation(request_t &request); 
 	
+	void	lookForPlaceholders();
+
 	status_code_t	validateLocation();
 	status_code_t	manageDir();
 	

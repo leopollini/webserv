@@ -40,12 +40,14 @@ struct	BetterSelect
 	void			delResponseConnection(int pfd);
 	void			addConnectionServ(int fd, Server *s);
 	void			delConnectionServ(int pfd);
+
+	void			closeAllClis();
 	
 	void			selectReadAndWrite();
 	
 	int				getBiggestFd();
 
-	bool			closeTimedOut();
+	void			closeTimedOut();
 	void			rmFd(int fd, Server *s);
 private:
 	void			_handleRequestResponse(fd_set &readfds, fd_set &writefds);

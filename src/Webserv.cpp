@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/24 18:14:22 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/25 18:40:09 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,8 +143,8 @@ void	Webserv::start()
 		_sel.selectReadAndWrite();
 		usleep(20000);
 	}
+	_sel.closeAllClis();
 	downAllServers();
-	_up = false;
 }
 
 void	Webserv::gracefullyQuit(int sig)
@@ -182,7 +182,7 @@ void	Webserv::upAllServers()
 
 void	Webserv::downAllServers()
 {
-	for (serv_list::iterator i = _servers_up.begin(); i != _servers_up.end(); i++)
+	for (serv_list::iterator i = _servers_up.begin(); i != _servers_up.end(); ++i)
 		(*i)->down();
 	_servers_down.insert(--_servers_down.end(), _servers_up.begin(), _servers_up.end());
 	_servers_up.clear();

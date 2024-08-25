@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/08/24 18:47:33 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/25 19:21:24 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,12 +32,14 @@
 # define MAX_CONNECTIONS 1
 # define DEFAULT_CONF "test.config"
 # define CRNL "\r\n"
-# define CONNECTION_TIMEOUT 60 // measured in secs
+# define CONNECTION_TIMEOUT 30 // measured in secs
 # define SERVER_DEFAULT_PORT "8080"
 # define SERVER_DEFAULT_ROOT "."
 # define SERVER_DEFAULT_NAME "default_server_name"
-# define DEFAULT_REDIR_RESCODE 301
-# define DEFAULT_REDIR_FILE "redirect_file.html"
+# define DEFAULT_RETURN_RESCODE 200
+# define DEFAULT_MOVED_FILE "redirect_file.html"
+
+# define REDIR_URL(s) "<head>\n<meta http-equiv=\"Refresh\" content=\"0; URL="+s+"\" />\n</head>"
 
 
 using std::string;

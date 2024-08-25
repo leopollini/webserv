@@ -82,6 +82,13 @@ void	BetterSelect::delConnectionServ(int fd)
 	_tot_size--;
 }
 
+void	BetterSelect::closeAllClis()
+{
+	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
+		if (i->second)
+			i->second->closeConnection(i->first);
+}
+
 int	BetterSelect::getBiggestFd()
 {
 	if (!_clis_map.size())
@@ -91,23 +98,14 @@ int	BetterSelect::getBiggestFd()
 
 //iterates through connection map and if anyone has outlived its expiration time it's closed
 // returns whether any connection has been closed
-bool	BetterSelect::closeTimedOut()
+void	BetterSelect::closeTimedOut()
 {
-	bool closed_any = false;
 	if (!_clis_map.size())
-		return (closed_any);
-		
-	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); )
-	{
-		if (time(NULL) - _timeout_map[i->first] > CONNECTION_TIMEOUT)
-		{
-			closed_any = true;
-			rmFd(i->first, (i++)->second);
-		}
-		else
-			i++;
-	}
-	return (closed_any);
+		return ;
+	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
+		if (time(NULL) - _timeout_map[i->first] > CONNECTION_TIMEOUT && i->second)
+			rmFd(i->first, i->second);
+	return ;
 }
 
 void	BetterSelect::_acceptNewConnections(fd_set &read_fds)
@@ -159,7 +157,7 @@ static void	log_request(req_t type, const int socket_fd)
 
 void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 {
-	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); i++) //removed i++ to avoid segfault
+	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 	{
 		if (!i->second)
 			continue;
@@ -170,7 +168,9 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 			log_request(request_type, i->first);
 			if (request_type == FINISH || request_type == INVALID)
 			{
-				rmFd(i->first, i->second); // (i++) is important
+				if (request_type == INVALID)
+					cout << "Invalid request. Closing\n";
+				rmFd(i->first, i->second);
 				continue ;
 			}
 		
@@ -183,7 +183,7 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 			FD_CLR(i->first, &_write_pool);
 			if (!i->second->respond(i->first))
 			{
-				rmFd(i->first, i->second); // (i++) avoids segfault
+				rmFd(i->first, i->second);
 				continue ;
 			}
 			_timeout_map[i->first] = time(NULL);
@@ -194,15 +194,14 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 void	BetterSelect::selectReadAndWrite()
 {
 	int				t;
-	fd_set			readfds = _read_pool;
-	fd_set			writefds = _write_pool;
 	struct timeval	timeout = SEL_TIMEOUT;
 	
 	if (!_tot_size)
 		return ;
+	// closeTimedOut();
 
-	// if (closeTimedOut())
-	// 	return ;
+	fd_set			readfds = _read_pool;
+	fd_set			writefds = _write_pool;
 	
 	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
 	if (t <= 0)

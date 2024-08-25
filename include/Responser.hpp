@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/24 18:45:58 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/25 19:49:12 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,9 @@ public:
 	};
 	bool		keepalive;
 	short		_res_code;
-	bool		_is_redirecting;
+	bool		_is_returning;
 
-	Responser(Server *s) : _serv(s), _loc(NULL), _is_redirecting(false) {}
+	Responser(Server *s) : _serv(s), _loc(NULL), _is_returning(false) {}
 
 	void	buildResponseHeader();
 	void	buildResponseBody();
@@ -55,7 +55,7 @@ public:
 		_body.clear();
 		_dir.clear();
 		_extra_args.clear();
-		_is_redirecting = false;
+		_is_returning = false;
 	}
 	size_t	size()
 	{
@@ -69,6 +69,7 @@ public:
 		send(fd, (_head + _body).c_str(), (size()), MSG_EOR);
 		timestamp("Done!\n", DONE, BOLD, false);
 	}
+	
 	Responser &operator=(const request_t &t)
 	{
 		_dir = t.dir;
@@ -78,9 +79,9 @@ public:
 
 	char	&getFileFlags() {return _file_flags;}
 	string	&getDir() {return _dir;}
-	string	badExplain(short code) {return "LOL";}
+	string	badExplain(short code) {(void)code; return "OK";}
 	size_t	getBodyLen() {return _body.size();}
-	string	getResServer() {return "Lolserv";}
+	// 	string	getResServer() {return "Lolserv";}
 	string	getDocType();
 
 	string	res_404();
