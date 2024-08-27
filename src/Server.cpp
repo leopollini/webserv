@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/27 17:09:40 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/27 17:57:50 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,11 @@ req_t Server::parseMsg(int fd)
 	matchRequestLocation(_current_request);
 	// truncate location identification part of dir
 	_current_request.littel_parse(this);
+	return _current_request.type;
+}
 
+void	Server::createResp()
+{
 	// Set Responser's location
 	// Launch Responser buildBody and buildHeader
 	_resp.keepalive = true;
@@ -56,8 +60,6 @@ req_t Server::parseMsg(int fd)
 		_resp.getDir() = "";
 	_resp.buildResponseBody();
 	_resp.buildResponseHeader();
-
-	return _current_request.type;
 }
 
 static bool location_isvalid(const location_t *loc, string &req)

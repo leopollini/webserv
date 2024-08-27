@@ -163,6 +163,22 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 {
 	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 	{
+		if (!i->second || i->first != _current_connection_fd)
+			continue;
+		if (FD_ISSET(i->first, &writefds)) //if the socket is ready to be written on
+		{
+			FD_CLR(i->first, &_write_pool);
+			if (!i->second->respond(i->first))
+			{
+				rmFd(i->first, i->second);
+				continue ;
+			}
+			_timeout_map[i->first] = time(NULL);
+			return ;
+		}
+	}
+	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
+	{
 		if (!i->second)
 			continue;
 		if (FD_ISSET(i->first, &readfds)) //if the socket is ready to be read
@@ -177,20 +193,10 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 				rmFd(i->first, i->second);
 				continue ;
 			}
-		
+			_current_connection_fd = i->first;
 			FD_SET(i->first, &_write_pool); //can allow next block to be executed
 			_timeout_map[i->first] = time(NULL);
-		}
-
-		if (FD_ISSET(i->first, &writefds)) //if the socket is ready to be written on
-		{
-			FD_CLR(i->first, &_write_pool);
-			if (!i->second->respond(i->first))
-			{
-				rmFd(i->first, i->second);
-				continue ;
-			}
-			_timeout_map[i->first] = time(NULL);
+			return ;
 		}
 	}
 }
@@ -217,7 +223,7 @@ void	BetterSelect::selectReadAndWrite()
 	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
 	if (t <= 0)
 		return (err_close_clis());
-	_acceptNewConnections(readfds);
 	_handleRequestResponse(readfds, writefds);
+	_acceptNewConnections(readfds);
 	return ;
 }

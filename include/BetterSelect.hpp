@@ -28,6 +28,7 @@ struct	BetterSelect
 	connections_map	_clis_map;
 	timeout_fd		_timeout_map;
 	fd_list			_del_lst;
+	int				_current_connection_fd;
 
 	BetterSelect();
 	~BetterSelect();

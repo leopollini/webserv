@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/25 18:04:17 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/27 17:58:08 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,7 +171,9 @@ req_t Server::recieve(int fd)
 	if (_msg_len == HEAD_BUFFER)
 		throw HeadMsgTooLong();
 	_recieved_head[_msg_len] = 0;
-	return parseMsg(fd);
+	parseMsg(fd);
+	createResp();
+	return _current_request.type;
 }
 
 //	################ Here are other function definitions of classes that depend to Server / to which Server is dependant. Sorry i could not create a separate file ):

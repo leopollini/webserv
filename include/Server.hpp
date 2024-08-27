@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/25 20:24:24 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/27 17:53:39 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ public:
 	req_t	recieve(int fd);
 	bool	respond(int fd);
 	void	closeConnection(int fd);
+	void	createResp();
 	req_t	parseMsg(int fd);
 
 	void	printHttpRequest(string &msg, int fd_from);
