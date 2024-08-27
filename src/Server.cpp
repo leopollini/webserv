@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/27 17:57:50 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/27 20:12:42 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,19 @@ void	Server::createResp()
 		_resp.getDir() = "";
 	_resp.buildResponseBody();
 	_resp.buildResponseHeader();
+}
+
+req_t Server::recieve(int fd)
+{
+	cout << "Readimg from " << fd << "...\n";
+	if (!(_msg_len = read(fd, _recieved_head, HEAD_BUFFER)))
+		return FINISH;
+	if (_msg_len == HEAD_BUFFER)
+		throw HeadMsgTooLong();
+	_recieved_head[_msg_len] = 0;
+	parseMsg(fd);
+	createResp();
+	return _current_request.type;
 }
 
 static bool location_isvalid(const location_t *loc, string &req)

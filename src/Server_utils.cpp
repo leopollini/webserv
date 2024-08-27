@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/27 17:58:08 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/27 20:12:35 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,19 +161,6 @@ string	&Server::getEnv(string key, location_t *location)
 
 	// Look inside http directive
 	return (Webserv::getInstance().getEnv(key));
-}
-
-req_t Server::recieve(int fd)
-{
-	cout << "Readimg from " << fd << "...\n";
-	if (!(_msg_len = read(fd, _recieved_head, HEAD_BUFFER)))
-		return FINISH;
-	if (_msg_len == HEAD_BUFFER)
-		throw HeadMsgTooLong();
-	_recieved_head[_msg_len] = 0;
-	parseMsg(fd);
-	createResp();
-	return _current_request.type;
 }
 
 //	################ Here are other function definitions of classes that depend to Server / to which Server is dependant. Sorry i could not create a separate file ):
