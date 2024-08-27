@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/25 20:24:17 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/27 17:09:40 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,19 @@ req_t Server::parseMsg(int fd)
 	matchRequestLocation(_current_request);
 	// truncate location identification part of dir
 	_current_request.littel_parse(this);
+
+	// Set Responser's location
+	// Launch Responser buildBody and buildHeader
+	_resp.keepalive = true;
+	_resp._res_code = validateLocation();
+	cout << "Response code: " << _resp._res_code << '\n';
+	if (_resp._res_code == _REQUEST_DIR_LISTING)
+	// 	autoindexManager();
+	//					To be implemented...
+		_resp.getDir() = "";
+	_resp.buildResponseBody();
+	_resp.buildResponseHeader();
+
 	return _current_request.type;
 }
 
@@ -182,19 +195,8 @@ bool	Server::respond(int fd)
 {
 	std::cout << "Server " + itoa(_id) + ": Called by fd " << fd << " for response!\n";
 
-	// Set Responser's location
-	// Launch Responser buildBody and buildHeader
 	// Send response
 	
-	_resp.keepalive = true;
-	_resp._res_code = validateLocation();
-	cout << "Response code: " << _resp._res_code << '\n';
-	if (_resp._res_code == _REQUEST_DIR_LISTING)
-	// 	autoindexManager();
-	//					To be implemented...
-		_resp.getDir() = "";
-	_resp.buildResponseBody();
-	_resp.buildResponseHeader();
 	_resp.Send(fd);
 	_resp.clear();
 

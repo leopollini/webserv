@@ -43,6 +43,7 @@ struct	BetterSelect
 
 	void			closeAllClis();
 	
+	void			err_close_clis();
 	void			selectReadAndWrite();
 	
 	int				getBiggestFd();

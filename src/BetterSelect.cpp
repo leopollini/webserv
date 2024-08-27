@@ -49,8 +49,9 @@ void	BetterSelect::addListeningConnection(int fd, Server *s)
 void	BetterSelect::delListeningConnection(int fd)
 {
 	FD_CLR(fd, &_read_pool);
+	if (_clis_map[fd])
+		_tot_size--;
 	_clis_map[fd] = NULL;
-	_tot_size--;
 }
 
 void	BetterSelect::addResponseConnection(int fd, Server *s)
@@ -63,8 +64,9 @@ void	BetterSelect::addResponseConnection(int fd, Server *s)
 void	BetterSelect::delResponseConnection(int fd)
 {
 	FD_CLR(fd, &_write_pool);
-	_clis_map.erase(fd);
-	_tot_size--;
+	if (_clis_map[fd])
+		_tot_size--;
+	_clis_map[fd] = NULL;
 }
 
 void	BetterSelect::addConnectionServ(int fd, Server *s)
@@ -78,8 +80,9 @@ void	BetterSelect::addConnectionServ(int fd, Server *s)
 void	BetterSelect::delConnectionServ(int fd)
 {
 	FD_CLR(fd, &_read_pool);
-	_servs_map.erase(fd);
-	_tot_size--;
+	if (_servs_map[fd])
+		_tot_size--;
+	_servs_map[fd] = NULL;
 }
 
 void	BetterSelect::closeAllClis()
@@ -124,7 +127,8 @@ void	BetterSelect::_acceptNewConnections(fd_set &read_fds)
 
 void	BetterSelect::rmFd(int fd, Server *s)
 {
-	s->closeConnection(fd);
+	if (s)
+		s->closeConnection(fd);
 	delListeningConnection(fd);
 }
 
@@ -191,6 +195,13 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 	}
 }
 
+void	BetterSelect::err_close_clis()
+{
+	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
+		if (fcntl(i->first, F_GETFD) || !i->second)
+			delResponseConnection(i->first);
+}
+
 void	BetterSelect::selectReadAndWrite()
 {
 	int				t;
@@ -205,7 +216,7 @@ void	BetterSelect::selectReadAndWrite()
 	
 	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
 	if (t <= 0)
-		return ;
+		return (err_close_clis());
 	_acceptNewConnections(readfds);
 	_handleRequestResponse(readfds, writefds);
 	return ;
