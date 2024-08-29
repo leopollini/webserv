@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/27 20:12:35 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/29 18:44:46 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ status_code_t	Server::manageDir()
 {
 	string 	index_file;
 
-	if (_resp.getLoc()->stuff[L_AUTOINDEX] == "yes")		// autoindex on
+	if (getEnv(L_AUTOINDEX, _resp.getLoc()) == "yes")		// autoindex on
 		return (_REQUEST_DIR_LISTING);
 	
 	index_file = getEnv(L_INDEX, _current_request.loc);
@@ -129,7 +129,6 @@ status_code_t	Server::manageDir()
 	index_file = _resp.getDir().append(index_file); //searches for index files
 	char	index_flags = checkCharacteristics(index_file.c_str());
 
-printf("called. %s\n", index_file.c_str());
 	if (isOkToSend(index_flags))							// found a valid index file
 	{
 		_resp.getDir() = index_file;
@@ -191,7 +190,6 @@ void Responser::buildResponseHeader()
 	_head.append("Date: " + string(ctime(&now)) + CRNL);
 	_head += CRNL;
 }
-
 
 string	Responser::getDocType()
 {

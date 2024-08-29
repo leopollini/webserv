@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/27 20:12:42 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/29 19:18:12 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,6 @@ void	Server::createResp()
 	_resp.keepalive = true;
 	_resp._res_code = validateLocation();
 	cout << "Response code: " << _resp._res_code << '\n';
-	if (_resp._res_code == _REQUEST_DIR_LISTING)
-	// 	autoindexManager();
-	//					To be implemented...
-		_resp.getDir() = "";
 	_resp.buildResponseBody();
 	_resp.buildResponseHeader();
 }
@@ -260,6 +256,9 @@ void Responser::buildResponseBody()
 			cout << "Preparing 307 response. New URL: " << _serv->_return_info.dir << "\n";
 			_dir = DEFAULT_MOVED_FILE;
 			_body = REDIR_URL(_serv->_return_info.dir);
+		 return ;
+		case _REQUEST_DIR_LISTING :
+			// _cgi_man.start(AUTOINDEX_CGI_DIR, _dir);
 		 return ;
 		default:
 			timestamp("Could not send file at path \'" + _dir + "\'. Res code: " + itoa(_res_code) + '\n', ERROR);

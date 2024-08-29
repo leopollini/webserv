@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 20:36:37 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/29 19:40:09 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include "utils.hpp"
 # include "BetterSocket.hpp"
 # include "BetterSelect.hpp"
+# include "CGIManager.hpp"
 # include "Server.hpp"
 # include "Webserv.hpp"
 
@@ -37,6 +38,8 @@ class	Webserv
 	conf_t			_env;
 	conf_t			_doc_types;
 
+	CGIManager		_cgi_man;
+
 	Webserv(const Webserv &copy) {(void)copy;}
 	Webserv&	operator=(const Webserv &assignment) {(void)assignment; return *this;}
 	Webserv();
@@ -47,7 +50,7 @@ public:
 
 	void	docTypesInit();
 	char	parseConfig();
-	void	start();
+	void	start(char **prog_env);
 
 	void	addServer(Server *s) {_servers_down.push_back(s);}
 

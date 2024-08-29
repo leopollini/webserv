@@ -1,43 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   useful_structs.hpp                                 :+:      :+:    :+:   */
+/*   CGIManager.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/09 16:58:53 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/29 19:25:53 by lpollini         ###   ########.fr       */
+/*   Created: 2024/06/05 13:07:36 by fedmarti          #+#    #+#             */
+/*   Updated: 2024/08/29 19:26:23 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef USEFUL_STRUCTS_HPP
-# define USEFUL_STRUCTS_HPP
+#include "../include/utils.hpp"
+#include "../include/CGIManager.hpp"
 
-# include "utils.hpp"
-
-struct	location_t
+void	CGIManager::start(const string cgi_path, std::list<string> args)
 {
-	conf_t	stuff;
-	string	dir;
-	char	allows;
-	str_set	allowed_extensions; // ???
-};
+	char const**argv = new char *[args.size() + 2];
+	int	t = 1;
 
-struct request_t
-{
-	req_t		type;
-	string		dir;
-	string		host;
-	string		root;
-	location_t	*loc;
-
-	void	littel_parse(Server *s);
-};
-
-struct __return_info
-{
-	int		code;
-	string	dir;
-};
-
-#endif
+	argv[0] = cgi_path.c_str();
+	for (std::list<string>::iterator i = args.begin(); i != args.end(); ++i, ++t)
+		argv[t] = i->c_str();
+	argv[t] = NULL;
+	execve(argv[0], (char *const*)argv, _env);
+}

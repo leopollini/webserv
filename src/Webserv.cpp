@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/25 18:40:09 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/29 19:41:48 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,12 +125,13 @@ char	Webserv::parseConfig( void )
 	return 0;
 }
 
-void	Webserv::start()
+void	Webserv::start(char **prog_env)
 {
 	timestamp("Starting Webserv!\n",GREEN);
 	_up = true;
 	upAllServers();
-	
+
+	timestamp("CGI manager setup done!\n",GREEN);
 	while (_up)
 	{
 		if (!_servers_up.size())

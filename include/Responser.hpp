@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/25 19:49:12 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/29 19:17:03 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <iostream>
 # include "utils.hpp"
+# include "CGIManager.hpp"
 
 class	Server;
 
@@ -27,7 +28,7 @@ class Responser
 	location_t	*_loc;
 	char		_file_flags;
 	conf_t		_extra_args;
-
+	
 public:
 
 	class LocNull : public std::exception

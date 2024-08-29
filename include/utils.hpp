@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:37 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/24 17:45:41 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/29 18:55:32 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 # define UTILS_HPP
 
+# include <cstdarg>
 # include <sstream>
 # include <iostream>
 # include <string>
@@ -31,6 +32,7 @@
 # include <list>
 # include <map>
 # include <deque>
+# include <vector>
 # include <cmath>
 # include "utils.hpp"
 # include "parsing_util.hpp"
@@ -39,6 +41,7 @@
 # include "definitions.hpp"
 # include "useful_structs.hpp"
 
+// DIRECTIVES
 
 # define NEW_SERVER "server"
 # define NAME "server_name"
@@ -54,8 +57,5 @@
 # define L_AUTOINDEX "autoindex"
 # define L_ALLOW_METHODS "allow_methods"
 # define LOC_RETURN "return"
-# define RETURN_CODE "_return_code"
-# define RETURN_DIRECTORY "_return_directory"
-# define PERM_REDIR_RET "301"
 
 #endif
