@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/29 19:17:03 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/30 10:59:40 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ public:
 	Responser(Server *s) : _serv(s), _loc(NULL), _is_returning(false) {}
 
 	void	buildResponseHeader();
-	void	buildResponseBody();
+	char	buildResponseBody();
 
 	location_t	*getLoc() const {if (!_loc) cout << "getLoc() got a NULL??\n"; return _loc;}
 

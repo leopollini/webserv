@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/29 18:44:46 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/30 12:34:08 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,6 +175,93 @@ void	request_t::littel_parse(Server *s)
 	while (*--dir.end() == '/')	// erases trailing '/'s if present
 		dir.erase(--dir.end());
 	std::cout << "requested dir be: \'" << dir << "\'\n";
+}
+
+void	CGIManager::start(Server *s, const string cgi_path, ...)
+{
+	va_list						ap;
+	std::vector<const char *>	args;
+	char const 					*temp;
+	pid_t						fk;
+
+	va_start(ap, cgi_path);
+	args.push_back(cgi_path.c_str());
+	do {
+		temp = va_arg(ap, const char *);
+		args.push_back(temp);
+	} while (temp);
+	
+	if (!(fk = fork()))
+	{
+		dup2(s->getFd(), STDOUT_FILENO);
+		execve(args[0], (char *const*)args.data(), _env);
+		Webserv::getInstance().stop();
+		// This child fails. Check again
+		return ;
+	}
+	timestamp("Child started!!");
+	
+	va_end(ap);
+}
+
+// look for better method. Big switch uglyyy :((
+char	Responser::buildResponseBody()
+{
+	//check file existance
+	try
+	{
+		switch (_res_code)
+		{
+		case OK :
+			cout << "Reading \n";
+		 break ;
+		case NOT_FOUND :
+			_dir = _serv->getEnv(E_404, _loc);
+			cout << "Looking for 404 response" <<  "'\n";
+		 break ;
+		case FORBIDDEN :
+			_dir = _serv->getEnv(E_403, _loc);
+			cout << "Looking for 403 response in \n";
+		 break ;
+		case METHOD_NOT_ALLOWED :
+			_dir = _serv->getEnv(E_405, _loc);
+			cout << "Looking for 405 response in \n";
+		 break ;
+		case MOVED_PERMANENTLY :
+			_extra_args["Location"] = _serv->_return_info.dir;
+			_dir = DEFAULT_MOVED_FILE;
+			cout << "Preparing 301 response. Redir: " << _serv->_return_info.dir << "\n";
+		 break ;
+		case FOUND :
+			_extra_args["Location"] = _serv->_return_info.dir;
+			_dir = DEFAULT_MOVED_FILE;
+			cout << "Preparing 302 response. Redir: " << _serv->_return_info.dir << "\n";
+		 break ;
+		case PERMANENT_REDIRECT :
+			cout << "Preparing 308 response. New URL: " << _serv->_return_info.dir << "\n";
+			_dir = DEFAULT_MOVED_FILE;
+			_body = REDIR_URL(_serv->_return_info.dir);
+		 return 0;
+		case TEMPORARY_REDIRECT :
+			cout << "Preparing 307 response. New URL: " << _serv->_return_info.dir << "\n";
+			_dir = DEFAULT_MOVED_FILE;
+			_body = REDIR_URL(_serv->_return_info.dir);
+		 return 0;
+		case _REQUEST_DIR_LISTING :
+			Webserv::getInstance()._cgi_man.start(_serv, AUTOINDEX_CGI_DIR, _dir.c_str(), "AJSHDGASDG", 0);
+		 return -1;
+		default:
+			timestamp("Could not send file at path \'" + _dir + "\'. Res code: " + itoa(_res_code) + '\n', ERROR);
+			return 0;
+		}
+		_body = Parsing::read_file(_dir);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+		cout << "Body not constructed! ):\n";
+	}
+	return 0;
 }
 
 void Responser::buildResponseHeader()

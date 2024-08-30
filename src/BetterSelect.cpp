@@ -186,7 +186,7 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 			req_t request_type = i->second->recieve(i->first);
 
 			log_request(request_type, i->first);
-			if (request_type == FINISH || request_type == INVALID)
+			if (request_type == FINISH || request_type == INVALID || i->second->getRes() ==_REQUEST_DIR_LISTING)
 			{
 				if (request_type == INVALID)
 					cout << "Invalid request. Closing\n";
@@ -206,6 +206,7 @@ void	BetterSelect::err_close_clis()
 	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 		if (fcntl(i->first, F_GETFD) || !i->second)
 			delResponseConnection(i->first);
+	cout << "Called Err close dir\n";
 }
 
 void	BetterSelect::selectReadAndWrite()
@@ -221,7 +222,7 @@ void	BetterSelect::selectReadAndWrite()
 	fd_set			writefds = _write_pool;
 	
 	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
-	if (t <= 0)
+	if (t < 0)
 		return (err_close_clis());
 	_handleRequestResponse(readfds, writefds);
 	_acceptNewConnections(readfds);

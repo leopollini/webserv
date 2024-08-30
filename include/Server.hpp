@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/27 17:53:39 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/30 11:47:35 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class	Server
 	char			_recieved_head[HEAD_BUFFER];
 	size_t			_msg_len;
 	locations_list	_loc_ls;
+	int				_fd;
 	
 
 	request_t		_current_request;
@@ -65,6 +66,8 @@ public:
 	int		getPort() {return atoi(_env[PORT].c_str());}
 	char	getState() {return _state;}
 	int		getId() {return _id;}
+	short	getRes() {return _resp._res_code;}
+	int		getFd() {return _fd;}
 	
 	void	setup();
 	
@@ -76,7 +79,7 @@ public:
 	bool	respond(int fd);
 	void	closeConnection(int fd);
 	void	createResp();
-	req_t	parseMsg(int fd);
+	req_t	parseMsg();
 
 	void	printHttpRequest(string &msg, int fd_from);
 

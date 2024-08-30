@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/29 19:41:48 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/29 19:51:17 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ Webserv &Webserv::getInstance()
 	return (_Singleton);
 }
 
-Webserv::Webserv() : _conf(DEFAULT_CONF)
+Webserv::Webserv() : _conf(DEFAULT_CONF), _cgi_man(_sel)
 {
 	timestamp("Setting up Webserv!\n", CYAN);
 	docTypesInit();
@@ -125,12 +125,12 @@ char	Webserv::parseConfig( void )
 	return 0;
 }
 
-void	Webserv::start(char **prog_env)
+void	Webserv::start(char **prog_envp)
 {
 	timestamp("Starting Webserv!\n",GREEN);
 	_up = true;
 	upAllServers();
-
+	_cgi_man._env = prog_envp;
 	timestamp("CGI manager setup done!\n",GREEN);
 	while (_up)
 	{

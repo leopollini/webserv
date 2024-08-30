@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/29 19:18:12 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/30 11:45:48 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,14 @@
 #include "../include/Responser.hpp"
 #include "Webserv.hpp"
 
-req_t Server::parseMsg(int fd)
+req_t Server::parseMsg()
 {
 	string	msg(_recieved_head);
 	string	cmd;
 	size_t	space_pos;
 
 	msg = msg.substr(0, msg.find('\n'));
-	printHttpRequest(msg, fd);
+	printHttpRequest(msg, _fd);
 	cmd = msg.substr(0, space_pos = msg.find(' '));
 
 	if (space_pos > msg.size())
@@ -54,19 +54,57 @@ void	Server::createResp()
 	_resp.keepalive = true;
 	_resp._res_code = validateLocation();
 	cout << "Response code: " << _resp._res_code << '\n';
-	_resp.buildResponseBody();
+	if (_resp.buildResponseBody())
+		return ;
 	_resp.buildResponseHeader();
+}
+
+status_code_t	Server::validateLocation()
+{
+	cout << "Looking for " << _current_request.dir << ". Allowed method flag: " << (int)_current_request.loc->allows << "\n";
+	_resp = _current_request;	// overloaded. Copies members dir and loc pointer
+	string target_file;
+	status_code_t	t;
+
+	if (_resp._is_returning)
+	{
+		lookForPlaceholders();
+		return ((status_code_t)(_resp._res_code = _return_info.code));
+	}
+	
+	if (_current_request.dir.empty())
+		return (INTERNAL_SEVER_ERROR);
+		
+	_resp.getFileFlags() = checkCharacteristics(_current_request.dir.c_str());
+
+	if (!exists(_resp.getFileFlags()))
+		return NOT_FOUND;
+		
+	if ((_resp.getFileFlags() & C_DIR) && (t = manageDir()) != _ZERO)// is a directory
+		return t;
+
+	if (!(_resp.getLoc()->allows & _current_request.type))
+		return (METHOD_NOT_ALLOWED);
+		
+	if (isOkToSend(_resp.getFileFlags()))
+		return OK;
+		
+	else if (_resp.getFileFlags() & C_FILE)
+		return FORBIDDEN;
+
+	return INTERNAL_SEVER_ERROR;
 }
 
 req_t Server::recieve(int fd)
 {
-	cout << "Readimg from " << fd << "...\n";
-	if (!(_msg_len = read(fd, _recieved_head, HEAD_BUFFER)))
+	_fd = fd;
+	cout << "Readimg from " << _fd << "...\n";
+	if (!(_msg_len = read(_fd, _recieved_head, HEAD_BUFFER)))
 		return FINISH;
 	if (_msg_len == HEAD_BUFFER)
 		throw HeadMsgTooLong();
 	_recieved_head[_msg_len] = 0;
-	parseMsg(fd);
+	parseMsg();
 	createResp();
 	return _current_request.type;
 }
@@ -163,45 +201,6 @@ void	Server::lookForPlaceholders()
 	}
 }
 
-status_code_t	Server::validateLocation()
-{
-	cout << "Looking for " << _current_request.dir << ". Allowed method flag: " << (int)_current_request.loc->allows << "\n";
-	_resp = _current_request;	// overloaded. Copies members dir and loc pointer
-	string target_file;
-	status_code_t	t;
-
-
-	if (_resp._is_returning)
-	{
-		lookForPlaceholders();
-		return ((status_code_t)(_resp._res_code = _return_info.code));
-	}
-	
-	if (_current_request.dir.empty())
-		return (INTERNAL_SEVER_ERROR);
-		
-	_resp.getFileFlags() = checkCharacteristics(_current_request.dir.c_str());
-
-	if (!exists(_resp.getFileFlags()))
-		return NOT_FOUND;
-		
-	if ((_resp.getFileFlags() & C_DIR) && (t = manageDir()) != _ZERO)// is a directory
-		return t;
-
-	if (!(_resp.getLoc()->allows & _current_request.type))
-		return (METHOD_NOT_ALLOWED);
-		
-		
-	if (isOkToSend(_resp.getFileFlags()))
-		return OK;
-		
-	else if (_resp.getFileFlags() & C_FILE)
-		return FORBIDDEN;
-
-	return INTERNAL_SEVER_ERROR;
-}
-
-
 bool	Server::respond(int fd)
 {
 	std::cout << "Server " + itoa(_id) + ": Called by fd " << fd << " for response!\n";
@@ -212,65 +211,4 @@ bool	Server::respond(int fd)
 	_resp.clear();
 
 	return _resp.keepalive;
-}
-
-// look for better method. Big switch uglyyy :((
-void Responser::buildResponseBody()
-{
-	//check file existance
-	try
-	{
-		switch (_res_code)
-		{
-		case OK :
-			cout << "Reading \n";
-		 break ;
-		case NOT_FOUND :
-			_dir = _serv->getEnv(E_404, _loc);
-			cout << "Looking for 404 response" <<  "'\n";
-		 break ;
-		case FORBIDDEN :
-			_dir = _serv->getEnv(E_403, _loc);
-			cout << "Looking for 403 response in \n";
-		 break ;
-		case METHOD_NOT_ALLOWED :
-			_dir = _serv->getEnv(E_405, _loc);
-			cout << "Looking for 405 response in \n";
-		 break ;
-		case MOVED_PERMANENTLY :
-			_extra_args["Location"] = _serv->_return_info.dir;
-			_dir = DEFAULT_MOVED_FILE;
-			cout << "Preparing 301 response. Redir: " << _serv->_return_info.dir << "\n";
-		 break ;
-		case FOUND :
-			_extra_args["Location"] = _serv->_return_info.dir;
-			_dir = DEFAULT_MOVED_FILE;
-			cout << "Preparing 302 response. Redir: " << _serv->_return_info.dir << "\n";
-		 break ;
-		case PERMANENT_REDIRECT :
-			cout << "Preparing 308 response. New URL: " << _serv->_return_info.dir << "\n";
-			_dir = DEFAULT_MOVED_FILE;
-			_body = REDIR_URL(_serv->_return_info.dir);
-		 return ;
-		case TEMPORARY_REDIRECT :
-			cout << "Preparing 307 response. New URL: " << _serv->_return_info.dir << "\n";
-			_dir = DEFAULT_MOVED_FILE;
-			_body = REDIR_URL(_serv->_return_info.dir);
-		 return ;
-		case _REQUEST_DIR_LISTING :
-			// _cgi_man.start(AUTOINDEX_CGI_DIR, _dir);
-		 return ;
-		default:
-			timestamp("Could not send file at path \'" + _dir + "\'. Res code: " + itoa(_res_code) + '\n', ERROR);
-			return ;
-		}
-		_body = Parsing::read_file(_dir);
-		
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-		cout << "Body not constructed! ):\n";
-	}
-	
 }

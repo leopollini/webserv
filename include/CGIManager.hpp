@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 11:47:44 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/29 19:41:30 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/30 11:46:30 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,26 +14,25 @@
 # define CGIMANAGER_HPP
 
 # include "utils.hpp"
-# include "BetterSelect.hpp"
 
-struct BetterSelect;
+struct	BetterSelect;
+class	Server;
 
-class	CGIManager
+struct	CGIManager
 {
 	char 			**_env;
-	BetterSelect	&_bspt;
+	BetterSelect	&_bs;
 
+	// DON'T USE
 	CGIManager&	operator=(const CGIManager &assignment) {(void)assignment; return *this;}
-	CGIManager(const CGIManager &copy) {(void)copy;}
-public :
-	CGIManager() {}
+	// DON'T USE
+	CGIManager(const CGIManager &copy) : _bs(copy._bs) {(void)copy;}
+	// DON'T USE
+	CGIManager(BetterSelect &bs) : _bs(bs) {}
 	~CGIManager() {}
 
-	void	start(const string cgi_path, std::list<string> args);
-	// getter/setter via pointer
-	char	***getEnv() {return &_env;}
-	// getter/setter via pointer
-	BetterSelect	*getSelect() {return _bspt;}
+	// All cariadic args MUST be char * and the last arg MUST be a NULL
+	void	start(Server *s, const string cgi_path, ...);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/29 19:40:09 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/08/30 11:50:17 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,19 +38,20 @@ class	Webserv
 	conf_t			_env;
 	conf_t			_doc_types;
 
-	CGIManager		_cgi_man;
 
-	Webserv(const Webserv &copy) {(void)copy;}
+	Webserv(const Webserv &copy) : _cgi_man(_sel) {(void)copy;}
 	Webserv&	operator=(const Webserv &assignment) {(void)assignment; return *this;}
 	Webserv();
 	// Webserv(const char *filename = DEFAULT_CONF);
 	~Webserv();
 public:
+	CGIManager		_cgi_man;
 	static Webserv &getInstance();
 
 	void	docTypesInit();
 	char	parseConfig();
-	void	start(char **prog_env);
+	void	start(char **prog_envp);
+	void	stop() {_up = false;}
 
 	void	addServer(Server *s) {_servers_down.push_back(s);}
 
