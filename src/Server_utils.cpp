@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/03 17:21:54 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 18:39:26 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ Server::~Server()
 		close(*i);
 	for (locations_list::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
 		delete *i;
+	close(_sock.fd);
 }
 
 int	Server::Accept()
