@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/08/29 18:37:26 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 19:28:49 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,28 +17,29 @@
 #include <map>
 #include <set>
 
-# define ERROR RED // do not expand
+# define ERROR RED
 # define WARNING YELLOW
 # define DEBUG CYAN
 # define INFO WHITE
 # define DONE GREEN
 # define CONNECT MAGENTA
 # define REC_MSG_PRNT GRAYI,COLORII
+# define CRNL "\r\n"
 
 # define DOWN_SERVER_TRIES_MAX 20
 # define DOWN_SERVER_SLEEP_MS 2000
 # define DOWN_SERVER_MAX 20
 # define NO_SERVER_SLEEP_TIME_MS 30000
 # define MAX_CONNECTIONS 1
-# define DEFAULT_CONF "test.config"
-# define CRNL "\r\n"
+# define DEFAULT_RETURN_RESCODE 200
 # define CONNECTION_TIMEOUT 30 // measured in secs
+# define DEFAULT_CONF "test.config"
 # define SERVER_DEFAULT_PORT "8080"
 # define SERVER_DEFAULT_ROOT "."
 # define SERVER_DEFAULT_NAME "default_server_name"
-# define DEFAULT_RETURN_RESCODE 200
 # define DEFAULT_MOVED_FILE "redirect_file.html"
-# define AUTOINDEX_CGI_DIR "dir_list_cgi.sh"
+# define DEFAULT_AUTOINDEX_CGI_DIR "dir_list_cgi.sh"
+# define DEFAULT_INDEX_FILE "index.html"
 
 # define REDIR_URL(s) "<head>\n<meta http-equiv=\"Refresh\" content=\"0; URL="+s+"\" />\n</head>"
 
@@ -109,6 +110,7 @@ typedef enum	e_status_code
 {
 	_ZERO = 0,
 	_REQUEST_DIR_LISTING = 1,
+	_CGI_RETURN,
 	CONTINUE = 100,
 	SWITCHING_PROTOCOLS,
 	PROCESSING,

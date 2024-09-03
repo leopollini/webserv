@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/30 10:59:40 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 20:29:16 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,11 @@ public:
 		}
 
 	};
-	bool		keepalive;
 	short		_res_code;
-	bool		_is_returning;
+	bool		keepalive;
+
+// use 0 for no return, 1 for regular return, -1 for cgi return
+	char		_is_returning;
 
 	Responser(Server *s) : _serv(s), _loc(NULL), _is_returning(false) {}
 
@@ -64,12 +66,7 @@ public:
 	}
 
 	// Implement error for too long message bodies
-	void	Send(int fd)
-	{
-		cout << "Trying to send " << size() << " bytes to " << fd << "... ";
-		send(fd, (_head + _body).c_str(), (size()), MSG_EOR);
-		timestamp("Done!\n", DONE, BOLD, false);
-	}
+	void	Send(int fd);
 	
 	Responser &operator=(const request_t &t)
 	{
@@ -84,8 +81,6 @@ public:
 	size_t	getBodyLen() {return _body.size();}
 	// 	string	getResServer() {return "Lolserv";}
 	string	getDocType();
-
-	string	res_404();
 };
 
 #endif

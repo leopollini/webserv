@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/03 17:05:27 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 19:32:38 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ Webserv &Webserv::getInstance()
 Webserv::Webserv() : _conf(DEFAULT_CONF), _cgi_man(_sel)
 {
 	timestamp("Setting up Webserv!\n", CYAN);
-	docTypesInit();
 	signal(SIGINT, gracefullyQuit);
+	mapsInit();
 }
 
 Webserv::~Webserv()
@@ -37,13 +37,15 @@ Webserv::~Webserv()
 		delete *i;
 }
 
-// add anything useful. Every not recgnized extension is mapped to "default", which tells the browser to download the file
-void	Webserv::docTypesInit()
+void	Webserv::mapsInit()
 {
 	_doc_types[".html"] = "text/html";
 	_doc_types[".css"] = "text/css";
-	_doc_types[".cpp"] = "text/html";
+	_doc_types[".cpp"] = "text/cpp";
 	_doc_types[".hpp"] = "text/html";
+	
+	_env[CGI_AUTOINDEX_DIR] = DEFAULT_AUTOINDEX_CGI_DIR;
+	_env[L_INDEX] = DEFAULT_INDEX_FILE;
 }
 
 void	fill_line(conf_t *env, list<Parsing::token>::iterator &s)

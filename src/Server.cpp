@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/30 11:45:48 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 20:50:21 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,10 @@ req_t Server::parseMsg()
 	printHttpRequest(msg, _fd);
 	cmd = msg.substr(0, space_pos = msg.find(' '));
 
-	if (space_pos > msg.size())
+	_current_request.type = INVALID;
+	if (space_pos == string::npos || msg.find('/') != space_pos + 1)
 		return INVALID;
 	//  FIND HOST!!!
-	_current_request.type = INVALID;
 	if (cmd == "GET")
 		_current_request.type = GET;
 	else if (cmd == "POST")
@@ -61,16 +61,17 @@ void	Server::createResp()
 
 status_code_t	Server::validateLocation()
 {
-	cout << "Looking for " << _current_request.dir << ". Allowed method flag: " << (int)_current_request.loc->allows << "\n";
+	cout << "Looking for " << _current_request.dir;
+	cout << ". Allowed method flag: " << (int)_current_request.loc->allows << "\n";
 	_resp = _current_request;	// overloaded. Copies members dir and loc pointer
 	string target_file;
 	status_code_t	t;
 
-	if (_resp._is_returning)
-	{
-		lookForPlaceholders();
-		return ((status_code_t)(_resp._res_code = _return_info.code));
-	}
+	if (_resp._is_returning > 0)
+		return lookForPlaceholders(), ((status_code_t)(_resp._res_code = _return_info.code));
+
+	if (_resp._is_returning < 0)
+		return _CGI_RETURN;
 	
 	if (_current_request.dir.empty())
 		return (INTERNAL_SEVER_ERROR);
@@ -104,7 +105,8 @@ req_t Server::recieve(int fd)
 	if (_msg_len == HEAD_BUFFER)
 		throw HeadMsgTooLong();
 	_recieved_head[_msg_len] = 0;
-	parseMsg();
+	if (parseMsg() == INVALID)
+		return INVALID;
 	createResp();
 	return _current_request.type;
 }
@@ -178,8 +180,10 @@ void	Server::matchRequestLocation(request_t &request)
 			{
 				cout << "Redirection failed: " << e.what() << '\n';
 			}
-			_resp._is_returning = true;
+			_resp._is_returning = 1;
 		}
+		if (!location->stuff[LOC_CGI_RETURN].empty())
+			_resp._is_returning = -1;
 	}
 }
 

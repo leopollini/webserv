@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/03 18:39:26 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 20:49:49 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,11 +118,11 @@ status_code_t	Server::manageDir()
 	string 	index_file;
 
 	if (getEnv(L_AUTOINDEX, _resp.getLoc()) == "yes")		// autoindex on
-		return (_REQUEST_DIR_LISTING);
+		return _REQUEST_DIR_LISTING;
 	
 	index_file = getEnv(L_INDEX, _current_request.loc);
 	if (index_file.empty())									// no index file found
-		return (FORBIDDEN);
+		return FORBIDDEN;
 
 	if (_resp.getDir()[_resp.getDir().size() - 1] != '/')
 		_resp.getDir() += '/';
@@ -136,7 +136,7 @@ status_code_t	Server::manageDir()
 		_resp.getFileFlags() = index_flags;
 	}
 	else
-		return (FORBIDDEN);
+		return FORBIDDEN;
 	return _ZERO;
 }
 
@@ -197,7 +197,7 @@ void	CGIManager::start(Server *s, const string cgi_path, ...)
 		dup2(s->getFd(), STDOUT_FILENO);
 		execve(args[0], (char *const*)args.data(), _env);
 		Webserv::getInstance().stop();
-		// This child fails. Check again
+		std::cerr << "A child crashed!! Chekkk!\n";
 		return ;
 	}
 	timestamp("Child started!!\n");
@@ -249,7 +249,10 @@ char	Responser::buildResponseBody()
 			_body = REDIR_URL(_serv->_return_info.dir);
 		 return 0;
 		case _REQUEST_DIR_LISTING :
-			Webserv::getInstance()._cgi_man.start(_serv, AUTOINDEX_CGI_DIR, _dir.c_str(), "AJSHDGASDG", 0);
+			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir.c_str(), 0);
+		 return -1;
+		case _CGI_RETURN :
+			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir.c_str(), 0);
 		 return -1;
 		default:
 			timestamp("Could not send file at path \'" + _dir + "\'. Res code: " + itoa(_res_code) + '\n', ERROR);
@@ -283,12 +286,23 @@ void Responser::buildResponseHeader()
 string	Responser::getDocType()
 {
 	size_t	dot = _dir.find_last_of('.');
+	string	t;
 
 	if (dot == string::npos)
 		return "default";
-	string t = Webserv::getInstance().findDocType(_dir.substr(dot));
-	if (t.empty())
+	if ((t = Webserv::getInstance().findDocType(_dir.substr(dot))).empty())
 		return "default";
 	return t;
 }
 
+void	Responser::Send(int fd)
+{
+	{
+		cout << "Trying to send " << size() << " bytes to " << fd << "... ";
+		if (_serv->getReqType() == HEAD)
+			send(fd, _body.c_str(), _head.size(), MSG_EOR);
+		else
+			send(fd, (_head + _body).c_str(), size(), MSG_EOR);
+		timestamp("Done!\n", DONE, BOLD, false);
+	}
+}

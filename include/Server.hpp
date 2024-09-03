@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/30 11:47:35 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 19:38:09 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ public:
 	int		getId() {return _id;}
 	short	getRes() {return _resp._res_code;}
 	int		getFd() {return _fd;}
+	req_t	getReqType() {return _current_request.type;}
 	
 	void	setup();
 	

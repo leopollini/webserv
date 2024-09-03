@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/30 11:50:17 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 19:33:46 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class	Webserv
 {
 	//single instance
 	static Webserv	_Singleton;
-	
+
 	string			_conf;
 	static bool		_up;
 	serv_list		_servers_up;
@@ -44,11 +44,11 @@ class	Webserv
 	Webserv();
 	// Webserv(const char *filename = DEFAULT_CONF);
 	~Webserv();
+	void	mapsInit();
 public:
 	CGIManager		_cgi_man;
 	static Webserv &getInstance();
 
-	void	docTypesInit();
 	char	parseConfig();
 	void	start(char **prog_envp);
 	void	stop() {_up = false;}
@@ -64,7 +64,7 @@ public:
 	void			setConf(string file_name);
 
 	string	&getEnv( string key) {return (_env[key]);}
-	string	findDocType(const string &s) {return _doc_types.find(s)->second;}
+	string	findDocType(const string &s) {return _doc_types[s];}
 
 	class MissingConfigFile : public std::exception
 	{

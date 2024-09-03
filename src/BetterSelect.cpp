@@ -187,8 +187,6 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 			log_request(request_type, i->first);
 			if (request_type == FINISH || request_type == INVALID || i->second->getRes() ==_REQUEST_DIR_LISTING)
 			{
-				if (request_type == INVALID)
-					cout << "Invalid request. Closing\n";
 				rmFd(i->first, i->second);
 				continue ;
 			}

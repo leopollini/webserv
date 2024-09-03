@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:01:08 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/03 16:59:45 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 20:28:50 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,6 @@ struct	BetterSocket
 	void				init(short port, int address = INADDR_ANY)
 	{
 		while (0); // prevent inline-ing
-		if (fd >= 0)
-			close(fd);
 		if ((fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) < 0)
 			throw FailedSocketCreation();
 		addr.sin_family = AF_INET;
@@ -50,6 +48,7 @@ struct	BetterSocket
 	void				down() {close (fd);}
 
 	BetterSocket() : sock(-1), fd(-1)  {}
+	~BetterSocket() {down();}
 
 	class FailedSocketCreation : public std::exception
 	{
