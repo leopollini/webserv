@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/29 19:51:17 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 17:05:27 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,8 +172,8 @@ void	Webserv::upAllServers()
 		}
 		catch(const std::exception& e)
 		{
-			if (++(*i)->_down_count >= DOWN_SERVER_TRIES_MAX)
-				continue ;
+			close((*i)->getSockFd());
+			++(*i)->_down_count;
 			timestamp("Failed to setup Port " + itoa((*i)->getPort()) + ": " + string(e.what()) + '\n', ERROR);
 			i++;
 		}

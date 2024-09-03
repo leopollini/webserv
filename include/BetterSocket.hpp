@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:01:08 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/24 17:18:48 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 16:59:45 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,7 @@ struct	BetterSocket
 		sock = accept(fd, (struct sockaddr *)&client, &len);
 		return sock;
 	}
-	void	down()
-	{
-		close (fd);
-	}
+	void				down() {close (fd);}
 
 	BetterSocket() : sock(-1), fd(-1)  {}
 

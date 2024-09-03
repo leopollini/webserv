@@ -100,13 +100,12 @@ int	BetterSelect::getBiggestFd()
 }
 
 //iterates through connection map and if anyone has outlived its expiration time it's closed
-// returns whether any connection has been closed
 void	BetterSelect::closeTimedOut()
 {
 	if (!_clis_map.size())
 		return ;
 	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
-		if (time(NULL) - _timeout_map[i->first] > CONNECTION_TIMEOUT && i->second)
+		if (i->second && time(NULL) - _timeout_map[i->first] > CONNECTION_TIMEOUT)
 			rmFd(i->first, i->second);
 	return ;
 }
@@ -206,7 +205,7 @@ void	BetterSelect::err_close_clis()
 	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 		if (fcntl(i->first, F_GETFD) || !i->second)
 			delResponseConnection(i->first);
-	cout << "Called Err close dir\n";
+	cout << "Called Err close clis\n";
 }
 
 void	BetterSelect::selectReadAndWrite()
@@ -216,7 +215,7 @@ void	BetterSelect::selectReadAndWrite()
 	
 	if (!_tot_size)
 		return ;
-	// closeTimedOut();
+	closeTimedOut();
 
 	fd_set			readfds = _read_pool;
 	fd_set			writefds = _write_pool;

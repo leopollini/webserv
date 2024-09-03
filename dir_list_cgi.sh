@@ -9,9 +9,9 @@ if [ "$?" -ne "0" ]; then
 	exit -1;
 fi
 
-printf "HTTP/1.1 200 OK\r\nContent-Type: default\r\nServer: autoindex_cgi\r\nDate: $(date -R)\r\c" 
+printf "HTTP/1.1 200 OK\r\nContent-Type: default\r\nServer: autoindex_cgi\r\nDate: $(date -R)\r\n\r\n" 
 
-A=$(echo "<html><head>
+echo "<html><head>
 <meta charset="UTF-8">
 <style type="text/css">
 :root {
@@ -128,7 +128,6 @@ echo "$FILES" | sed 1d |
 while IFS= read -r line; do
 	asd=( $line )
 	if [[ ${asd[0]} == d* ]]; then
-	echo ${asd[0]} >> filelol
 		echo "<tr class="'"'"hidden-object"'"'">
 <td data="'"'"${asd[8]}"'"'"><table class="'"'"ellipsis"'"'"><tbody><tr><td><a class="'"'"dir"'"'" href="'"'"${asd[8]}/"'"'">${asd[8]}</a></td></tr></tbody></table></td>
 <td></td>
@@ -137,7 +136,7 @@ while IFS= read -r line; do
 </tr>"
 	else
 		echo "<tr class="'"'"hidden-object"'"'">
-<td data="'"'"${asd[8]}"'"'"><table class="'"'"ellipsis"'"'"><tbody><tr><td><a class="'"'"file"'"'" href="'"'"${asd[8]}/"'"'"><img src="moz-icon://unknown?size=16" alt="File:">${asd[8]}</a></td></tr></tbody></table></td>
+<td data="'"'"${asd[8]}"'"'"><table class="'"'"ellipsis"'"'"><tbody><tr><td><a class="'"'"file"'"'" href="'"'"${asd[8]}/"'"'"><img src="moz-icon://unknown?size=16" alt="">${asd[8]}</a></td></tr></tbody></table></td>
 <td data="$((asd[4]/10))">$((asd[4]/1000)) KB</td>
 <td data="'"'"0"'"'">${asd[6]}/${asd[5]}</td>
 <td>${asd[7]}</td>
@@ -146,7 +145,3 @@ while IFS= read -r line; do
 done
 echo "</tbody></table>
 </body></html>"
-)
-
-printf "Content-Length: ${#A}\r\n\r\n"
-echo $A

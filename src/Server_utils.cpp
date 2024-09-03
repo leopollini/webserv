@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/30 12:34:08 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 17:21:54 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,7 +199,7 @@ void	CGIManager::start(Server *s, const string cgi_path, ...)
 		// This child fails. Check again
 		return ;
 	}
-	timestamp("Child started!!");
+	timestamp("Child started!!\n");
 	
 	va_end(ap);
 }
@@ -272,9 +272,10 @@ void Responser::buildResponseHeader()
 	for (conf_t::iterator i = _extra_args.begin(); i != _extra_args.end(); ++i)
 		_head.append(i->first + ": " + i->second + CRNL);
 	_head.append("Content-Type: " + getDocType() + CRNL);
-	_head.append("Content-Length: " + itoa(getBodyLen()) + CRNL);
+	_head.append("Content-Length: " + itoa(_body.size()) + CRNL);
 	_head.append("Server: " + _serv->getEnv(NAME) + CRNL);
 	_head.append("Date: " + string(ctime(&now)) + CRNL);
+// _head.append(string("Keepalive: false") + CRNL);
 	_head += CRNL;
 }
 
