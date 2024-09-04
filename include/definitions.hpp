@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   definitions.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/08/21 17:24:38 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 19:35:13 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,8 @@
 # define L_ALLOW_METHODS "allow_methods"
 # define L_MAX_BODY_SIZE "max_body_size"
 
-# define H_BODY_SIZE "Content-Length" 
+# define H_BODY_SIZE "Content-Length"
+# define H_TRANSFER_ENCODING "Transfer-encoding"
 
 using std::string;
 using std::cout;

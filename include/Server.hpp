@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/21 17:20:11 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 20:04:09 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include "definitions.hpp"
 # include "Responser.hpp"
 # include "useful_structs.hpp"
+# include "TransferDecoder.hpp"
 
 # define HEAD_RESERVE 130
 

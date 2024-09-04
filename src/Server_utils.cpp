@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_utils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/21 17:24:41 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/03 20:53:38 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -311,9 +311,11 @@ static	req_t continue_incomplete_request(request_t &request, int fd)
 		return (INCOMPLETE);
 
 	request.complete = true;
+	TransferDecoder::decodeRequestBody(request);
 	printHttpRequest(request);
 	return (request.type);
 }
+
 
 req_t Server::receive(int fd)
 {
@@ -350,18 +352,22 @@ req_t Server::receive(int fd)
 
 	if (request.type == POST || request.type == DELETE) // all handled methods with body
 	{
+		bool chunked_encoding = TransferDecoder::isEncoded(request);
+
 		size_t body_size = static_cast<size_t>(atoi(request.header[H_BODY_SIZE].c_str()));
 		string &max_body_size = getEnv(L_MAX_BODY_SIZE, request.loc);
 
 		if (max_body_size != "" && body_size > (size_t)atoi(max_body_size.c_str()))
 			throw BodyMsgTooLong();
+		
 
-		if ( bytes_read == BUFFER_SIZE && body_size > request.body.size())
+		if ( bytes_read == BUFFER_SIZE && (chunked_encoding || body_size > request.body.size()) )
 		{
 			request.complete = false;
 			return INCOMPLETE;
 		}
 	}
+	TransferDecoder::decodeRequestBody(request);
 	printHttpRequest(request);
 	// return parseMsg(fd);
 	return request.type;
