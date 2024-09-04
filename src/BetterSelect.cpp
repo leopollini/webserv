@@ -23,17 +23,17 @@ BetterSelect::~BetterSelect()
 {
 	FD_ZERO(&_read_pool);
 	FD_ZERO(&_write_pool);
-	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); i++)
+	for (connections_map_t::iterator i = _clis_map.begin(); i != _clis_map.end(); i++)
 		close(i->first);
-	for (connections_map::iterator i = _servs_map.begin(); i != _servs_map.end(); i++)
+	for (connections_map_t::iterator i = _servs_map.begin(); i != _servs_map.end(); i++)
 		close(i->first);
 }
 
-void	BetterSelect::loadServFds(serv_list &ls)
+void	BetterSelect::loadServFds(serv_list_t &ls)
 {
 	_tot_size = ls.size();
 	_servs_map.clear();
-	for (serv_list::iterator s = ls.begin(); s != ls.end(); s++)
+	for (serv_list_t::iterator s = ls.begin(); s != ls.end(); s++)
 		if ((*s)->getState() == 1)
 			addConnectionServ((*s)->getSockFd(), *s);
 }
@@ -86,7 +86,7 @@ void	BetterSelect::delConnectionServ(int fd)
 
 void	BetterSelect::closeAllClis()
 {
-	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
+	for (connections_map_t::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 		if (i->second)
 			i->second->closeConnection(i->first);
 }
@@ -103,7 +103,7 @@ void	BetterSelect::closeTimedOut()
 {
 	if (!_clis_map.size())
 		return ;
-	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
+	for (connections_map_t::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 		if (i->second && time(NULL) - _timeout_map[i->first] > CONNECTION_TIMEOUT)
 			rmFd(i->first, i->second);
 	return ;
@@ -111,7 +111,7 @@ void	BetterSelect::closeTimedOut()
 
 void	BetterSelect::_acceptNewConnections(fd_set &read_fds)
 {
-	for (connections_map::iterator i = _servs_map.begin(); i != _servs_map.end(); i++)
+	for (connections_map_t::iterator i = _servs_map.begin(); i != _servs_map.end(); i++)
 	{
 		if (FD_ISSET(i->first, &read_fds))
 		{
@@ -159,7 +159,7 @@ static void	log_request(req_t type, const int socket_fd)
 
 void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 {
-	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
+	for (connections_map_t::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 	{
 		if (!i->second || i->first != _current_connection_fd)
 			continue;
@@ -172,7 +172,7 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 			return ;
 		}
 	}
-	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
+	for (connections_map_t::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 	{
 		if (!i->second)
 			continue;
@@ -196,7 +196,7 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 
 void	BetterSelect::err_close_clis()
 {
-	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
+	for (connections_map_t::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 		if (fcntl(i->first, F_GETFD) || !i->second)
 			delResponseConnection(i->first);
 	cout << "Called Err close clis\n";

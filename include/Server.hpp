@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 10:05:52 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 15:12:34 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Responser;
 
 class	Server
 {
-	fd_list			_clientfds;
+	fd_list_t		_clientfds;
 
 	short			_id;
 	BetterSocket	_sock;
@@ -35,7 +35,7 @@ class	Server
 	conf_t			_env;
 	char			_recieved_head[HEAD_BUFFER];
 	size_t			_msg_len;
-	locations_list	_loc_ls;
+	locations_list_t	_loc_ls;
 	int				_fd;
 	
 

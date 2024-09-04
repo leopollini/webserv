@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 13:23:58 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 15:32:12 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,9 @@ Server::~Server()
 	down();
 	if (_sock.sock >= 0)
 		close(_sock.sock);
-	for (fd_list::iterator i = _clientfds.begin(); i != _clientfds.end(); i++)
+	for (fd_list_t::iterator i = _clientfds.begin(); i != _clientfds.end(); i++)
 		close(*i);
-	for (locations_list::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
+	for (locations_list_t::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
 		delete *i;
 	close(_sock.fd);
 }
@@ -55,7 +55,7 @@ void	Server::addLocation(location_t *l)
 	l->allows = read_allows(l->stuff[L_ALLOW_METHODS]);
 
 	// is needed???
-	for (locations_list::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
+	for (locations_list_t::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
 		if ((*i)->dir == l->dir)
 			throw DuplicateServLocation();
 	_loc_ls.push_back(l);
@@ -64,7 +64,7 @@ void	Server::addLocation(location_t *l)
 // Anything regarding initialization of env (both server's and locations') MUST be done here
 void	Server::setup()
 {
-	for (locations_list::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
+	for (locations_list_t::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
 	{
 		string	&line = (*i)->dir;
 		if (line.find(' ') != string::npos)
@@ -192,6 +192,7 @@ void	CGIManager::start(Server *s, const string cgi_path, const string &arg)
 		std::cerr << "A child crashed!! Chekkk!\n";
 		return ;
 	}
+	_pids.push_back(fk);
 	timestamp("Child started!!\n");
 }
 
@@ -288,7 +289,7 @@ void Responser::buildResponseHeader()
 	for (conf_t::iterator i = _extra_args.begin(); i != _extra_args.end(); ++i)
 		_head.append(i->first + ": " + i->second + CRNL);
 	_head.append("Content-Type: " + getDocType() + CRNL);
-	_head.append("Content-Length: " + itoa(_body.size() + 1) + CRNL);
+	_head.append("Content-Length: " + itoa(_body.size() + 2) + CRNL);
 	_head.append("Server: " + _serv->getEnv(NAME) + CRNL);
 	_head.append("Date: " + string(ctime(&now)) + CRNL);
 // _head.append(string("Keepalive: false") + CRNL);
@@ -310,11 +311,13 @@ string	Responser::getDocType()
 void	Responser::Send(int fd)
 {
 	size_t	t;
-	SAY("Trying to send " << size() << " bytes to " << fd << "... ");
+	SAY("Trying to send " << size() << " bytes to " << fd);
 	if (_serv->getReqType() == HEAD)
 		t = send(fd, _head.c_str(), _head.size(), MSG_EOR);
 	else
 		t = send(fd, (_head + _body).c_str(), size(), MSG_EOR);
-	SAY("Sent " << t << " bytes; body size was " <<  _body.size() << "\n");
+	if (t < 0)
+		return (void)timestamp("send failed! ):\n", ERROR);
+	SAY("; Sent " << t << " bytes; body size was " <<  _body.size() << "... ");
 	timestamp("Done!\n", DONE, BOLD, false);
 }

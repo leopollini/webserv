@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 10:47:30 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 15:10:30 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,8 @@ class	Webserv
 	
 	string			_conf;
 	static bool		_up;
-	serv_list		_servers_up;
-	serv_list		_servers_down;
+	serv_list_t		_servers_up;
+	serv_list_t		_servers_down;
 	BetterSelect	_sel;
 
 

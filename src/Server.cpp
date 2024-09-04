@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 13:22:36 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 15:12:05 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,10 @@ void	Server::printServerStats()
 	cout << "\tPort " << _env[PORT] << "\n";
 	cout << "\tRoot " << _env[LOC_ROOT] << '\n';
 	cout << "\tlocations (" << _loc_ls.size() << ")\n";
-	for (locations_list::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
+	for (locations_list_t::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
 	{
 		cout << "\t\t dir " << (*i)->stuff[L_DIR] << " allowed: ";
-		for (str_set::iterator a = (*i)->allowed_extensions.begin(); a != (*i)->allowed_extensions.end(); a++)
+		for (str_set_t::iterator a = (*i)->allowed_extensions.begin(); a != (*i)->allowed_extensions.end(); a++)
 			cout << *a << " ";
 		cout << "| " << (int)(*i)->allows;
 		cout << " | redirection: " << (getEnv(LOC_RETURN, *i).empty() ? "none" : getEnv(LOC_RETURN, *i));
@@ -59,7 +59,7 @@ req_t Server::parseMsg()
 
 	_current_request.dir = msg.substr(space_pos + 1, msg.find(' ', space_pos + 1) - space_pos - 1);
 	for (size_t i = _current_request.dir.size() - 1; _current_request.dir[i] == '/' && i; --i)
-		_current_request.dir[i] = '\0';
+		_current_request.dir.erase(i);
 	_full_request_dir = _current_request.dir;
 	matchRequestLocation(_current_request);
 	// truncate location identification part of dir
@@ -124,8 +124,10 @@ req_t Server::recieve(int fd)
 {
 	_fd = fd;
 	SAY("Readimg from " << _fd << "...\n");
-	if (!(_msg_len = read(_fd, _recieved_head, HEAD_BUFFER)))
+	if (!(_msg_len = recv(_fd, _recieved_head, HEAD_BUFFER, 0)))
 		return FINISH;
+	if (_msg_len < 0)
+		return timestamp("recv failed! ):\n", ERROR), INVALID;
 	if (_msg_len == HEAD_BUFFER)
 		throw HeadMsgTooLong();
 	_recieved_head[_msg_len] = 0;
@@ -173,7 +175,7 @@ void	Server::matchRequestLocation(request_t &request)
 	size_t max_len = 0;
 	location_t *location = NULL;
 	
-	for (locations_list::const_iterator it = _loc_ls.begin(); it != _loc_ls.end(); it++)
+	for (locations_list_t::const_iterator it = _loc_ls.begin(); it != _loc_ls.end(); it++)
 	{
 		string	&dir = (*it)->dir;
 

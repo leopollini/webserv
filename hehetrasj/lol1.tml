@@ -1,0 +1,235 @@
+<html><head>
+<meta charset=UTF-8>
+<style type=text/css>
+:root {
+font-family: sans-serif;
+}
+img {
+border: 0;
+}
+th {
+text-align: start;
+white-space: nowrap;
+}
+th > a {
+color: inherit;
+}
+table[order] > thead > tr > th {
+cursor: pointer;
+}
+table[order] > thead > tr > th::after {
+display: none;
+width: .8em;
+margin-inline-end: -.8em;
+text-align: end;
+}
+table[order="asc"] > thead > tr > th::after {
+content: "\2193"; /* DOWNWARDS ARROW (U+2193) */
+}
+table[order="desc"] > thead > tr > th::after {
+content: "\2191"; /* UPWARDS ARROW (U+2191) */
+}
+table[order][order-by="0"] > thead > tr > th:first-child > a ,
+table[order][order-by="1"] > thead > tr > th:first-child + th > a ,
+table[order][order-by="2"] > thead > tr > th:first-child + th + th > a {
+text-decoration: underline;
+}
+table[order][order-by="0"] > thead > tr > th:first-child::after ,
+table[order][order-by="1"] > thead > tr > th:first-child + th::after ,
+table[order][order-by="2"] > thead > tr > th:first-child + th + th::after {
+display: inline-block;
+}
+table.remove-hidden > tbody > tr.hidden-object {
+display: none;
+}
+td {
+white-space: nowrap;
+}
+table.ellipsis {
+width: 100%;
+table-layout: fixed;
+border-spacing: 0;
+}
+table.ellipsis > tbody > tr > td {
+overflow: hidden;
+text-overflow: ellipsis;
+}
+/* name */
+/* name */
+th:first-child {
+padding-inline-end: 2em;
+}
+/* size */
+th:first-child + th {
+padding-inline-end: 1em;
+}
+td:first-child + td {
+text-align: end;
+padding-inline-end: 1em;
+}
+/* date */
+td:first-child + td + td {
+padding-inline-start: 1em;
+padding-inline-end: .5em;
+}
+/* time */
+td:first-child + td + td + td {
+padding-inline-start: .5em;
+}
+.symlink {
+font-style: italic;
+}
+.dir ,
+.symlink ,
+.file {
+margin-inline-start: 20px;
+}
+.dir::before ,
+.file > img {
+margin-inline-end: 4px;
+margin-inline-start: -20px;
+max-width: 16px;
+max-height: 16px;
+vertical-align: middle;
+}
+.dir::before {
+content: url(resource://content-accessible/html/folder.png);
+}
+</style>
+<link rel="stylesheet" media="screen, projection" type="text/css" href="chrome://global/skin/dirListing/dirListing.css">
+<title>Index of .</title>
+</head>
+<body dir="ltr">
+<h1>Index of .</h1>
+<p id="UI_goUp"><a class="up" href="..">..</a></p>
+<table order="" class="">
+<thead>
+<tr>
+<th><a href="">Name</a></th>
+<th><a href="">Size</a></th>
+<th colspan="2"><a href="">Last Modified</a></th>
+</tr>
+</thead>
+<tbody>
+<tr class="hidden-object">
+<td data="404_1.html"><table class="ellipsis"><tbody><tr><td><a class="file" href="404_1.html/"><img src=moz-icon://unknown?size=16 alt=File:>404_1.html</a></td></tr></tbody></table></td>
+<td data=8>0 KB</td>
+<td data="0">24/giu</td>
+<td>16:23</td>
+</tr>
+<tr class="hidden-object">
+<td data="404.html"><table class="ellipsis"><tbody><tr><td><a class="file" href="404.html/"><img src=moz-icon://unknown?size=16 alt=File:>404.html</a></td></tr></tbody></table></td>
+<td data=8>0 KB</td>
+<td data="0">24/giu</td>
+<td>16:23</td>
+</tr>
+<tr class="hidden-object">
+<td data="dir_list_cgi.sh"><table class="ellipsis"><tbody><tr><td><a class="file" href="dir_list_cgi.sh/"><img src=moz-icon://unknown?size=16 alt=File:>dir_list_cgi.sh</a></td></tr></tbody></table></td>
+<td data=353>3 KB</td>
+<td data="0">29/ago</td>
+<td>18:05</td>
+</tr>
+<tr class="hidden-object">
+<td data="en.subject.pdf"><table class="ellipsis"><tbody><tr><td><a class="file" href="en.subject.pdf/"><img src=moz-icon://unknown?size=16 alt=File:>en.subject.pdf</a></td></tr></tbody></table></td>
+<td data=158427>1584 KB</td>
+<td data="0">24/giu</td>
+<td>16:23</td>
+</tr>
+<tr class="hidden-object">
+<td data="error_pages"><table class="ellipsis"><tbody><tr><td><a class="dir" href="error_pages/">error_pages</a></td></tr></tbody></table></td>
+<td></td>
+<td data="0">24/giu</td>
+<td>16:23</td>
+</tr>
+<tr class="hidden-object">
+<td data="file.html"><table class="ellipsis"><tbody><tr><td><a class="file" href="file.html/"><img src=moz-icon://unknown?size=16 alt=File:>file.html</a></td></tr></tbody></table></td>
+<td data=7>0 KB</td>
+<td data="0">24/giu</td>
+<td>16:23</td>
+</tr>
+<tr class="hidden-object">
+<td data="filelol"><table class="ellipsis"><tbody><tr><td><a class="file" href="filelol/"><img src=moz-icon://unknown?size=16 alt=File:>filelol</a></td></tr></tbody></table></td>
+<td data=30>0 KB</td>
+<td data="0">29/ago</td>
+<td>18:02</td>
+</tr>
+<tr class="hidden-object">
+<td data="haha"><table class="ellipsis"><tbody><tr><td><a class="dir" href="haha/">haha</a></td></tr></tbody></table></td>
+<td></td>
+<td data="0">27/ago</td>
+<td>19:58</td>
+</tr>
+<tr class="hidden-object">
+<td data="html"><table class="ellipsis"><tbody><tr><td><a class="dir" href="html/">html</a></td></tr></tbody></table></td>
+<td></td>
+<td data="0">24/ago</td>
+<td>12:17</td>
+</tr>
+<tr class="hidden-object">
+<td data="include"><table class="ellipsis"><tbody><tr><td><a class="dir" href="include/">include</a></td></tr></tbody></table></td>
+<td></td>
+<td data="0">24/ago</td>
+<td>12:17</td>
+</tr>
+<tr class="hidden-object">
+<td data="index_file.html"><table class="ellipsis"><tbody><tr><td><a class="file" href="index_file.html/"><img src=moz-icon://unknown?size=16 alt=File:>index_file.html</a></td></tr></tbody></table></td>
+<td data=71>0 KB</td>
+<td data="0">27/ago</td>
+<td>19:54</td>
+</tr>
+<tr class="hidden-object">
+<td data="lol1.html"><table class="ellipsis"><tbody><tr><td><a class="file" href="lol1.html/"><img src=moz-icon://unknown?size=16 alt=File:>lol1.html</a></td></tr></tbody></table></td>
+<td data=0>0 KB</td>
+<td data="0">29/ago</td>
+<td>18:05</td>
+</tr>
+<tr class="hidden-object">
+<td data="lol.html"><table class="ellipsis"><tbody><tr><td><a class="file" href="lol.html/"><img src=moz-icon://unknown?size=16 alt=File:>lol.html</a></td></tr></tbody></table></td>
+<td data=262>2 KB</td>
+<td data="0">29/ago</td>
+<td>17:38</td>
+</tr>
+<tr class="hidden-object">
+<td data="main.cpp"><table class="ellipsis"><tbody><tr><td><a class="file" href="main.cpp/"><img src=moz-icon://unknown?size=16 alt=File:>main.cpp</a></td></tr></tbody></table></td>
+<td data=141>1 KB</td>
+<td data="0">27/ago</td>
+<td>15:36</td>
+</tr>
+<tr class="hidden-object">
+<td data="Makefile"><table class="ellipsis"><tbody><tr><td><a class="file" href="Makefile/"><img src=moz-icon://unknown?size=16 alt=File:>Makefile</a></td></tr></tbody></table></td>
+<td data=190>1 KB</td>
+<td data="0">24/ago</td>
+<td>12:17</td>
+</tr>
+<tr class="hidden-object">
+<td data="redirect_file.html"><table class="ellipsis"><tbody><tr><td><a class="file" href="redirect_file.html/"><img src=moz-icon://unknown?size=16 alt=File:>redirect_file.html</a></td></tr></tbody></table></td>
+<td data=14>0 KB</td>
+<td data="0">25/ago</td>
+<td>15:11</td>
+</tr>
+<tr class="hidden-object">
+<td data="src"><table class="ellipsis"><tbody><tr><td><a class="dir" href="src/">src</a></td></tr></tbody></table></td>
+<td></td>
+<td data="0">24/ago</td>
+<td>12:17</td>
+</tr>
+<tr class="hidden-object">
+<td data="test.config"><table class="ellipsis"><tbody><tr><td><a class="file" href="test.config/"><img src=moz-icon://unknown?size=16 alt=File:>test.config</a></td></tr></tbody></table></td>
+<td data=233>2 KB</td>
+<td data="0">29/ago</td>
+<td>14:31</td>
+</tr>
+<tr class="hidden-object">
+<td data="test"><table class="ellipsis"><tbody><tr><td><a class="file" href="test/"><img src=moz-icon://unknown?size=16 alt=File:>test</a></td></tr></tbody></table></td>
+<td data=107>1 KB</td>
+<td data="0">24/giu</td>
+<td>16:23</td>
+</tr>
+<tr class="hidden-object">
+<td data="webserv"><table class="ellipsis"><tbody><tr><td><a class="file" href="webserv/"><img src=moz-icon://unknown?size=16 alt=File:>webserv</a></td></tr></tbody></table></td>
+<td data=102577>1025 KB</td>
+<td data="0">27/ago</td>
+<td>20:15</td>
+</tr>
+</tbody></table>
+</body></html>

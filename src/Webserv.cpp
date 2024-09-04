@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 12:56:18 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 15:10:28 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,9 @@ Webserv::Webserv() : _conf(DEFAULT_CONF), _cgi_man(_sel)
 Webserv::~Webserv()
 {
 	timestamp("Destroying Webserv!\n", BLUE);
-	// for (serv_list::iterator i = _servers_up.begin(); i != _servers_up.end(); i++)
+	// for (serv_list_t::iterator i = _servers_up.begin(); i != _servers_up.end(); i++)
 	// 	delete *i;
-	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
+	for (serv_list_t::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
 		delete *i;
 }
 
@@ -142,7 +142,7 @@ char	Webserv::parseConfig( void )
 		}
 		fill_line(&_env, i);
 	}
-	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
+	for (serv_list_t::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
 		(*i)->setup();
 	// 	(*i)->locReadEnv();
 	return 0;
@@ -182,7 +182,7 @@ void	Webserv::gracefullyQuit(int sig)
 // tries to setup all servers. If one fails it just keeps on building the others
 void	Webserv::upAllServers()
 {
-	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end() && _up;)
+	for (serv_list_t::iterator i = _servers_down.begin(); i != _servers_down.end() && _up;)
 	{
 		if (DEBUG_INFO)
 			(*i)->printServerStats();
@@ -206,7 +206,7 @@ void	Webserv::upAllServers()
 
 void	Webserv::downAllServers()
 {
-	for (serv_list::iterator i = _servers_up.begin(); i != _servers_up.end(); ++i)
+	for (serv_list_t::iterator i = _servers_up.begin(); i != _servers_up.end(); ++i)
 		(*i)->down();
 	_servers_down.insert(--_servers_down.end(), _servers_up.begin(), _servers_up.end());
 	_servers_up.clear();
@@ -224,4 +224,3 @@ void	Webserv::setConf(string file_name)
 	if (!_up)
 		_conf = file_name;
 }
-

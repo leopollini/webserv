@@ -21,21 +21,21 @@
 
 struct	BetterSelect
 {
-	fd_set			_read_pool;
-	fd_set			_write_pool;
-	short			_tot_size;
-	connections_map	_servs_map;
-	connections_map	_clis_map;
-	timeout_fd		_timeout_map;
-	fd_list			_del_lst;
-	int				_current_connection_fd;
+	fd_set				_read_pool;
+	fd_set				_write_pool;
+	short				_tot_size;
+	connections_map_t	_servs_map;
+	connections_map_t	_clis_map;
+	timeout_fd_t		_timeout_map;
+	fd_list_t			_del_lst;
+	int					_current_connection_fd;
 
 	BetterSelect&	operator=(const BetterSelect &assignment) {(void)assignment; return *this;}
 	BetterSelect(const BetterSelect &copy) {(void)copy;}
 	BetterSelect();
 	~BetterSelect();
 
-	void			loadServFds(serv_list &ls);
+	void			loadServFds(serv_list_t &ls);
 
 	void			addListeningConnection(int fd, Server *s);
 	void			delListeningConnection(int pfd);

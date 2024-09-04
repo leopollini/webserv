@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 11:47:44 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 12:00:51 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 15:31:54 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,9 @@ class	Server;
 
 struct	CGIManager
 {
-	char 			**_env;
-	BetterSelect	&_bs;
+	char 				**_env;
+	BetterSelect		&_bs;
+	std::list<pid_t>	_pids;
 
 	// DON'T USE
 	CGIManager&	operator=(const CGIManager &assignment) {(void)assignment; return *this;}
