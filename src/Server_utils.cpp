@@ -6,13 +6,13 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 10:00:51 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 13:23:58 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 #include "../include/Responser.hpp"
-#include "Webserv.hpp"
+#include "../include/Webserv.hpp"
 
 
 Server::Server(short id) : _clientfds(), _id(id), _state(0), _resp(this), _down_count(0)
@@ -53,12 +53,11 @@ void	Server::addLocation(location_t *l)
 	if (l->dir.empty())
 		throw EmptyLocationDir();
 	l->allows = read_allows(l->stuff[L_ALLOW_METHODS]);
+
+	// is needed???
 	for (locations_list::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
 		if ((*i)->dir == l->dir)
-		{
-			printf("called. %s\n", l->dir.c_str());
 			throw DuplicateServLocation();
-		}
 	_loc_ls.push_back(l);
 }
 
@@ -169,28 +168,21 @@ void	request_t::littel_parse(Server *s)
 	if (loc)
 		dir = dir.substr(loc->dir.size());
 	else
-		cout << "LOCATION NOT FOUND!\n";
+		SAY("LOCATION NOT FOUND!\n");
 	if (dir[0] != '/')
 		dir = '/' + dir;
 	dir = s->getEnv(LOC_ROOT, loc) + dir;
-	while (*--dir.end() == '/')	// erases trailing '/'s if present
-		dir.erase(--dir.end());
-	std::cout << "requested dir be: \'" << dir << "\'\n";
+	SAY("requested dir be: \'" << dir << "\'\n");
 }
 
-void	CGIManager::start(Server *s, const string cgi_path, ...)
+void	CGIManager::start(Server *s, const string cgi_path, const string &arg)
 {
-	va_list						ap;
 	std::vector<const char *>	args;
-	char const 					*temp;
 	pid_t						fk;
 
-	va_start(ap, cgi_path);
 	args.push_back(cgi_path.c_str());
-	do {
-		temp = va_arg(ap, const char *);
-		args.push_back(temp);
-	} while (temp);
+	args.push_back(arg.c_str());
+	args.push_back(NULL);
 	
 	if (!(fk = fork()))
 	{
@@ -201,8 +193,6 @@ void	CGIManager::start(Server *s, const string cgi_path, ...)
 		return ;
 	}
 	timestamp("Child started!!\n");
-	
-	va_end(ap);
 }
 
 Responser &Responser::operator=(const request_t &t)
@@ -230,45 +220,51 @@ char	Responser::buildResponseBody()
 		switch (_res_code)
 		{
 		case OK :
-			cout << "Reading \n";
+			SAY("Reading \n");
 		 break ;
 		case NOT_FOUND :
 			_dir = _serv->getEnv(E_404, _loc);
-			cout << "Looking for 404 response" <<  "'\n";
+			SAY("Looking for 404 response" <<  "'\n");
 		 break ;
 		case FORBIDDEN :
 			_dir = _serv->getEnv(E_403, _loc);
-			cout << "Looking for 403 response in \n";
+			SAY("Looking for 403 response in \n");
 		 break ;
 		case METHOD_NOT_ALLOWED :
 			_dir = _serv->getEnv(E_405, _loc);
-			cout << "Looking for 405 response in \n";
+			SAY("Looking for 405 response in \n");
 		 break ;
 		case MOVED_PERMANENTLY :
 			_extra_args["Location"] = _serv->_return_info.dir;
 			_dir = DEFAULT_MOVED_FILE;
-			cout << "Preparing 301 response. Redir: " << _serv->_return_info.dir << "\n";
+			SAY("Preparing 301 response. Redir: " << _serv->_return_info.dir << "\n");
 		 break ;
 		case FOUND :
 			_extra_args["Location"] = _serv->_return_info.dir;
 			_dir = DEFAULT_MOVED_FILE;
-			cout << "Preparing 302 response. Redir: " << _serv->_return_info.dir << "\n";
+			SAY("Preparing 302 response. Redir: " << _serv->_return_info.dir << "\n");
 		 break ;
 		case PERMANENT_REDIRECT :
-			cout << "Preparing 308 response. New URL: " << _serv->_return_info.dir << "\n";
+			SAY("Preparing 308 response. New URL: " << _serv->_return_info.dir << "\n");
 			_dir = DEFAULT_MOVED_FILE;
 			_body = REDIR_URL(_serv->_return_info.dir);
 		 return 0;
 		case TEMPORARY_REDIRECT :
-			cout << "Preparing 307 response. New URL: " << _serv->_return_info.dir << "\n";
+			SAY("Preparing 307 response. New URL: " << _serv->_return_info.dir << "\n");
 			_dir = DEFAULT_MOVED_FILE;
 			_body = REDIR_URL(_serv->_return_info.dir);
 		 return 0;
 		case _REQUEST_DIR_LISTING :
-			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir.c_str(), 0);
+			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir.c_str());
+			_res_code = _DONT_SEND;
+		 return -1;
+		case _REQUEST_DELETE :
+			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_DELETE_DIR, getLoc()), _dir.c_str());
+			_res_code = _DONT_SEND;
 		 return -1;
 		case _CGI_RETURN :
-			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir.c_str(), 0);
+			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir.c_str());
+			_res_code = _DONT_SEND;
 		 return -1;
 		default:
 			timestamp("Could not send file at path \'" + _dir + "\'. Res code: " + itoa(_res_code) + '\n', ERROR);
@@ -279,7 +275,7 @@ char	Responser::buildResponseBody()
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
-		cout << "Body not constructed! ):\n";
+		SAY("Body not constructed! ):\n");
 	}
 	return 0;
 }
@@ -288,11 +284,11 @@ void Responser::buildResponseHeader()
 {
 	time_t now = time(0);
 	_head.reserve(HEAD_RESERVE);
-	_head = "HTTP/1.1 " + itoa(_res_code) + ' ' + badExplain(_res_code) + CRNL;
+	_head = "HTTP/1.1 " + itoa(_res_code) + ' ' + Webserv::getInstance().badExplain(_res_code) + CRNL;
 	for (conf_t::iterator i = _extra_args.begin(); i != _extra_args.end(); ++i)
 		_head.append(i->first + ": " + i->second + CRNL);
 	_head.append("Content-Type: " + getDocType() + CRNL);
-	_head.append("Content-Length: " + itoa(_body.size()) + CRNL);
+	_head.append("Content-Length: " + itoa(_body.size() + 1) + CRNL);
 	_head.append("Server: " + _serv->getEnv(NAME) + CRNL);
 	_head.append("Date: " + string(ctime(&now)) + CRNL);
 // _head.append(string("Keepalive: false") + CRNL);
@@ -313,12 +309,12 @@ string	Responser::getDocType()
 
 void	Responser::Send(int fd)
 {
-	{
-		cout << "Trying to send " << size() << " bytes to " << fd << "... ";
-		if (_serv->getReqType() == HEAD)
-			send(fd, _body.c_str(), _head.size(), MSG_EOR);
-		else
-			send(fd, (_head + _body).c_str(), size(), MSG_EOR);
-		timestamp("Done!\n", DONE, BOLD, false);
-	}
+	size_t	t;
+	SAY("Trying to send " << size() << " bytes to " << fd << "... ");
+	if (_serv->getReqType() == HEAD)
+		t = send(fd, _head.c_str(), _head.size(), MSG_EOR);
+	else
+		t = send(fd, (_head + _body).c_str(), size(), MSG_EOR);
+	SAY("Sent " << t << " bytes; body size was " <<  _body.size() << "\n");
+	timestamp("Done!\n", DONE, BOLD, false);
 }

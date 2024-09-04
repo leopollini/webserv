@@ -74,7 +74,6 @@ void	BetterSelect::addConnectionServ(int fd, Server *s)
 	FD_SET(fd, &_read_pool);
 	_servs_map[fd] = s;
 	_tot_size++;
-	// cout << "added " << fd << "\n";
 }
 
 void	BetterSelect::delConnectionServ(int fd)
@@ -136,22 +135,22 @@ static void	log_request(req_t type, const int socket_fd)
 	switch (type)
 		{
 	case (FINISH) :
-		std::cout << "Client concluded connection at " << socket_fd << '\n';
+		SAY("Client concluded connection at " << socket_fd << '\n');
 		break ;
 	case (INVALID) :
-		std::cout << "Invalid request. Closing\n";
+		SAY("Invalid request. Closing\n");
 		return ;
 	case (GET) :
-		std::cout << "Got a GET request!\n";
+		SAY("Got a GET request!\n");
 		break ;
 	case (POST) :
-		std::cout << "Got a POST request!\n";
+		SAY("Got a POST request!\n");
 		break ;
 	case (HEAD) :
-		std::cout << "Got a HEAD request!\n";
+		SAY("Got a HEAD request!\n");
 		break ;
 	case (DELETE) :
-		std::cout << "Got a DELETE request!\n";
+		SAY("Got a DELETE request!\n");
 		break ;
 	default:
 		break ;
@@ -160,16 +159,18 @@ static void	log_request(req_t type, const int socket_fd)
 
 void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 {
-	if (_current_connection_fd == _current_connection_fd && FD_ISSET(_current_connection_fd, &writefds)) //if the socket is ready to be written on
+	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 	{
-		FD_CLR(_current_connection_fd, &_write_pool);
-		if (!_servs_map[_current_connection_fd]->respond(_current_connection_fd))
+		if (!i->second || i->first != _current_connection_fd)
+			continue;
+		if (FD_ISSET(_current_connection_fd, &writefds)) //if the socket is ready to be written on
 		{
-			rmFd(_current_connection_fd, _servs_map[_current_connection_fd]);
-				return ;
+			FD_CLR(_current_connection_fd, &_write_pool);
+			if (!i->second->respond(_current_connection_fd))
+				return (void)rmFd(_current_connection_fd, i->second);
+			_timeout_map[_current_connection_fd] = time(NULL);
+			return ;
 		}
-		_timeout_map[_current_connection_fd] = time(NULL);
-		return ;
 	}
 	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 	{
@@ -180,7 +181,7 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 			req_t request_type = i->second->recieve(i->first);
 
 			log_request(request_type, i->first);
-			if (request_type == FINISH || request_type == INVALID || i->second->getRes() ==_REQUEST_DIR_LISTING)
+			if (request_type == FINISH || request_type == INVALID || i->second->getRes() == _DONT_SEND)
 			{
 				rmFd(i->first, i->second);
 				continue ;

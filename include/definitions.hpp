@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/03 19:28:49 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 12:44:58 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 #include <list>
 #include <map>
 #include <set>
+
+// 0: no debug info; 1: show debug info
+# define DEBUG_INFO 1
 
 # define ERROR RED
 # define WARNING YELLOW
@@ -40,8 +43,10 @@
 # define DEFAULT_MOVED_FILE "redirect_file.html"
 # define DEFAULT_AUTOINDEX_CGI_DIR "dir_list_cgi.sh"
 # define DEFAULT_INDEX_FILE "index.html"
+# define DEFAULT_DELETE_CGI "delete_cgi.sh"
 
 # define REDIR_URL(s) "<head>\n<meta http-equiv=\"Refresh\" content=\"0; URL="+s+"\" />\n</head>"
+# define SAY(x) if (DEBUG_INFO) cout << x
 
 
 using std::string;
@@ -52,6 +57,7 @@ class Server;
 struct location_t;
 
 typedef std::map<string, string>	conf_t;
+typedef std::map<short, string>		ecode_t;
 typedef	short 						port_t;
 typedef	std::pair<int, Server *>	fd_serv_pair;
 typedef	std::map<int, Server *>		connections_map;
@@ -111,6 +117,8 @@ typedef enum	e_status_code
 	_ZERO = 0,
 	_REQUEST_DIR_LISTING = 1,
 	_CGI_RETURN,
+	_DONT_SEND,
+	_REQUEST_DELETE,
 	CONTINUE = 100,
 	SWITCHING_PROTOCOLS,
 	PROCESSING,

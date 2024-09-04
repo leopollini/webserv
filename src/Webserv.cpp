@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 10:06:58 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 12:56:18 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,15 +37,36 @@ Webserv::~Webserv()
 		delete *i;
 }
 
+#define BAD_FILL(x, y) _bad_explain[(x)] = (y)
+#define DOCTYPE_FILE(x, y) _doc_types[(x)] = (y)
+#define ENV_FILL(x, y) _env[x] = (y);
+
 void	Webserv::mapsInit()
 {
-	_doc_types[".html"] = "text/html";
-	_doc_types[".css"] = "text/css";
-	_doc_types[".cpp"] = "text/cpp";
-	_doc_types[".hpp"] = "text/html";
+	ENV_FILL(CGI_AUTOINDEX_DIR, DEFAULT_AUTOINDEX_CGI_DIR);
+	ENV_FILL(L_INDEX, DEFAULT_INDEX_FILE);
+	ENV_FILL(CGI_DELETE_DIR, DEFAULT_DELETE_CGI);
+
+	DOCTYPE_FILE(".html", "text/html");
+	DOCTYPE_FILE(".css", "text/css");
+	DOCTYPE_FILE(".cpp", "text/cpp");
+	DOCTYPE_FILE(".hpp", "text/hpp");
 	
-	_env[CGI_AUTOINDEX_DIR] = DEFAULT_AUTOINDEX_CGI_DIR;
-	_env[L_INDEX] = DEFAULT_INDEX_FILE;
+	BAD_FILL(1, "# cgi Autoindexing");
+	BAD_FILL(-1, "# cgi generic");
+	BAD_FILL(500, "Internal Server Error");
+	BAD_FILL(301, "Moved Permanently");
+	BAD_FILL(302, "Found");
+	BAD_FILL(307, "Temporary Redirect");
+	BAD_FILL(308, "Permanent Redirect");
+	BAD_FILL(400, "Bad Request");
+	BAD_FILL(401, "Unauthorized");
+	BAD_FILL(403, "Forbidden");
+	BAD_FILL(404, "Not Found");
+	BAD_FILL(405, "Method Not Allowed");
+	BAD_FILL(418, "I'm a teapot");
+	BAD_FILL(500, "Internal Server Error");
+
 }
 
 void	fill_line(conf_t *env, list<Parsing::token>::iterator &s)
@@ -138,11 +159,10 @@ void	Webserv::start(char **prog_envp)
 	{
 		if (!_servers_up.size())
 		{
-			std::cout << "No servers up!\n";
+			timestamp("No servers up!\n", ERROR);
 			sleep(2);
 			continue ;
 		}
-	// cout << "Waiting.\n";
 		_sel.selectReadAndWrite();
 		usleep(20000);
 	}
@@ -164,7 +184,8 @@ void	Webserv::upAllServers()
 {
 	for (serv_list::iterator i = _servers_down.begin(); i != _servers_down.end() && _up;)
 	{
-		(*i)->printServerStats();
+		if (DEBUG_INFO)
+			(*i)->printServerStats();
 		try
 		{
 			(*i)->up();

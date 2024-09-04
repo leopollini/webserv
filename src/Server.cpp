@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 10:01:39 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 13:22:36 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ req_t Server::parseMsg()
 	// 	throw RequestNotHandled();
 
 	_current_request.dir = msg.substr(space_pos + 1, msg.find(' ', space_pos + 1) - space_pos - 1);
+	for (size_t i = _current_request.dir.size() - 1; _current_request.dir[i] == '/' && i; --i)
+		_current_request.dir[i] = '\0';
 	_full_request_dir = _current_request.dir;
 	matchRequestLocation(_current_request);
 	// truncate location identification part of dir
@@ -71,16 +73,16 @@ void	Server::createResp()
 	// Launch Responser buildBody and buildHeader
 	_resp.keepalive = true;
 	_resp._res_code = validateLocation();
-	cout << "Response code: " << _resp._res_code << '\n';
 	if (_resp.buildResponseBody())
 		return ;
+	SAY("Response code: " << _resp._res_code << ": " << Webserv::getInstance().badExplain(_resp._res_code) << '\n');
 	_resp.buildResponseHeader();
 }
 
 status_code_t	Server::validateLocation()
 {
-	cout << "Looking for " << _current_request.dir;
-	cout << ". Allowed method flag: " << (int)_current_request.loc->allows << "\n";
+	SAY("Looking for " << _current_request.dir);
+	SAY(". Allowed method flag: " << (int)_current_request.loc->allows << "\n");
 	_resp = _current_request;	// overloaded. Copies members dir and loc pointer
 	string target_file;
 	status_code_t	t;
@@ -88,9 +90,6 @@ status_code_t	Server::validateLocation()
 	if (_resp._is_returning > 0)
 		return lookForPlaceholders(), ((status_code_t)(_resp._res_code = _return_info.code));
 
-	if (_resp._is_returning < 0)
-		return _CGI_RETURN;
-	
 	if (_current_request.dir.empty())
 		return (INTERNAL_SEVER_ERROR);
 		
@@ -99,17 +98,24 @@ status_code_t	Server::validateLocation()
 	if (!exists(_resp.getFileFlags()))
 		return NOT_FOUND;
 		
-	if ((_resp.getFileFlags() & C_DIR) && (t = manageDir()) != _ZERO)// is a directory
-		return t;
 
 	if (!(_resp.getLoc()->allows & _current_request.type))
 		return (METHOD_NOT_ALLOWED);
+
+	if (_current_request.type == DELETE)
+		return _REQUEST_DELETE;
+
+	if (_resp._is_returning < 0)
+		return _CGI_RETURN;
+
+	if ((_resp.getFileFlags() & C_DIR) && (t = manageDir()) != _ZERO) // is a directory
+		return t;
+
+	else if (!(_resp.getFileFlags() & C_READ))
+		return FORBIDDEN;
 		
 	if (isOkToSend(_resp.getFileFlags()))
 		return OK;
-		
-	else if (_resp.getFileFlags() & C_FILE)
-		return FORBIDDEN;
 
 	return INTERNAL_SEVER_ERROR;
 }
@@ -117,7 +123,7 @@ status_code_t	Server::validateLocation()
 req_t Server::recieve(int fd)
 {
 	_fd = fd;
-	cout << "Readimg from " << _fd << "...\n";
+	SAY("Readimg from " << _fd << "...\n");
 	if (!(_msg_len = read(_fd, _recieved_head, HEAD_BUFFER)))
 		return FINISH;
 	if (_msg_len == HEAD_BUFFER)
@@ -150,11 +156,11 @@ void	Server::manageReturn(string &s)
 	}
 	catch(const std::exception& e)
 	{
-		cout << "Redirection read invalid return code. Returning default\n";
+		SAY("Redirection read invalid return code. Returning default\n");
 		_return_info.code = DEFAULT_RETURN_RESCODE;
 	}
 	_return_info.dir = s.substr(s.find(' ') + 1);
-	cout << "#### REDIR INFO: " << _return_info.code << " " << _return_info.dir << "###\n";
+	SAY("#### REDIR INFO: " << _return_info.code << " " << _return_info.dir << "###\n");
 }
 
 //matches the request directory with a location and sets its location_t pointer
@@ -185,18 +191,18 @@ void	Server::matchRequestLocation(request_t &request)
 	request.loc = location;
 	if (location)
 	{
-		cout << "Found location: " << location->dir << '\n';
-		cout << "\tlocation's root: " << location->stuff[LOC_ROOT] << '\n';
+		SAY("Found location: " << location->dir << '\n');
+		SAY("\tlocation's root: " << location->stuff[LOC_ROOT] << '\n');
 		if (!getEnv(LOC_RETURN, location).empty())
 		{
-			cout << "Warning! Location is trying to redirect...\n";
+			SAY("Warning! Location is trying to redirect...\n");
 			try
 			{
 				manageReturn(getEnv(LOC_RETURN, location));
 			}
 			catch(const std::exception& e)
 			{
-				cout << "Redirection failed: " << e.what() << '\n';
+				SAY("Redirection failed: " << e.what() << '\n');
 			}
 			_resp._is_returning = 1;
 		}
@@ -213,19 +219,19 @@ void	Server::lookForPlaceholders()
 	{
 		_return_info.dir.erase(pos, 1);
 		_return_info.dir.insert(pos, _resp.getDir());
-		cout << "#### New address after placeholder (~): " << _return_info.dir << std::endl;
+		SAY("#### New address after placeholder (~): " << _return_info.dir << std::endl);
 	}
 	else if ((pos = _return_info.dir.find('%')) != string::npos)
 	{
 		_return_info.dir.erase(pos, 1);
 		_return_info.dir.insert(pos, _full_request_dir);
-		cout << "#### New address after placeholder (%): " << _return_info.dir << std::endl;
+		SAY("#### New address after placeholder (%): " << _return_info.dir << std::endl);
 	}
 }
 
 bool	Server::respond(int fd)
 {
-	std::cout << "Server " + itoa(_id) + ": Called by fd " << fd << " for response!\n";
+	SAY("Server " + itoa(_id) + ": Called by fd " << fd << " for response!\n");
 
 	// Send response
 	

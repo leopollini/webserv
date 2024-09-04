@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 13:07:36 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/08/24 12:22:45 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 12:24:57 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,10 @@ string Parsing::read_file(string filename) throw (BadFile)
 
 	std::ifstream file(filename.c_str());
 
-	// std::cout << filename + "\n";
 	if (!file)
 	{
 		file.close();
-		throw (BadFile());
+		throw (BadFile(filename));
 	}
 
     std::ostringstream ss;

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 11:47:44 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/30 11:46:30 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 12:00:51 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ struct	CGIManager
 	~CGIManager() {}
 
 	// All cariadic args MUST be char * and the last arg MUST be a NULL
-	void	start(Server *s, const string cgi_path, ...);
+	void	start(Server *s, const string cgi_path, const string &arg);
 };
 
 #endif

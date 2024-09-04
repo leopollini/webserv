@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:37 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/03 19:19:15 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 12:59:22 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,8 @@
 # define L_AUTOINDEX "autoindex"
 # define L_ALLOW_METHODS "allow_methods"
 # define LOC_RETURN "return"
-# define CGI_AUTOINDEX_DIR "autoindex_cgi"
+# define CGI_AUTOINDEX_DIR "cgi_autoindex"
+# define CGI_DELETE_DIR "cgi_delete"
 # define LOC_CGI_RETURN "cgi_return"
 
 #endif

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "listing files in $1" 1>&2
+echo "Child: listing files in $1" 1>&2
 
 FILES=$(ls -l $1)
 
@@ -9,9 +9,9 @@ if [ "$?" -ne "0" ]; then
 	exit -1;
 fi
 
-printf "HTTP/1.1 200 OK\r\nContent-Type: default\r\nServer: autoindex_cgi\r\nDate: $(date -R)\r\n\r\n" 
+printf "HTTP/1.1 200 OK\r\nContent-Type: default\r\nServer: autoindex_cgi\r\nDate: $(date -R)\r\n" 
 
-echo "<html><head>
+A=$(echo "<html><head>
 <meta charset="UTF-8">
 <style type="text/css">
 :root {
@@ -144,4 +144,8 @@ while IFS= read -r line; do
 	fi
 done
 echo "</tbody></table>
-</body></html>"
+</body></html>")
+
+printf "\r\n"
+echo $A
+

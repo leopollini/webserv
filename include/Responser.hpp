@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 10:01:20 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 13:22:14 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 # include "CGIManager.hpp"
 
 class	Server;
+
+class	Webserv;
 
 class Responser
 {
@@ -55,7 +57,6 @@ public:
 
 	char	&getFileFlags() {return _file_flags;}
 	string	&getDir() {return _dir;}
-	string	badExplain(short code) {(void)code; return "OK";}
 	size_t	getBodyLen() {return _body.size();}
 	// 	string	getResServer() {return "Lolserv";}
 	string	getDocType();
