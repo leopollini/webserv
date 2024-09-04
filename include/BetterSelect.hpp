@@ -41,7 +41,7 @@ struct	BetterSelect
 	void			delListeningConnection(int pfd);
 	void			addResponseConnection(int fd, Server *s);
 	void			delResponseConnection(int pfd);
-	void			addConnectionServ(int fd, Server *s);
+	void			addConnectionSock(int fd, BetterSocket *s);
 	void			delConnectionServ(int pfd);
 
 	void			closeAllClis();

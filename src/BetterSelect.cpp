@@ -69,7 +69,7 @@ void	BetterSelect::delResponseConnection(int fd)
 	_clis_map[fd] = NULL;
 }
 
-void	BetterSelect::addConnectionServ(int fd, Server *s)
+void	BetterSelect::addConnectionSock(int fd, BetterSocket *s)
 {
 	FD_SET(fd, &_read_pool);
 	_servs_map[fd] = s;

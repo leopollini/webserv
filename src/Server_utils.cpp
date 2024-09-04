@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 15:32:12 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 18:28:27 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ void	Server::setup()
 {
 	for (locations_list_t::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
 	{
+		_port = atoi(_env[PORT].c_str());
 		string	&line = (*i)->dir;
 		if (line.find(' ') != string::npos)
 		{
@@ -76,18 +77,8 @@ void	Server::setup()
 	}
 }
 
-void Server::tryup()
-{
-	_state = 0;
-	if (!_state)
-		up();
-	return ;
-}
-
 void Server::up()
 {
-	_sock.init(atoi(_env[PORT].c_str()));
-
 	timestamp("Server " + itoa(_id) + ": Port " + _env[PORT] + " now open!\n", CYAN);
 	_state = 1;
 }

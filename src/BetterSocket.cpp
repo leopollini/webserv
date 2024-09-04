@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/04 09:48:35 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 11:09:48 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 18:50:38 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ int	BetterSocket::Accept()
 
 void	BetterSocket::init(short port, int address)
 {
+	_port = port;
 	while (0); // prevent inline-ing
 	if ((fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) < 0)
 		throw FailedSocketCreation();

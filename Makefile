@@ -6,13 +6,13 @@
 #    By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/17 08:42:40 by lpollini          #+#    #+#              #
-#    Updated: 2024/09/04 09:50:05 by lpollini         ###   ########.fr        #
+#    Updated: 2024/09/04 16:32:19 by lpollini         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		= webserv
 	
-CC			= c++
+CC			= g++
 FLAGS		= -Wall -Wextra -g $(addprefix -I, $(INCLUDES)) -std=c++98
 RM			= rm -rf
 

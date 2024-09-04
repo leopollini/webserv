@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 15:10:28 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 18:57:22 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,25 +182,48 @@ void	Webserv::gracefullyQuit(int sig)
 // tries to setup all servers. If one fails it just keeps on building the others
 void	Webserv::upAllServers()
 {
-	for (serv_list_t::iterator i = _servers_down.begin(); i != _servers_down.end() && _up;)
+	std::map<port_t, serv_list_t>	t;
+	BetterSocket					*s;
+
+	for (serv_list_t::iterator i = _servers_down.begin(); i != _servers_down.end() && _up; ++i)
+		t[(*i)->getPort()].push_front(*i);
+	for (std::map<port_t, serv_list_t>::iterator i = t.begin(); i != t.end(); ++i)
 	{
-		if (DEBUG_INFO)
-			(*i)->printServerStats();
+		s = new BetterSocket;
 		try
 		{
-			(*i)->up();
-			(*i)->_down_count = 0;
-			_servers_up.push_front(*i);
-			_servers_down.erase(i++);
+			s->init(i->first);
+			s->_servs = i->second;
+			for (serv_list_t::iterator i = s->_servs.begin(); i != s->_servs.end() && _up; ++i)
+			{
+				(*i)->up();
+				_servers_up.push_front(*i);
+			}
 		}
 		catch(const std::exception& e)
 		{
-			close((*i)->getSockFd());
-			++(*i)->_down_count;
-			timestamp("Failed to setup Port " + itoa((*i)->getPort()) + ": " + string(e.what()) + '\n', ERROR);
-			i++;
-		}
+			std::cerr << e.what() << '\n';
+			timestamp("Failed to setup Port " + itoa(s->_port) + ": " + string(e.what()) + '\n', ERROR);
+		}	
 	}
+	// for (serv_list_t::iterator i = _servers_down.begin(); i != _servers_down.end() && _up;)
+	// {
+	// 	if (DEBUG_INFO)
+	// 		(*i)->printServerStats();
+	// 	try
+	// 	{
+	// 		_sel.newServer(*i);
+	// 		_servers_up.push_front(*i);
+	// 		_servers_down.erase(i++);
+	// 	}
+	// 	catch(const std::exception& e)
+	// 	{
+	// 		close((*i)->getSockFd());
+	// 		++(*i)->_down_count;
+	// 		timestamp("Failed to setup Port " + itoa((*i)->getPort()) + ": " + string(e.what()) + '\n', ERROR);
+	// 		i++;
+	// 	}
+	// }
 	_sel.loadServFds(_servers_up);
 }
 

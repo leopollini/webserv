@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/04 15:25:01 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 18:38:22 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,19 +53,23 @@ using std::string;
 using std::cout;
 
 class Server;
+struct BetterSocket;
 
 struct location_t;
 
-typedef std::map<string, string>	conf_t;
-typedef std::map<short, string>		ecode_t;
-typedef	short 						port_t;
-typedef	std::map<int, Server *>		connections_map_t;
-typedef	std::list<Server *>			serv_list_t;
-typedef	std::list<int>				fd_list_t;
-typedef	std::list<location_t *>		locations_list_t;
-typedef	std::map<int, long>			timeout_fd_t;
-typedef	std::set<string>			str_set_t;
-typedef std::set<pid_t>				pidlst_t;
+typedef std::map<string, string>		conf_t;
+typedef std::map<short, string>			ecode_t;
+typedef	short 							port_t;
+typedef	std::map<int, Server *>			connections_map_t;
+typedef	std::map<int, BetterSocket>		socks_map_t;
+typedef	std::map<port_t, BetterSocket>	socks_port_t;
+typedef	std::list<BetterSocket>			socks_lst_t;
+typedef	std::list<Server *>				serv_list_t;
+typedef	std::list<int>					fd_list_t;
+typedef	std::list<location_t *>			locations_list_t;
+typedef	std::map<int, long>				timeout_fd_t;
+typedef	std::set<string>				str_set_t;
+typedef std::set<pid_t>					pidlst_t;
 
 
 typedef	enum	e_colors
