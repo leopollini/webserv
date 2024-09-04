@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 15:32:12 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 17:40:34 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -310,7 +310,8 @@ string	Responser::getDocType()
 
 void	Responser::Send(int fd)
 {
-	size_t	t;
+	long	t;
+	
 	SAY("Trying to send " << size() << " bytes to " << fd);
 	if (_serv->getReqType() == HEAD)
 		t = send(fd, _head.c_str(), _head.size(), MSG_EOR);

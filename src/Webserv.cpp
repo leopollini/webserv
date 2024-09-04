@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 15:10:28 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 17:39:25 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,7 +164,7 @@ void	Webserv::start(char **prog_envp)
 			continue ;
 		}
 		_sel.selectReadAndWrite();
-		usleep(20000);
+		usleep(2000);
 	}
 	_sel.closeAllClis();
 	downAllServers();

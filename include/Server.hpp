@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 15:12:34 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 17:26:05 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # include "Responser.hpp"
 # include "useful_structs.hpp"
 
-# define HEAD_BUFFER 3000
+# define HEAD_BUFFER 30000
 # define HEAD_RESERVE 130
 
 class Responser;
@@ -34,7 +34,7 @@ class	Server
 	char			_state;
 	conf_t			_env;
 	char			_recieved_head[HEAD_BUFFER];
-	size_t			_msg_len;
+	long			_msg_len;
 	locations_list_t	_loc_ls;
 	int				_fd;
 	
