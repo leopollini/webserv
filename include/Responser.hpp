@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/03 20:29:16 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 10:01:20 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,35 @@ class Responser
 	
 public:
 
+	short		_res_code;
+	bool		keepalive;
+
+// use 0 for no return, 1 for regular return, -1 for cgi return
+	char		_is_returning;
+
+	Responser(const Responser &a) {(void)a;}
+	Responser(Server *s) : _serv(s), _loc(NULL), _is_returning(false) {}
+	~Responser() {}
+	Responser &operator=(const request_t &t);
+
+	void	buildResponseHeader();
+	char	buildResponseBody();
+
+	location_t	*getLoc() const {if (!_loc) cout << "###getLoc() got a NULL??\n"; return _loc;}
+
+	void	clear();
+	size_t	size() {return _head.size() + _body.size();}
+
+	// Implement error for too long message bodies
+	void	Send(int fd);
+
+	char	&getFileFlags() {return _file_flags;}
+	string	&getDir() {return _dir;}
+	string	badExplain(short code) {(void)code; return "OK";}
+	size_t	getBodyLen() {return _body.size();}
+	// 	string	getResServer() {return "Lolserv";}
+	string	getDocType();
+
 	class LocNull : public std::exception
 	{
 		const char *what() const throw()
@@ -39,48 +68,6 @@ public:
 		}
 
 	};
-	short		_res_code;
-	bool		keepalive;
-
-// use 0 for no return, 1 for regular return, -1 for cgi return
-	char		_is_returning;
-
-	Responser(Server *s) : _serv(s), _loc(NULL), _is_returning(false) {}
-
-	void	buildResponseHeader();
-	char	buildResponseBody();
-
-	location_t	*getLoc() const {if (!_loc) cout << "getLoc() got a NULL??\n"; return _loc;}
-
-	void	clear()
-	{
-		_head.clear();
-		_body.clear();
-		_dir.clear();
-		_extra_args.clear();
-		_is_returning = false;
-	}
-	size_t	size()
-	{
-		return _head.size() + _body.size();
-	}
-
-	// Implement error for too long message bodies
-	void	Send(int fd);
-	
-	Responser &operator=(const request_t &t)
-	{
-		_dir = t.dir;
-		_loc = t.loc;
-		return *this;
-	}
-
-	char	&getFileFlags() {return _file_flags;}
-	string	&getDir() {return _dir;}
-	string	badExplain(short code) {(void)code; return "OK";}
-	size_t	getBodyLen() {return _body.size();}
-	// 	string	getResServer() {return "Lolserv";}
-	string	getDocType();
 };
 
 #endif

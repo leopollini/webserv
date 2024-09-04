@@ -6,13 +6,31 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/03 20:50:21 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 10:01:39 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 #include "../include/Responser.hpp"
 #include "Webserv.hpp"
+
+void	Server::printServerStats()
+{
+	cout << "Server " << _id << ":\n";
+	cout << "\tName \'" << _env[NAME] << "\'\n";
+	cout << "\tPort " << _env[PORT] << "\n";
+	cout << "\tRoot " << _env[LOC_ROOT] << '\n';
+	cout << "\tlocations (" << _loc_ls.size() << ")\n";
+	for (locations_list::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
+	{
+		cout << "\t\t dir " << (*i)->stuff[L_DIR] << " allowed: ";
+		for (str_set::iterator a = (*i)->allowed_extensions.begin(); a != (*i)->allowed_extensions.end(); a++)
+			cout << *a << " ";
+		cout << "| " << (int)(*i)->allows;
+		cout << " | redirection: " << (getEnv(LOC_RETURN, *i).empty() ? "none" : getEnv(LOC_RETURN, *i));
+		cout << '\n';
+	}
+}
 
 req_t Server::parseMsg()
 {

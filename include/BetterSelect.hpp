@@ -30,6 +30,8 @@ struct	BetterSelect
 	fd_list			_del_lst;
 	int				_current_connection_fd;
 
+	BetterSelect&	operator=(const BetterSelect &assignment) {(void)assignment; return *this;}
+	BetterSelect(const BetterSelect &copy) {(void)copy;}
 	BetterSelect();
 	~BetterSelect();
 

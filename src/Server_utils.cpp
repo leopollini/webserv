@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/03 20:49:49 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 10:00:51 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,6 +203,22 @@ void	CGIManager::start(Server *s, const string cgi_path, ...)
 	timestamp("Child started!!\n");
 	
 	va_end(ap);
+}
+
+Responser &Responser::operator=(const request_t &t)
+{
+	_dir = t.dir;
+	_loc = t.loc;
+	return *this;
+}
+
+void	Responser::clear()
+{
+	_head.clear();
+	_body.clear();
+	_dir.clear();
+	_extra_args.clear();
+	_is_returning = false;
 }
 
 // look for better method. Big switch uglyyy :((

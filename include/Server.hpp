@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/03 19:38:09 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/04 10:05:52 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,6 @@ class	Server
 
 	Server&	operator=(const Server &assignment) {(void)assignment; return *this;}
 	Server(const Server &copy) : _resp(this) {(void)copy;}
-
 public:
 	int						_down_count;
 	struct __return_info	_return_info;
@@ -57,11 +56,10 @@ public:
 
 	int		Accept();
 	void	addLocation(location_t *l);
-	conf_t	&getEnvMap() {return _env;}
-	int		getSockFd() {return _sock.fd;}
-
 	//returns environment variable given key
 	string	&getEnv(string key, location_t *location = NULL);
+	conf_t	&getEnvMap() {return _env;}
+	int		getSockFd() {return _sock.fd;}
 	string	serverGetEnv(string key) const {return _env.at(key);}
 	int		getPort() {return atoi(_env[PORT].c_str());}
 	char	getState() {return _state;}
@@ -83,32 +81,13 @@ public:
 	req_t	parseMsg();
 
 	void	printHttpRequest(string &msg, int fd_from);
-
-
 	void 	matchRequestLocation(request_t &request); 
-	
 	void	lookForPlaceholders();
 
 	status_code_t	validateLocation();
 	status_code_t	manageDir();
 	
-	void	printServerStats()
-	{
-		cout << "Server " << _id << ":\n";
-		cout << "\tName \'" << _env[NAME] << "\'\n";
-		cout << "\tPort " << _env[PORT] << "\n";
-		cout << "\tRoot " << _env[LOC_ROOT] << '\n';
-		cout << "\tlocations (" << _loc_ls.size() << ")\n";
-		for (locations_list::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
-		{
-			cout << "\t\t dir " << (*i)->stuff[L_DIR] << " allowed: ";
-			for (str_set::iterator a = (*i)->allowed_extensions.begin(); a != (*i)->allowed_extensions.end(); a++)
-				cout << *a << " ";
-			cout << "| " << (int)(*i)->allows;
-			cout << " | redirection: " << (getEnv(LOC_RETURN, *i).empty() ? "none" : getEnv(LOC_RETURN, *i));
-			cout << '\n';
-		}
-	}
+	void	printServerStats();
 	
 	class HeadMsgTooLong : public std::exception
 	{

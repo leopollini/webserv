@@ -160,21 +160,16 @@ static void	log_request(req_t type, const int socket_fd)
 
 void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 {
-	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
+	if (_current_connection_fd == _current_connection_fd && FD_ISSET(_current_connection_fd, &writefds)) //if the socket is ready to be written on
 	{
-		if (!i->second || i->first != _current_connection_fd)
-			continue;
-		if (FD_ISSET(i->first, &writefds)) //if the socket is ready to be written on
+		FD_CLR(_current_connection_fd, &_write_pool);
+		if (!_servs_map[_current_connection_fd]->respond(_current_connection_fd))
 		{
-			FD_CLR(i->first, &_write_pool);
-			if (!i->second->respond(i->first))
-			{
-				rmFd(i->first, i->second);
-				continue ;
-			}
-			_timeout_map[i->first] = time(NULL);
-			return ;
+			rmFd(_current_connection_fd, _servs_map[_current_connection_fd]);
+				return ;
 		}
+		_timeout_map[_current_connection_fd] = time(NULL);
+		return ;
 	}
 	for (connections_map::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 	{
