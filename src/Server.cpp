@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 15:12:05 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/05 17:58:48 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,12 @@
 #include "../include/Responser.hpp"
 #include "Webserv.hpp"
 
+location_t	Server::default_loc;
+
 void	Server::printServerStats()
 {
 	cout << "Server " << _id << ":\n";
+	cout << "\tIs sharing port: " << (_is_sharing_port ? "yes\n" : "no\n");
 	cout << "\tName \'" << _env[NAME] << "\'\n";
 	cout << "\tPort " << _env[PORT] << "\n";
 	cout << "\tRoot " << _env[LOC_ROOT] << '\n';
@@ -54,8 +57,8 @@ req_t Server::parseMsg()
 		_current_request.type = DELETE;
 	else if (cmd == "HEAD")
 		_current_request.type = HEAD;
-	// else
-	// 	throw RequestNotHandled();
+	else
+		return INVALID;
 
 	_current_request.dir = msg.substr(space_pos + 1, msg.find(' ', space_pos + 1) - space_pos - 1);
 	for (size_t i = _current_request.dir.size() - 1; _current_request.dir[i] == '/' && i; --i)
@@ -120,17 +123,10 @@ status_code_t	Server::validateLocation()
 	return INTERNAL_SEVER_ERROR;
 }
 
-req_t Server::recieve(int fd)
+req_t Server::recieve(int fd, char *msg)
 {
 	_fd = fd;
-	SAY("Readimg from " << _fd << "...\n");
-	if (!(_msg_len = recv(_fd, _recieved_head, HEAD_BUFFER, 0)))
-		return FINISH;
-	if (_msg_len < 0)
-		return timestamp("recv failed! ):\n", ERROR), INVALID;
-	if (_msg_len == HEAD_BUFFER)
-		throw HeadMsgTooLong();
-	_recieved_head[_msg_len] = 0;
+	_recieved_head = msg;
 	if (parseMsg() == INVALID)
 		return INVALID;
 	createResp();
@@ -168,29 +164,31 @@ void	Server::manageReturn(string &s)
 //matches the request directory with a location and sets its location_t pointer
 void	Server::matchRequestLocation(request_t &request)
 {
-	if (request.type == INVALID)
-		// *(int *)(0); //crash
-		return ;
-
 	size_t max_len = 0;
 	location_t *location = NULL;
 	
-	for (locations_list_t::const_iterator it = _loc_ls.begin(); it != _loc_ls.end(); it++)
+	if (_loc_ls.empty())
+		location = request.loc = &Server::default_loc;
+	else
 	{
-		string	&dir = (*it)->dir;
+		for (locations_list_t::const_iterator it = _loc_ls.begin(); it != _loc_ls.end(); it++)
+		{
+			string	&dir = (*it)->dir;
 
-		// printf("called. \'%s\' (%i)\n", dir.c_str(), dir.size());
-		//if directory is more specific, or if it doesn't match
-		if (dir.size() - 1 > request.dir.size() || dir.size() <= max_len)
-			continue ;
+			// printf("called. \'%s\' (%i)\n", dir.c_str(), dir.size());
+			//if directory is more specific, or if it doesn't match
+			if (dir.size() - 1 > request.dir.size() || dir.size() <= max_len)
+				continue ;
 
-		if (request.dir.find(dir) || location_isvalid(*it, request.dir))
-			continue ;
+			if (request.dir.find(dir) || location_isvalid(*it, request.dir))
+				continue ;
 
-		location = *it;
-		max_len = dir.size();
+			location = *it;
+			max_len = dir.size();
+		}
+		request.loc = location;
 	}
-	request.loc = location;
+
 	if (location)
 	{
 		SAY("Found location: " << location->dir << '\n');

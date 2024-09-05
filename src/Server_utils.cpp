@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 17:40:34 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/05 17:59:02 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "../include/Webserv.hpp"
 
 
-Server::Server(short id) : _clientfds(), _id(id), _state(0), _resp(this), _down_count(0)
+Server::Server(short id) : _clientfds(), _id(id), _state(0), _resp(this), _down_count(0), _is_sharing_port(false)
 {
 	timestamp("Added new Server! Id: " + itoa(_id) + "!\n", CYAN);
 	_env[PORT] = SERVER_DEFAULT_PORT;
@@ -86,9 +86,17 @@ void Server::tryup()
 
 void Server::up()
 {
-	_sock.init(atoi(_env[PORT].c_str()));
-
-	timestamp("Server " + itoa(_id) + ": Port " + _env[PORT] + " now open!\n", CYAN);
+	if (BetterSelect::_used_ports.count(getPort()))
+	{
+		Server	*t = BetterSelect::_used_ports[getPort()].front();
+		t->_is_sharing_port = true;
+		_is_sharing_port = true;
+		getSockFd() = t->getSockFd();
+	}
+	else
+		_sock.init(atoi(_env[PORT].c_str()));
+	BetterSelect::_used_ports[getPort()].push_back(this);
+	timestamp("Server " + itoa(_id) + " at port " + _env[PORT] + " now open!\n", CYAN);
 	_state = 1;
 }
 
@@ -289,7 +297,7 @@ void Responser::buildResponseHeader()
 	for (conf_t::iterator i = _extra_args.begin(); i != _extra_args.end(); ++i)
 		_head.append(i->first + ": " + i->second + CRNL);
 	_head.append("Content-Type: " + getDocType() + CRNL);
-	_head.append("Content-Length: " + itoa(_body.size() + 2) + CRNL);
+	_head.append("Content-Length: " + itoa(_body.size()) + CRNL);
 	_head.append("Server: " + _serv->getEnv(NAME) + CRNL);
 	_head.append("Date: " + string(ctime(&now)) + CRNL);
 // _head.append(string("Keepalive: false") + CRNL);

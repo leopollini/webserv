@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/09 16:58:53 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 15:12:03 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/05 17:51:52 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@ struct	location_t
 	char		allows;
 	// stores all valid extensions as strings: ie {".txt", ".cpp" ...}
 	str_set_t	allowed_extensions;
+
+	location_t() : dir(""), allows(-1), allowed_extensions() {}
 };
 
 struct request_t

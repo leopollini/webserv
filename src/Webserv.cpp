@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 17:39:25 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/05 19:18:38 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,13 +39,23 @@ Webserv::~Webserv()
 
 #define BAD_FILL(x, y) _bad_explain[(x)] = (y)
 #define DOCTYPE_FILE(x, y) _doc_types[(x)] = (y)
-#define ENV_FILL(x, y) _env[x] = (y);
+#define ENV_FILL(x, y) _env[x] = (y)
+
+#define T_JOIN(x) string(DEFAULT_ERRPGS_DIR) + "/" + x + ".html"
 
 void	Webserv::mapsInit()
 {
 	ENV_FILL(CGI_AUTOINDEX_DIR, DEFAULT_AUTOINDEX_CGI_DIR);
 	ENV_FILL(L_INDEX, DEFAULT_INDEX_FILE);
 	ENV_FILL(CGI_DELETE_DIR, DEFAULT_DELETE_CGI);
+	ENV_FILL(E_302, T_JOIN("302"));
+	ENV_FILL(E_301, T_JOIN("301"));
+	ENV_FILL(E_307, T_JOIN("307"));
+	ENV_FILL(E_308, T_JOIN("308"));
+	ENV_FILL(E_403, T_JOIN("403"));
+	ENV_FILL(E_404, T_JOIN("404"));
+	ENV_FILL(E_405, T_JOIN("405"));
+	ENV_FILL(E_500, T_JOIN("500"));
 
 	DOCTYPE_FILE(".html", "text/html");
 	DOCTYPE_FILE(".css", "text/css");
@@ -184,11 +194,11 @@ void	Webserv::upAllServers()
 {
 	for (serv_list_t::iterator i = _servers_down.begin(); i != _servers_down.end() && _up;)
 	{
-		if (DEBUG_INFO)
-			(*i)->printServerStats();
 		try
 		{
 			(*i)->up();
+			if (DEBUG_INFO)
+				(*i)->printServerStats();
 			(*i)->_down_count = 0;
 			_servers_up.push_front(*i);
 			_servers_down.erase(i++);

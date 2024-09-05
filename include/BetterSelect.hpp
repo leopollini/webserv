@@ -29,6 +29,9 @@ struct	BetterSelect
 	timeout_fd_t		_timeout_map;
 	fd_list_t			_del_lst;
 	int					_current_connection_fd;
+	char				_recv_buff[RECV_BUFF_SIZE];
+
+	static port_servs_map_t	_used_ports;
 
 	BetterSelect&	operator=(const BetterSelect &assignment) {(void)assignment; return *this;}
 	BetterSelect(const BetterSelect &copy) {(void)copy;}
@@ -45,6 +48,9 @@ struct	BetterSelect
 	void			delConnectionServ(int pfd);
 
 	void			closeAllClis();
+
+	req_t			readMsg(int fd, connections_map_t::iterator &i);
+	Server			*findServByHostname(port_t	port, string Host);
 	
 	void			err_close_clis();
 	void			selectReadAndWrite();
@@ -56,6 +62,12 @@ struct	BetterSelect
 private:
 	void			_handleRequestResponse(fd_set &readfds, fd_set &writefds);
 	void			_acceptNewConnections(fd_set &read_fds);
+
+	class HeadMsgTooLong : public std::exception
+	{
+	public:
+		virtual const char	*what() const throw() {return "Recieved too long a request";}
+	};
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 17:26:05 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/05 17:57:40 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # include "Responser.hpp"
 # include "useful_structs.hpp"
 
-# define HEAD_BUFFER 30000
+# define RECV_BUFF_SIZE 30000
 # define HEAD_RESERVE 130
 
 class Responser;
@@ -33,8 +33,7 @@ class	Server
 	BetterSocket	_sock;
 	char			_state;
 	conf_t			_env;
-	char			_recieved_head[HEAD_BUFFER];
-	long			_msg_len;
+	char			*_recieved_head;
 	locations_list_t	_loc_ls;
 	int				_fd;
 	
@@ -50,6 +49,8 @@ class	Server
 public:
 	int						_down_count;
 	struct __return_info	_return_info;
+	bool					_is_sharing_port;
+	static location_t		default_loc;
 
 	Server(short id);
 	~Server();
@@ -59,7 +60,7 @@ public:
 	//returns environment variable given key
 	string	&getEnv(string key, location_t *location = NULL);
 	conf_t	&getEnvMap() {return _env;}
-	int		getSockFd() {return _sock.fd;}
+	int		&getSockFd() {return _sock.fd;}
 	string	serverGetEnv(string key) const {return _env.at(key);}
 	int		getPort() {return atoi(_env[PORT].c_str());}
 	char	getState() {return _state;}
@@ -74,7 +75,7 @@ public:
 	void	up();
 	void	down();
 	void	manageReturn(string &s);
-	req_t	recieve(int fd);
+	req_t	recieve(int fd, char *msg);
 	bool	respond(int fd);
 	void	closeConnection(int fd);
 	void	createResp();
@@ -89,11 +90,6 @@ public:
 	
 	void	printServerStats();
 	
-	class HeadMsgTooLong : public std::exception
-	{
-	public:
-		virtual const char	*what() const throw() {return "Recieved too long a request";}
-	};
 	class DuplicateServLocation : public std::exception
 	{
 	public:

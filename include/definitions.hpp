@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/04 17:45:48 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/05 19:10:10 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@
 # define DEFAULT_AUTOINDEX_CGI_DIR "dir_list_cgi.sh"
 # define DEFAULT_INDEX_FILE "index.html"
 # define DEFAULT_DELETE_CGI "delete_cgi.sh"
+# define DEFAULT_ERRPGS_DIR "error_pages"
 
 # define REDIR_URL(s) "<head>\n<meta http-equiv=\"Refresh\" content=\"0; URL="+s+"\" />\n</head>"
 # define SAY(x) if (DEBUG_INFO) cout << x
@@ -62,7 +63,7 @@ typedef	short 						port_t;
 typedef std::set<port_t>			ports_set_t;
 typedef	std::list<Server *>			serv_list_t;
 typedef	std::map<int, Server *>		connections_map_t;
-typedef	std::map<int, serv_list_t>	connections_map_lst_t;
+typedef	std::map<int, serv_list_t>	port_servs_map_t;
 typedef	std::list<int>				fd_list_t;
 typedef	std::list<location_t *>		locations_list_t;
 typedef	std::map<int, long>			timeout_fd_t;
@@ -111,7 +112,8 @@ typedef	enum	e_req
 	HEAD = F_HEAD,
 	POST = F_POST,
 	DELETE = F_DELETE,
-	FINISH = 3
+	FINISH = 3,
+	LOLDEF
 }				req_t;
 
 typedef enum	e_status_code

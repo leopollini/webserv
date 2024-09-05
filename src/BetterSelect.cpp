@@ -12,6 +12,8 @@
 
 #include "../include/BetterSelect.hpp"
 
+port_servs_map_t	BetterSelect::_used_ports;
+
 BetterSelect::BetterSelect() : _tot_size(0)
 {
 	FD_ZERO(&_read_pool);
@@ -157,20 +159,61 @@ static void	log_request(req_t type, const int socket_fd)
 	}
 }
 
+string	get_var_from_header(string msg, string name)
+{
+	size_t	varpos = msg.find(name);
+
+	if (varpos == string::npos || varpos >= msg.find("\r\n\r\n"))
+		return "";
+
+	string a = msg.substr(varpos + name.size() + 2, msg.find("\r", varpos) - varpos - name.size() - 2);
+	return a;
+}
+
+Server	*BetterSelect::findServByHostname(port_t port, string host)
+{
+	serv_list_t	&t = _used_ports[port];
+
+	SAY("Looking for better match for host " << host << "... ");
+	for (serv_list_t::iterator i = t.begin(); i != t.end(); ++i)
+	{
+		if ((*i)->getEnv(NAME).find(host) != string::npos)
+		{
+			SAY("Found at " << host << "!\n");
+			return *i;
+		}
+	}
+	SAY("Not found. Returning first of list (" << t.front()->getEnv(NAME) << ")!\n");
+	return t.front();
+}
+
+req_t	BetterSelect::readMsg(int fd, connections_map_t::iterator &i)
+{
+	long	msg_len;
+
+	SAY("Readimg from " << fd << "...\n");
+	if (!(msg_len = recv(fd, _recv_buff, RECV_BUFF_SIZE, 0)))
+		return FINISH;
+	if (msg_len < 0)
+		return timestamp("recv failed! ):\n", ERROR), INVALID;
+	if (msg_len == RECV_BUFF_SIZE)
+		throw HeadMsgTooLong();
+	if (i->second->_is_sharing_port)
+		i->second = findServByHostname(i->second->getPort(), get_var_from_header(_recv_buff, "Host"));
+	return i->second->recieve(i->first, _recv_buff);
+}
+
 void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 {
-	for (connections_map_t::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
+	Server	*t;
+
+	if (FD_ISSET(_current_connection_fd, &writefds) && (t = _clis_map[_current_connection_fd])) //if the socket is ready to be written on
 	{
-		if (!i->second || i->first != _current_connection_fd)
-			continue;
-		if (FD_ISSET(_current_connection_fd, &writefds)) //if the socket is ready to be written on
-		{
-			FD_CLR(_current_connection_fd, &_write_pool);
-			if (!i->second->respond(_current_connection_fd))
-				return (void)rmFd(_current_connection_fd, i->second);
-			_timeout_map[_current_connection_fd] = time(NULL);
-			return ;
-		}
+		FD_CLR(_current_connection_fd, &_write_pool);
+		if (!t->respond(_current_connection_fd))
+			return (void)rmFd(_current_connection_fd, t);
+		_timeout_map[_current_connection_fd] = time(NULL);
+		return ;
 	}
 	for (connections_map_t::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 	{
@@ -178,7 +221,7 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 			continue;
 		if (FD_ISSET(i->first, &readfds)) //if the socket is ready to be read
 		{
-			req_t request_type = i->second->recieve(i->first);
+			req_t request_type	= readMsg(i->first, i);
 
 			log_request(request_type, i->first);
 			if (request_type == FINISH || request_type == INVALID || i->second->getRes() == _DONT_SEND)
