@@ -6,7 +6,7 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/03 20:04:09 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/19 20:37:20 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 # include "definitions.hpp"
 # include "Responser.hpp"
 # include "useful_structs.hpp"
-# include "TransferDecoder.hpp"
+# include "transfer_encoding.hpp"
 
 # define HEAD_RESERVE 130
 
@@ -40,6 +40,7 @@ class	Server
 
 	Server&	operator=(const Server &assignment) {(void)assignment; return *this;}
 	Server(const Server &copy) : _resp(this) {(void)copy;}
+
 public:
 	int					_down_count;
 
@@ -112,6 +113,9 @@ public:
 	public:
 		virtual const char	*what() const throw() {return "Content size exceeded allowed body size";}
 	};
+	
+private:
+	req_t	_receiveBody(request_t &request) throw (Server::BodyMsgTooLong);
 };
 
 #endif

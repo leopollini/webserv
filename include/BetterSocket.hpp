@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BetterSocket.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:01:08 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/27 22:40:06 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/19 21:37:51 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,20 @@
 
 # include "utils.hpp"
 # include "definitions.hpp"
+# include <string.h>
 
 # define CLIENTS_MAX 10
+# define BUFFER_SIZE 3000ul
 
 struct	BetterSocket
 {
+private:
+	size_t	_buffer_len;
+	char	_read_buff[BUFFER_SIZE + 1];
+	string	_flush_bytes(size_t n);
+	bool	_successful_read;
+public:
+	size_t	sockRead();
 	int					sock;
 	struct sockaddr_in	client;
 	socklen_t			len;
@@ -27,33 +36,16 @@ struct	BetterSocket
 	int					fd;
 	struct sockaddr_in	addr;
 	
-	void				init(short port, int address = INADDR_ANY)
-	{
-		while (0); // prevent inline-ing
-		if (fd >= 0)
-			close(fd);
-		if ((fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) < 0)
-			throw FailedSocketCreation();
-		addr.sin_family = AF_INET;
-		addr.sin_addr.s_addr = address;
-		addr.sin_port = htons(port);
-		if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
-			throw FailedSocketBind();
-		if (listen(fd, CLIENTS_MAX) < 0)
-			throw FailedSocketListen();
-	}
-	int					Accept()
-	{
-		len = 0;
-		sock = accept(fd, (struct sockaddr *)&client, &len);
-		return sock;
-	}
-	void	down()
-	{
-		close (fd);
-	}
-
+	void				init(short port, int address = INADDR_ANY);
+	int					Accept();
+	void	down();
 	BetterSocket() : sock(-1), fd(-1)  {}
+	void	flushBuffer();
+	void	BetterSocket::flushUntilEnd();
+	string	getLine();
+	bool	wasReadSuccessful() const {return _successful_read;};
+	string	getBytes(size_t to_read);
+	string	getChunk();
 
 	class FailedSocketCreation : public std::exception
 	{

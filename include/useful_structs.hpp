@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   useful_structs.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/09 16:58:53 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/24 22:25:38 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/19 19:23:06 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ struct	location_t
 struct request_t
 {
 	req_t		type;
-	string		dir;
+	string		uri;
 	var_map_t	header;
 	char		http_version[4];
 	string		body;
@@ -37,7 +37,7 @@ struct request_t
 	bool		complete;
 
 	void	littel_parse(Server *s);
-	request_t() : type(INVALID), dir(""), header(), http_version(DEFAULT_PROTOCOL), body(""), root(""), loc(NULL), complete(true) {};
+	request_t() : type(INVALID), uri(""), header(), http_version(DEFAULT_PROTOCOL), body(""), root(""), loc(NULL), complete(true) {};
 };
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/24 19:30:23 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/19 19:23:06 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ static bool location_isvalid(const location_t *loc, string &req)
 }
 
 //matches the request directory with a location and sets its location_t pointer
-void	Server:: matchRequestLocation(request_t &request) const
+void	Server::matchRequestLocation(request_t &request) const
 {
 	if (request.type == INVALID)
 		// *(int *)(0); //crash
@@ -62,10 +62,10 @@ void	Server:: matchRequestLocation(request_t &request) const
 
 		// printf("called. \'%s\' (%i)\n", dir.c_str(), dir.size());
 		//if directory is more specific, or if it doesn't match
-		if (dir.size() - 1 > request.dir.size() || dir.size() <= max_len)
+		if (dir.size() - 1 > request.uri.size() || dir.size() <= max_len)
 			continue ;
 
-		if (request.dir.find(dir) || location_isvalid(*it, request.dir))
+		if (request.uri.find(dir) || location_isvalid(*it, request.uri))
 			continue ;
 
 		location = *it;
@@ -81,15 +81,15 @@ void	Server:: matchRequestLocation(request_t &request) const
 
 status_code_t	Server::validateLocation()
 {
-	cout << "Looking for " << _current_request.dir << ". Allowed mwthod flag: " << (int)_current_request.loc->allows << "\n";
+	cout << "Looking for " << _current_request.uri << ". Allowed mwthod flag: " << (int)_current_request.loc->allows << "\n";
 	_resp = _current_request;	// overloaded. Copies members dir and loc pointer
 	string target_file;
 	status_code_t	t;
 
-	if (_current_request.dir.empty())
+	if (_current_request.uri.empty())
 		return (INTERNAL_SEVER_ERROR);
 		
-	_resp.getFileFlags() = checkCharacteristics(_current_request.dir.c_str());
+	_resp.getFileFlags() = checkCharacteristics(_current_request.uri.c_str());
 
 	if (!exists(_resp.getFileFlags()))
 		return NOT_FOUND;

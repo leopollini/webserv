@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:09 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/21 17:23:48 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/19 19:23:06 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,7 +213,7 @@ void	printHttpRequest(request_t &request, std::ostream &out)
 
 	out << request_type_str(request.type);
 
-	out << " " << request.dir;
+	out << " " << request.uri;
 	out << " HTTP/" << request.http_version << '\n';
 	for (var_map_t::const_iterator it = request.header.begin(); it != request.header.end(); it++)
 	{

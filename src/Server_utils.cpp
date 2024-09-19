@@ -6,7 +6,7 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/03 20:53:38 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/18 19:00:48 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,65 +167,6 @@ string	&Server::getEnv(string key, location_t *location)
 	return (Webserv::getInstance().getEnv(key));
 }
 
-//sets method type, url and protocol version (GET, /, HTTP/1.1)
-static void parse_request_line(request_t &request, const string &req_line)
-{	
-	size_t	field_begin;
-	if (!req_line.compare(0, 4, "GET "))
-	{
-		request.type = GET;
-		field_begin = 4;
-	}
-	else if (!req_line.compare(0, 5, "POST "))
-	{
-		request.type = POST;
-		field_begin = 5;
-	}
-	else if (!req_line.compare(0, 7, "DELETE "))
-	{
-		request.type = DELETE;
-		field_begin = 7;
-	}
-	else if (!req_line.compare(0, 5, "HEAD "))
-	{
-		request.type = HEAD;
-		field_begin = 5;
-	}
-	else
-	{
-		request.type = INVALID;
-		return ;
-	}
-
-	field_begin = req_line.find_first_not_of(' ', field_begin);
-	if (field_begin == string::npos)
-	{
-		request.type = INVALID;
-		return ;
-	}
-
-	size_t	field_end = req_line.find(' ', field_begin);
-	size_t	protocol_version = req_line.find("HTTP/");
-	if (field_end == string::npos || protocol_version == string::npos)
-	{
-		if (field_end != string::npos)
-		{
-			request.type = INVALID;
-			return ;
-		}
-		string(DEFAULT_PROTOCOL).copy(request.http_version, 3, 0);
-		request.dir = req_line.substr(field_begin);
-		return ;
-	}
-	request.dir = req_line.substr(field_begin, field_end - field_begin);
-	
-	req_line.copy(request.http_version, 3, protocol_version + 5);
-	//checks if http_version matches "1.n" or "1"
-	if (request.http_version[0] != '1' ||
-	(request.http_version[1] != '\0' && (request.http_version[1] != '.' || !isdigit(request.http_version[2]))))
-		request.type = INVALID;
-}	
-
 // splits line at the first \n then header from body at "\r\n\r\n"
 static void	split_request(string &line, string &header, string &body)
 {
@@ -270,7 +211,8 @@ static void	split_request(string &line, string &header, string &body)
 	return (body_tail);
 }*/
 
-static void parse_request_header(string header, request_t &request)
+
+/*static void parse_request_header(string header, request_t &request)
 {
 	//parses header into request variable map (request.header)
 	std::map<string, string> &map = request.header;
@@ -291,33 +233,29 @@ static void parse_request_header(string header, request_t &request)
 		map[key] = value;
 	}
 
-}
+}*/
 
-//reads n bytes from the given fd to complete a previously incomplete request
-static	req_t continue_incomplete_request(request_t &request, int fd)
+/*static req_t receive_body(request_t request) throw (Server::BodyMsgTooLong)
 {
-	size_t	tot_size = static_cast<size_t>(atoi(request.header[H_BODY_SIZE].c_str()));
-	string	body_tail = "";
-	int		bytes_read = 1;
-	char	*read_buffer;
+
+	bool chunked_encoding = transfer_encoding::is_encoded(request);
+
+	size_t body_size = static_cast<size_t>(atoi(request.header[H_BODY_SIZE].c_str()));
+	string &max_body_size = getEnv(L_MAX_BODY_SIZE, request.loc);
+
+	if (max_body_size != "" && body_size > (size_t)atoi(max_body_size.c_str()))
+		throw Server::BodyMsgTooLong();
 	
-	bytes_read = Webserv::socketRead(fd, &read_buffer, (tot_size - request.body.size() + 1));
-	if (bytes_read < 0)
-		return (INVALID);
-	read_buffer[bytes_read] = 0;
-	body_tail += read_buffer;
-	request.body += body_tail;
-	if (tot_size > request.body.size())
-		return (INCOMPLETE);
 
-	request.complete = true;
-	TransferDecoder::decodeRequestBody(request);
-	printHttpRequest(request);
-	return (request.type);
-}
+	if ( bytes_read == BUFFER_SIZE && (chunked_encoding || body_size > request.body.size()) )
+	{
+		request.complete = false;
+		return INCOMPLETE;
+	}
+	transfer_encoding::decode_request_body(request);
+}*/
 
-
-req_t Server::receive(int fd)
+/*req_t Server::receive(int fd)
 {
 	request_t	&request = _current_request;
 	string		req_line;
@@ -329,7 +267,7 @@ req_t Server::receive(int fd)
 	if (!request.complete)
 		return (continue_incomplete_request(request, fd)); //can also return incomplete
 	
-	bytes_read = Webserv::socketRead(fd, &read_buffer, BUFFER_SIZE);
+	
 	
 	if (!bytes_read)
 		return FINISH;
@@ -344,49 +282,21 @@ req_t Server::receive(int fd)
 	parse_request_line(request, req_line);
 	if (request.type == INVALID)
 		return (INVALID);
-	
+
 	parse_request_header(req_header, request);
 	// truncate location identification part of dir
 	matchRequestLocation(request);
 	request.littel_parse(this); //wtf does this even do
 
 	if (request.type == POST || request.type == DELETE) // all handled methods with body
-	{
-		bool chunked_encoding = TransferDecoder::isEncoded(request);
-
-		size_t body_size = static_cast<size_t>(atoi(request.header[H_BODY_SIZE].c_str()));
-		string &max_body_size = getEnv(L_MAX_BODY_SIZE, request.loc);
-
-		if (max_body_size != "" && body_size > (size_t)atoi(max_body_size.c_str()))
-			throw BodyMsgTooLong();
-		
-
-		if ( bytes_read == BUFFER_SIZE && (chunked_encoding || body_size > request.body.size()) )
-		{
-			request.complete = false;
-			return INCOMPLETE;
-		}
-	}
-	TransferDecoder::decodeRequestBody(request);
-	printHttpRequest(request);
+		receive_body(request);
+	if (request.type != INCOMPLETE)
+		printHttpRequest(request);
 	// return parseMsg(fd);
 	return request.type;
-}
+}*/
 
-//	################ Here are other function definitions of classes that depend to Server / to which Server is dependant. Sorry i could not create a separate file ):
-void	request_t::littel_parse(Server *s)
-{
-	if (loc)
-		dir = dir.substr(loc->dir.size());
-	else
-		cout << "LOCATION NOT FOUND!\n";
-	if (dir[0] != '/')
-		dir = '/' + dir;
-	dir = s->getEnv(LOC_ROOT, loc) + dir;
-	while (*--dir.end() == '/')	// erases trailing '/'s if present
-		dir.erase(--dir.end());
-	std::cout << "requested dir be: \'" << dir << "\'\n";
-}
+
 
 void Responser::buildResponseHeader()
 {

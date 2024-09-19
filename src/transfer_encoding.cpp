@@ -1,20 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   TransferDecoder.cpp                                :+:      :+:    :+:   */
+/*   transfer_encoding.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/09/03 20:05:50 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/03 20:52:01 by fedmarti         ###   ########.fr       */
+/*   Created: 2024/09/03 22:17:36 by fedmarti          #+#    #+#             */
+/*   Updated: 2024/09/16 14:03:17 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "TransferDecoder.hpp"
+#include "transfer_encoding.hpp"
 #include <sstream>
 
+static void chunked_encoding(request_t &r)
+{
+	//i probably gotta change this
+	;
+}
 
-bool TransferDecoder::isEncoded( request_t &request ) throw (UnsupportedEncoding)
+void transfer_encoding::encode_body(request_t &request, type encoding) throw (UnsupportedEncoding)
+{
+	if (encoding == Err)
+		throw (UnsupportedEncoding());
+	if (encoding == Void)
+		return ;
+	if (encoding == Chunked)
+	{
+		chunked_encoding(request);
+		return ;
+	}
+
+}
+
+bool transfer_encoding::is_encoded( request_t &request ) throw (UnsupportedEncoding)
 {
 	string	encoding_type = request.header[H_TRANSFER_ENCODING];
 
@@ -36,7 +55,7 @@ static inline size_t _next(size_t i, string str)
 	return (pos);
 } 
 
-void TransferDecoder::_chunkedDecoding(request_t &request)
+static void chunked_decoding(request_t &request)
 {
 	string new_body = "";
 	string &old_body = request.body;
@@ -62,7 +81,7 @@ void TransferDecoder::_chunkedDecoding(request_t &request)
 	}
 }
 
-void TransferDecoder::decodeRequestBody(request_t &request) throw (UnsupportedEncoding)
+void transfer_encoding::decode_request_body(request_t &request) throw (UnsupportedEncoding)
 {
 	string	encoding_type = request.header[H_TRANSFER_ENCODING];
 
@@ -71,7 +90,7 @@ void TransferDecoder::decodeRequestBody(request_t &request) throw (UnsupportedEn
 
 	if (encoding_type == "chunked")
 	{
-		_chunkedDecoding(request);	
+		chunked_decoding(request);	
 		return ;
 	}
 	throw (UnsupportedEncoding());

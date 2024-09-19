@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Responser.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/08/21 17:17:43 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/19 19:23:06 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ public:
 	}
 	Responser &operator=(const request_t &t)
 	{
-		_dir = t.dir;
+		_dir = t.uri;
 		_loc = t.loc;
 		return *this;
 	}
