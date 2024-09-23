@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   receive_request.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 18:59:23 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/23 18:35:54 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/23 19:33:27 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,10 +98,11 @@ static bool parse_request_header(BetterSocket &socket, request_t &request)
 		parse_header_line(line, map);
 		line = socket.getLine();
 	}
+	
 	return (line == CRNL && socket.wasReadSuccessful());
 }
 
-//reads n bytes from the given fd to complete a previously incomplete request
+/*//reads n bytes from the given fd to complete a previously incomplete request
 static	req_t continue_incomplete_request(request_t &request, int fd)
 {
 	size_t	tot_size = static_cast<size_t>(atoi(request.header[H_BODY_SIZE].c_str()));
@@ -121,7 +122,7 @@ static	req_t continue_incomplete_request(request_t &request, int fd)
 	request.complete = true;
 	printHttpRequest(request);
 	return (request.type);
-}
+}*/
 
 static inline req_t chunked_read(BetterSocket &socket, request_t &request)
 {
@@ -180,11 +181,9 @@ req_t Server::receive(int fd)
 	request_t	&request = _current_request;
 	string		req_line;
 	string		req_header;
-	size_t		bytes_read;
-	char		*read_buffer;
 	cout << "Readimg from " << fd << "...\n";
 	
-	if (_sock.sockRead() < 1)
+	if (_sock.sockRead(fd) < 1)
 		return (INVALID);
 	
 	if (request.complete)

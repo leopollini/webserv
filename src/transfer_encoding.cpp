@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   transfer_encoding.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/03 22:17:36 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/16 14:03:17 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/23 19:08:45 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 static void chunked_encoding(request_t &r)
 {
 	//i probably gotta change this
-	;
+	static_cast<void>(r);
 }
 
 void transfer_encoding::encode_body(request_t &request, type encoding) throw (UnsupportedEncoding)

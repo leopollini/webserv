@@ -3,25 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   BetterSocket.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/15 02:44:25 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/23 18:12:18 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/23 19:31:45 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "BetterSocket.hpp"
 #include "Webserv.hpp"
 
-bool	BetterSocket::isLineComplete()
-{
-	return (strstr(_read_buff, CRNL) != NULL);
-}
 
 //reads size bytes into _read_buff 
 //returns the result of the read call
 //on failure returns -1, flushes the buffer and possibly shuts down the server
-size_t	BetterSocket::sockRead()
+size_t	BetterSocket::sockRead(int input_fd)
 {
 	// char *read_buff = _read_buff;
 	int	bytes_read;
@@ -30,7 +26,7 @@ size_t	BetterSocket::sockRead()
 
 	size = BUFFER_SIZE - _buffer_len;
 
-	bytes_read = read(fd, _read_buff + _buffer_len, size);
+	bytes_read = read(input_fd, _read_buff + _buffer_len, size);
 	_buffer_len += bytes_read; 
 
 	if (bytes_read < 0)
@@ -59,7 +55,7 @@ string BetterSocket::_flush_bytes(size_t n)
 {
 	string content(_read_buff, n);
 	
-	memmove(_read_buff + n, _read_buff, _buffer_len - n);
+	memmove(_read_buff, _read_buff + n, _buffer_len - n);
 	_buffer_len -= n;
 	_read_buff[_buffer_len] = '\0';
 	return (content);
@@ -71,16 +67,16 @@ string BetterSocket::_flush_bytes(size_t n)
 //BetterSocket::isLineComplete() to check
 string	BetterSocket::getLine()
 {
-	if (_read_buff == "")
+	_successful_read = false;
+	if (!_read_buff[0]) // if buffer is empty
 		return ("");
 
 	size_t line_size;
 	char *line_end = strstr(_read_buff, CRNL);
 	if (line_end == NULL)
-	{
 		return ("");
-	}
 	
+	_successful_read = true;
 	line_size = line_end - _read_buff + 2;
 	string line = _flush_bytes(line_size);
 	return (line);
@@ -139,14 +135,15 @@ void BetterSocket::init(short port, int address)
 		throw FailedSocketListen();
 }
 
-//AA/r/n
+//A3/r/n
 //eawfwefawefawefawef/r/n
+
+//0/r/n
+///r/n
 
 string	BetterSocket::getChunk()
 {
 	size_t chunk_size;
-	string size_chunk;
-	std::stringstream ss;
 	string content;
 
 	
@@ -158,12 +155,14 @@ string	BetterSocket::getChunk()
 	}
 
 	string size_chunk = string(_read_buff, carriage_return - _read_buff);
+	
+	std::stringstream ss; //stream objects which parses strings into integer type
 	ss << std::hex << size_chunk;
 	ss >> chunk_size;
 
 	char *chunk_start = carriage_return + 2;
-	if (strlen(chunk_start) < chunk_size + 2 || (chunk_start + chunk_size) != CRNL)
-	{
+	if (strlen(chunk_start) < chunk_size + 2 || strncmp(chunk_start + chunk_size, CRNL, 3)) // if buffer doesn't have enough bytes to read the chunk or if the chunk is not terminated by CRNL
+ 	{
 		_successful_read = false;
 		return (content);
 	}

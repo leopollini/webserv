@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/15 02:54:13 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/23 19:17:07 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ public:
 	void	downServer(Server *serv);
 	void	downServer(int fd);
 
-	static int	socketRead(int fd, char **dest, size_t size = BUFFER_SIZE);
+	// static int	socketRead(int fd, char **dest, size_t size = BUFFER_SIZE);
 
 	
 	const string	&getConf() const;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_utils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/18 19:00:48 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/23 19:08:01 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,7 +167,7 @@ string	&Server::getEnv(string key, location_t *location)
 	return (Webserv::getInstance().getEnv(key));
 }
 
-// splits line at the first \n then header from body at "\r\n\r\n"
+/*// splits line at the first \n then header from body at "\r\n\r\n"
 static void	split_request(string &line, string &header, string &body)
 {
 	header = "";
@@ -187,7 +187,7 @@ static void	split_request(string &line, string &header, string &body)
 		body_start = line.size();
 	header = line.substr(header_start + 2, body_start - header_start);
 	line = line.substr(line_start, header_start - line_start);
-}
+}*/
 
 /*static string read_remaining_body(char *read_buffer, size_t to_read, int fd)
 {

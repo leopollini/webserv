@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/27 23:59:02 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/23 19:17:24 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ Webserv::~Webserv()
 		delete *i;
 }
 
-//reads size bytes into read_buff which is assigned to dest
+/*//reads size bytes into read_buff which is assigned to dest
 //returns the result of the read call
 //on failure returns -1, sets dest to NULL and possibly shuts down the server
 int	Webserv::socketRead(int fd, char **dest, size_t size)
@@ -70,7 +70,7 @@ int	Webserv::socketRead(int fd, char **dest, size_t size)
 	if (dest)
 		*dest = read_buff;
 	return (bytes_read);
-}
+}*/
 
 
 // add anything useful. Every not recgnized extension is mapped to "default", which tells the browser to download the file

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BetterSocket.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:01:08 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/19 21:37:51 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/23 19:21:42 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ private:
 	string	_flush_bytes(size_t n);
 	bool	_successful_read;
 public:
-	size_t	sockRead();
+	size_t	sockRead(int input_fd);
 	int					sock;
 	struct sockaddr_in	client;
 	socklen_t			len;
@@ -41,7 +41,7 @@ public:
 	void	down();
 	BetterSocket() : sock(-1), fd(-1)  {}
 	void	flushBuffer();
-	void	BetterSocket::flushUntilEnd();
+	void	flushUntilEnd();
 	string	getLine();
 	bool	wasReadSuccessful() const {return _successful_read;};
 	string	getBytes(size_t to_read);
