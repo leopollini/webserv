@@ -6,7 +6,7 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/09 16:58:53 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/19 19:23:06 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/23 18:36:55 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ struct request_t
 	location_t	*loc;
 	bool		complete;
 
-	void	littel_parse(Server *s);
+	void	little_parse(Server *s);
 	request_t() : type(INVALID), uri(""), header(), http_version(DEFAULT_PROTOCOL), body(""), root(""), loc(NULL), complete(true) {};
 };
 

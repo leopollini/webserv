@@ -6,7 +6,7 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 18:59:23 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/19 21:39:03 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/23 18:35:54 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ static void parse_header_line(string &line, std::map<string, string> &map, char 
 	map[key] = value;
 }
 
-static void parse_request_header(BetterSocket &socket, request_t &request)
+static bool parse_request_header(BetterSocket &socket, request_t &request)
 {
 	//parses header into request variable map (request.header)
 	std::map<string, string> &map = request.header;
@@ -97,7 +97,8 @@ static void parse_request_header(BetterSocket &socket, request_t &request)
 	{
 		parse_header_line(line, map);
 		line = socket.getLine();
-	}	
+	}
+	return (line == CRNL && socket.wasReadSuccessful());
 }
 
 //reads n bytes from the given fd to complete a previously incomplete request
@@ -153,14 +154,14 @@ req_t Server::_receiveBody(request_t &request) throw (Server::BodyMsgTooLong)
 		return (request.type);
 	}
 
-	request.body = _sock.getBytes(body_size);
+	request.body = _sock.getBytes(body_size - request.body.size());
 	if (request.body.size() < body_size)
 		request.type = INCOMPLETE;
 	return (request.type);
 }
 
 //	################ Here are other function definitions of classes that depend to Server / to which Server is dependant. Sorry i could not create a separate file ):
-void	request_t::littel_parse(Server *s)
+void	request_t::little_parse(Server *s)
 {
 	if (loc)
 		uri = uri.substr(loc->dir.size());
@@ -186,29 +187,27 @@ req_t Server::receive(int fd)
 	if (_sock.sockRead() < 1)
 		return (INVALID);
 	
-	// if (!request.complete)
-		// return (continue_incomplete_request(request, fd)); //can also return incomplete
-	
-	request.header.clear();
-	string req_line = _sock.getLine();
+	if (request.complete)
+	{
+		request.header.clear();
+		string req_line = _sock.getLine();
 
-	if (req_line == "" || !_sock.wasReadSuccessful())
-		return (INVALID);
+		if (req_line == "" || !_sock.wasReadSuccessful())
+			return (INVALID);
 
-	HttpRequestLog(req_line, fd);
-	parse_request_line(request, req_line);
+		HttpRequestLog(req_line, fd);
+		parse_request_line(request, req_line);
 
-	parse_request_header(_sock, request);
-	if (!_sock.wasReadSuccessful())
-		throw HeadMsgTooLong();
+		if (!parse_request_header(_sock, request))
+			throw HeadMsgTooLong();
 
-	if (request.type == INVALID)
-		return (INVALID);
+		if (request.type == INVALID)
+			return (INVALID);
 
-	// truncate location identification part of dir
-	matchRequestLocation(request);
-	request.littel_parse(this); //wtf does this even do
-
+		// truncate location identification part of dir
+		matchRequestLocation(request);
+		request.little_parse(this); //wtf does this even do
+	}
 	if (request.type == POST || request.type == DELETE) // all handled methods with body
 		_receiveBody(request);
 	if (request.type != INCOMPLETE)

@@ -6,7 +6,7 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/15 02:44:25 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/19 21:34:45 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/23 18:12:18 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,9 +93,12 @@ string	BetterSocket::getBytes(size_t to_read)
 	if (_buffer_len < to_read)
 	{
 		content = _flush_bytes(_buffer_len);
+		_successful_read = false;
 		return (content);
 	}
+	
 	content = _flush_bytes(to_read);
+	_successful_read = true;
 	return (content);
 }
 
@@ -135,6 +138,9 @@ void BetterSocket::init(short port, int address)
 	if (listen(fd, CLIENTS_MAX) < 0)
 		throw FailedSocketListen();
 }
+
+//AA/r/n
+//eawfwefawefawefawef/r/n
 
 string	BetterSocket::getChunk()
 {
