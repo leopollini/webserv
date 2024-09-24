@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 18:59:23 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/24 11:50:59 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 18:33:05 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,114 +15,114 @@
 #include "Webserv.hpp"
 
 //sets method type, url and protocol version (GET, /, HTTP/1.1)
-// static void parse_request_line(request_t &request, const string &req_line)
-// {	
-// 	size_t	field_begin;
-// 	if (!req_line.compare(0, 4, "GET "))
-// 	{
-// 		request.type = GET;
-// 		field_begin = 4;
-// 	}
-// 	else if (!req_line.compare(0, 5, "POST "))
-// 	{
-// 		request.type = POST;
-// 		field_begin = 5;
-// 	}
-// 	else if (!req_line.compare(0, 7, "DELETE "))
-// 	{
-// 		request.type = DELETE;
-// 		field_begin = 7;
-// 	}
-// 	else if (!req_line.compare(0, 5, "HEAD "))
-// 	{
-// 		request.type = HEAD;
-// 		field_begin = 5;
-// 	}
-// 	else
-// 	{
-// 		request.type = INVALID;
-// 		return ;
-// 	}
+static void parse_request_line(request_t &request, const string &req_line)
+{	
+	size_t	field_begin;
+	if (!req_line.compare(0, 4, "GET "))
+	{
+		request.type = GET;
+		field_begin = 4;
+	}
+	else if (!req_line.compare(0, 5, "POST "))
+	{
+		request.type = POST;
+		field_begin = 5;
+	}
+	else if (!req_line.compare(0, 7, "DELETE "))
+	{
+		request.type = DELETE;
+		field_begin = 7;
+	}
+	else if (!req_line.compare(0, 5, "HEAD "))
+	{
+		request.type = HEAD;
+		field_begin = 5;
+	}
+	else
+	{
+		request.type = INVALID;
+		return ;
+	}
 
-// 	field_begin = req_line.find_first_not_of(' ', field_begin);
-// 	if (field_begin == string::npos)
-// 	{
-// 		request.type = INVALID;
-// 		return ;
-// 	}
+	field_begin = req_line.find_first_not_of(' ', field_begin);
+	if (field_begin == string::npos)
+	{
+		request.type = INVALID;
+		return ;
+	}
 
-// 	size_t	field_end = req_line.find(' ', field_begin);
-// 	size_t	protocol_version = req_line.find("HTTP/");
-// 	if (field_end == string::npos || protocol_version == string::npos)
-// 	{
-// 		if (field_end != string::npos)
-// 		{
-// 			request.type = INVALID;
-// 			return ;
-// 		}
-// 		string(DEFAULT_PROTOCOL).copy(request.http_version, 3, 0);
-// 		request.uri = req_line.substr(field_begin);
-// 		return ;
-// 	}
-// 	request.uri = req_line.substr(field_begin, field_end - field_begin);
+	size_t	field_end = req_line.find(' ', field_begin);
+	size_t	protocol_version = req_line.find("HTTP/");
+	if (field_end == string::npos || protocol_version == string::npos)
+	{
+		if (field_end != string::npos)
+		{
+			request.type = INVALID;
+			return ;
+		}
+		string(DEFAULT_PROTOCOL).copy(request.http_version, 3, 0);
+		request.uri = req_line.substr(field_begin);
+		return ;
+	}
+	request.uri = req_line.substr(field_begin, field_end - field_begin);
 	
-// 	req_line.copy(request.http_version, 3, protocol_version + 5);
-// 	//checks if http_version matches "1.n" or "1"
-// 	if (request.http_version[0] != '1' ||
-// 	(request.http_version[1] != '\0' && (request.http_version[1] != '.' || !isdigit(request.http_version[2]))))
-// 		request.type = INVALID;
-// }	
+	req_line.copy(request.http_version, 3, protocol_version + 5);
+	//checks if http_version matches "1.n" or "1"
+	if (request.http_version[0] != '1' ||
+	(request.http_version[1] != '\0' && (request.http_version[1] != '.' || !isdigit(request.http_version[2]))))
+		request.type = INVALID;
+}	
 
-// static void parse_header_line(string &line, std::map<string, string> &map, char separator_char = ':')
-// {
-// 	string key, value;
-// 	size_t	separator = line.find(separator_char);
-// 	if (separator == string::npos)
-// 		return ;
+static void parse_header_line(string &line, std::map<string, string> &map, char separator_char = ':')
+{
+	string key, value;
+	size_t	separator = line.find(separator_char);
+	if (separator == string::npos)
+		return ;
 
-// 	key = strip(line.substr(0, separator), " \n\r");
-// 	value = strip(line.substr(separator + 1, line.length() - separator), " \n\r");
-// 	map[key] = value;
-// }
+	key = strip(line.substr(0, separator), " \n\r");
+	value = strip(line.substr(separator + 1, line.length() - separator), " \n\r");
+	map[key] = value;
+}
 
-// static bool parse_request_header(BetterSocket &socket, request_t &request)
-// {
-// 	//parses header into request variable map (request.header)
-// 	std::map<string, string> &map = request.header;
+static bool parse_request_header(BetterSocket &socket, request_t &request)
+{
+	//parses header into request variable map (request.header)
+	std::map<string, string> &map = request.header;
 	
-// 	map.clear();
+	map.clear();
 
-// 	string line = socket.getLine();
-// 	while (line != "" && line != CRNL && socket.wasReadSuccessful())
-// 	{
-// 		parse_header_line(line, map);
-// 		line = socket.getLine();
-// 	}
+	string line = socket.getLine();
+	while (line != "" && line != CRNL && socket.wasReadSuccessful())
+	{
+		parse_header_line(line, map);
+		line = socket.getLine();
+	}
 	
-// 	return (line == CRNL && socket.wasReadSuccessful());
-// }
+	return (line == CRNL && socket.wasReadSuccessful());
+}
 
-//reads n bytes from the given fd to complete a previously incomplete request
-// static	req_t continue_incomplete_request(request_t &request, int fd)
-// {
-// 	size_t	tot_size = static_cast<size_t>(atoi(request.header[H_BODY_SIZE].c_str()));
-// 	string	body_tail = "";
-// 	int		bytes_read = 1;
-// 	char	*read_buffer;
+/*//reads n bytes from the given fd to complete a previously incomplete request
+static	req_t continue_incomplete_request(request_t &request, int fd)
+{
+	size_t	tot_size = static_cast<size_t>(atoi(request.header[H_BODY_SIZE].c_str()));
+	string	body_tail = "";
+	int		bytes_read = 1;
+	char	*read_buffer;
 	
-// 	bytes_read = Webserv::socketRead(fd, &read_buffer, (tot_size - request.body.size() + 1));
-// 	if (bytes_read < 0)
-// 		return (INVALID);
-// 	read_buffer[bytes_read] = 0;
-// 	body_tail += read_buffer;
-// 	request.body += body_tail;
-// 	if (tot_size > request.body.size())
-// 		return (INCOMPLETE);
+	bytes_read = Webserv::socketRead(fd, &read_buffer, (tot_size - request.body.size() + 1));
+	if (bytes_read < 0)
+		return (INVALID);
+	read_buffer[bytes_read] = 0;
+	body_tail += read_buffer;
+	request.body += body_tail;
+	if (tot_size > request.body.size())
+		return (INCOMPLETE);
 
-// 	request.complete = true;
-// 	printHttpRequest(request);
-// 	return (request.type);
-// }
+	request.complete = true;
+	printHttpRequest(request);
+	return (request.type);
+}*/
 
 static inline req_t chunked_read(BetterSocket &socket, request_t &request)
 {
@@ -160,3 +160,56 @@ req_t Server::_receiveBody(request_t &request) throw (Server::BodyMsgTooLong)
 		request.type = INCOMPLETE;
 	return (request.type);
 }
+
+// //	################ Here are other function definitions of classes that depend to Server / to which Server is dependant. Sorry i could not create a separate file ):
+// void	request_t::little_parse(Server *s)
+// {
+// 	if (loc)
+// 		uri = uri.substr(loc->dir.size());
+// 	else
+// 		cout << "LOCATION NOT FOUND!\n";
+// 	if (uri[0] != '/')
+// 		uri = '/' + uri;
+// 	uri = s->getEnv(LOC_ROOT, loc) + uri;
+// 	while (*--uri.end() == '/')	// erases trailing '/'s if present
+//   		uri.erase(--uri.end());
+// 	std::cout << "requested dir be: \'" << uri << "\'\n";
+// }
+
+req_t Server::receive(int fd)
+{
+	request_t	&request = _current_request;
+	cout << "Readimg from " << fd << "...\n";
+	
+	if (_sock.sockRead(fd) < 1)
+		return (INVALID);
+
+	if (request.complete)
+	{
+		request.header.clear();
+		string req_line = _sock.getLine();
+
+		if (req_line == "" || !_sock.wasReadSuccessful())
+			return (INVALID);
+
+		HttpRequestLog(req_line, fd);
+		parse_request_line(request, req_line);
+
+		if (!parse_request_header(_sock, request))
+			throw HeadMsgTooLong();
+
+		if (request.type == INVALID)
+			return (INVALID);
+
+		// truncate location identification part of dir
+		matchRequestLocation(request);
+		request.littel_parse(this); //wtf does this even do
+	}
+	if (request.type == POST || request.type == DELETE) // all handled methods with body
+		_receiveBody(request);
+	if (request.type != INCOMPLETE)
+		printHttpRequest(request);
+	// return parseMsg(fd);
+	return request.type;
+}
+

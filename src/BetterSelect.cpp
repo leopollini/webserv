@@ -163,7 +163,7 @@ string	get_var_from_header(string msg, string name)
 {
 	size_t	varpos = msg.find(name);
 
-	if (varpos == string::npos || varpos >= msg.find("\r\n\r\n"))
+	if (varpos == string::npos || varpos >= msg.find(HEAD_BODY_DELIMITER))
 		return "";
 
 	string a = msg.substr(varpos + name.size() + 2, msg.find("\r", varpos) - varpos - name.size() - 2);
@@ -192,6 +192,7 @@ req_t	BetterSelect::readMsg(int fd, connections_map_t::iterator &i)
 	long	msg_len;
 
 	SAY("Readimg from " << fd << "...\n");
+
 	if (!(msg_len = recv(fd, _recv_buff, RECV_BUFF_SIZE, 0)))
 		return FINISH;
 	if (msg_len < 0)
