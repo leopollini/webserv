@@ -4,3 +4,4 @@ webserv
 .vscode
 */*.txt
 */*/*.o
+docs/*

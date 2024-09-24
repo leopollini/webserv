@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/05 19:10:10 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/23 21:14:53 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,8 @@
 # define DEFAULT_INDEX_FILE "index.html"
 # define DEFAULT_DELETE_CGI "delete_cgi.sh"
 # define DEFAULT_ERRPGS_DIR "error_pages"
+# define REDIR_URL(s) "<head>\n<meta http-equiv=\"Refresh\" content=\"0; URL=" + s + "\" />\n</head>"
 
-# define REDIR_URL(s) "<head>\n<meta http-equiv=\"Refresh\" content=\"0; URL="+s+"\" />\n</head>"
 # define SAY(x) if (DEBUG_INFO) cout << x
 
 

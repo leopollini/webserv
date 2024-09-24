@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/05 19:18:38 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/23 21:07:59 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,6 @@ void	Webserv::mapsInit()
 	
 	BAD_FILL(1, "# cgi Autoindexing");
 	BAD_FILL(-1, "# cgi generic");
-	BAD_FILL(500, "Internal Server Error");
 	BAD_FILL(301, "Moved Permanently");
 	BAD_FILL(302, "Found");
 	BAD_FILL(307, "Temporary Redirect");
