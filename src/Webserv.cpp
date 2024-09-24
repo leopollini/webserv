@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/24 15:38:21 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 19:09:23 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Webserv.hpp"
 #include "parsing_util.hpp"
 
-bool	Webserv::_up = false;
+char	Webserv::_up = 0;
 Webserv Webserv::_Singleton;
 
 Webserv &Webserv::getInstance()
@@ -21,7 +21,7 @@ Webserv &Webserv::getInstance()
 	return (_Singleton);
 }
 
-Webserv::Webserv() : _conf(DEFAULT_CONF), _cgi_man(_sel)
+Webserv::Webserv() : _conf(DEFAULT_CONF), _cgi_man(_sel), _amchild(false)
 {
 	timestamp("Setting up Webserv!\n", CYAN);
 	signal(SIGINT, gracefullyQuit);
@@ -165,7 +165,7 @@ void	Webserv::gracefullyQuit(int sig)
 
 	timestamp("\b\bGracefully shutting Webserv! Send signal again to Force Close\n", GRAYI);
 	signal(SIGINT, SIG_DFL);
-	_up = false;
+	_up = 0;
 }
 
 // tries to setup all servers. If one fails it just keeps on building the others
@@ -252,12 +252,12 @@ void	Webserv::reviveServers(ulong retry_time)
 void	Webserv::start(char **prog_envp)
 {
 	timestamp("Starting Webserv!\n",GREEN);
-	_up = true;
+	_up = 1;
 	upAllServers();
 	_cgi_man._env = prog_envp;
 	timestamp("CGI manager setup done!\n",GREEN);
 	
-	while (_up)
+	while (_up && !_amchild)
 	{
 		if (!_servers_up.size())
 		{
@@ -274,5 +274,5 @@ void	Webserv::start(char **prog_envp)
 	}
 	downAllServers();
 	_sel.closeAllClis();
-	_up = false;
+	_up = 0;
 }

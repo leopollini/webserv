@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/24 11:40:27 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 19:09:54 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,10 +36,10 @@ class	Webserv
 	conf_t			_doc_types;
 	
 	string			_conf;
-	static bool		_up;
 	serv_list_t		_servers_up;
 	serv_list_t		_servers_down;
 	BetterSelect	_sel;
+	bool			_amchild;
 
 
 	Webserv(const Webserv &copy) : _cgi_man(_sel) {(void)copy;}
@@ -49,13 +49,16 @@ class	Webserv
 	~Webserv();
 	void	docTypesInit();
 public:
+	static char		_up;
 	char 			read_buff[BUFFER_SIZE + 1];
 	CGIManager		_cgi_man;
 	static Webserv &getInstance();
 
+	void	amChild() {_amchild = true;}
 	char	parseConfig();
 	void	start(char **prog_envp);
-	void	stop() {_up = false;}
+	void	stop() {_up = 0;}
+	void	lastSend() {_up = -1;}
 
 	static void	gracefullyQuit(int sig);
 

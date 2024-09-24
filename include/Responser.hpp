@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Responser.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/24 11:55:45 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 18:58:06 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,8 @@ public:
 	size_t	getBodyLen() {return _body.size();}
 	// 	string	getResServer() {return "Lolserv";}
 	string	getDocType();
+
+	char	internalServerError();
 
 	class LocNull : public std::exception
 	{

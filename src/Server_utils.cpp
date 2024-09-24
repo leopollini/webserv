@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_utils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/24 15:52:46 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 19:16:04 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,17 +199,20 @@ void	CGIManager::start(Server *s, const string cgi_path, const string &arg)
 {
 	std::vector<const char *>	args;
 	pid_t						fk;
+	int							t = dup(STDOUT_FILENO);
 
 	args.push_back(cgi_path.c_str());
 	args.push_back(arg.c_str());
 	args.push_back(NULL);
 	
+	cout << "Trying to execute " << cgi_path << '\n';
 	if (!(fk = fork()))
 	{
 		dup2(s->getFd(), STDOUT_FILENO);
 		execve(args[0], (char *const*)args.data(), _env);
-		Webserv::getInstance().stop();
+		dup2(t, STDOUT_FILENO);
 		std::cerr << "A child crashed!! Chekkk!\n";
+		Webserv::getInstance().lastSend();
 		return ;
 	}
 	_pids.push_back(fk);
@@ -232,6 +235,15 @@ void	Responser::clear()
 	_is_returning = false;
 }
 
+char	Responser::internalServerError()
+{
+	_dir = _serv->getEnv(E_500, _loc);
+	std::cerr << "Looking for 500 response in " << _dir << "\n";
+	_body = Parsing::read_file(_dir);
+	_res_code = 500;
+	return 0;
+}
+
 // look for better method. Big switch uglyyy :((
 char	Responser::buildResponseBody()
 {
@@ -245,15 +257,15 @@ char	Responser::buildResponseBody()
 		 break ;
 		case NOT_FOUND :
 			_dir = _serv->getEnv(E_404, _loc);
-			SAY("Looking for 404 response" <<  "'\n");
+			SAY("Looking for 404 response in " << _dir << "\n");
 		 break ;
 		case FORBIDDEN :
 			_dir = _serv->getEnv(E_403, _loc);
-			SAY("Looking for 403 response in \n");
+			SAY("Looking for 403 response in " << _dir << "\n");
 		 break ;
 		case METHOD_NOT_ALLOWED :
 			_dir = _serv->getEnv(E_405, _loc);
-			SAY("Looking for 405 response in \n");
+			SAY("Looking for 405 response in " << _dir << "\n");
 		 break ;
 		case MOVED_PERMANENTLY :
 			_extra_args["Location"] = _serv->_return_info.dir;
@@ -277,14 +289,20 @@ char	Responser::buildResponseBody()
 		 return 0;
 		case _REQUEST_DIR_LISTING :
 			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir.c_str());
+			if (Webserv::_up == -1)
+				return Responser::internalServerError();
 			_res_code = _DONT_SEND;
 		 return -1;
 		case _REQUEST_DELETE :
 			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_DELETE_DIR, getLoc()), _dir.c_str());
+			if (Webserv::_up == -1)
+				return Responser::internalServerError();
 			_res_code = _DONT_SEND;
 		 return -1;
 		case _CGI_RETURN :
 			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir.c_str());
+			if (Webserv::_up == -1)
+				return Responser::internalServerError();
 			_res_code = _DONT_SEND;
 		 return -1;
 		default:
@@ -342,6 +360,7 @@ void	Responser::Send(int fd)
 		t = send(fd, (_head + _body).c_str(), size(), MSG_EOR);
 	if (t < 0)
 		return (void)timestamp("send failed! ):\n", ERROR);
+	cout << _head << _body;
 	SAY("; Sent " << t << " bytes; body size was " <<  _body.size() << "... ");
 	timestamp("Done!\n", DONE, BOLD, false);
 }
