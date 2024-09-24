@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:09 by lpollini          #+#    #+#             */
-/*   Updated: 2024/06/09 21:15:43 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/19 19:23:06 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/utils.hpp"
-
+#include "useful_structs.hpp"
 string itoa(int arg)
 {
 	std::ostringstream sstr;
@@ -146,4 +146,79 @@ char	read_allows(string &allow)
 	if (!res)
 		res = ~0;
 	return res;
+}
+
+//analyzes line and returns the method type
+req_t	request_method(string request_line)
+{
+	size_t	first_not_space = request_line.find_first_not_of(' '), space_pos;
+	if (first_not_space == string::npos)
+		return (INVALID);
+		
+	space_pos = request_line.find(' ', first_not_space);
+	if (space_pos == string::npos)
+		return (INVALID);
+	string method = request_line.substr(first_not_space, space_pos);
+	
+	if (method == "GET")
+		return (GET);
+	else if (method == "POST")
+		return (POST);
+	else if (method == "DELETE")
+		return (DELETE);
+	else if (method == "HEAD")
+		return (HEAD);
+	
+	return (INVALID);
+}
+
+string	request_type_str(req_t type)
+{
+	switch (type)
+	{
+		case GET:
+			return ("GET");
+		case POST:
+			return ("POST");
+		case HEAD:
+			return ("HEAD");
+		case DELETE:
+			return ("DELETE");
+		case INVALID:
+			return ("INVALID"); 
+		default:
+			return ("");
+	}
+	// return ("");
+}
+
+string	strip(string str, string charset)
+{
+	size_t start, end;
+
+	start = str.find_first_not_of(charset);
+	end = str.find_last_not_of(charset);
+	if (start == string::npos)
+		return ("");
+	return (str.substr(start, end - start + 1));
+}
+
+void	printHttpRequest(request_t &request, std::ostream &out)
+{
+	if (request.type == INVALID)
+	{
+		std::cout << "Invalid request" << std::endl;
+		return;
+	}
+
+	out << request_type_str(request.type);
+
+	out << " " << request.uri;
+	out << " HTTP/" << request.http_version << '\n';
+	for (var_map_t::const_iterator it = request.header.begin(); it != request.header.end(); it++)
+	{
+		out << it->first << ": " << it->second << '\n';
+	}
+	out << "\r\n\r\n";
+	out << request.body << std::endl;
 }

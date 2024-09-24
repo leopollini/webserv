@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 15:10:30 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 11:40:27 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include "CGIManager.hpp"
 # include "Server.hpp"
 # include "Webserv.hpp"
+
 
 class	Server;
 
@@ -46,8 +47,9 @@ class	Webserv
 	Webserv();
 	// Webserv(const char *filename = DEFAULT_CONF);
 	~Webserv();
-	void	mapsInit();
+	void	docTypesInit();
 public:
+	char 			read_buff[BUFFER_SIZE + 1];
 	CGIManager		_cgi_man;
 	static Webserv &getInstance();
 
@@ -58,7 +60,13 @@ public:
 	static void	gracefullyQuit(int sig);
 
 	void	upAllServers();
+	void	reviveServers(ulong retry_time = SERVER_RETRY_TIME);
 	void	downAllServers();
+	void	downServer(Server *serv);
+	void	downServer(int fd);
+
+	// static int	socketRead(int fd, char **dest, size_t size = BUFFER_SIZE);
+
 	
 	const string	&getConf() const;
 	void			setConf(string file_name);

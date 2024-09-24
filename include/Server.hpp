@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/05 17:57:40 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 11:37:26 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,9 @@
 # include "definitions.hpp"
 # include "Responser.hpp"
 # include "useful_structs.hpp"
+# include "transfer_encoding.hpp"
 
-# define RECV_BUFF_SIZE 30000
+# define HEAD_BUFFER 3000
 # define HEAD_RESERVE 130
 
 class Responser;
@@ -33,7 +34,7 @@ class	Server
 	BetterSocket	_sock;
 	char			_state;
 	conf_t			_env;
-	char			*_recieved_head;
+	char			*_received_head;
 	locations_list_t	_loc_ls;
 	int				_fd;
 	
@@ -42,10 +43,12 @@ class	Server
 	Responser		_resp;
 
 	string			_full_request_dir;
+	time_t			_lastUpAttempt;
 
 
 	Server&	operator=(const Server &assignment) {(void)assignment; return *this;}
 	Server(const Server &copy) : _resp(this) {(void)copy;}
+
 public:
 	int						_down_count;
 	struct __return_info	_return_info;
@@ -71,11 +74,11 @@ public:
 	
 	void	setup();
 	
-	void	tryup();
+	bool	tryUp(time_t retry_time);
 	void	up();
 	void	down();
 	void	manageReturn(string &s);
-	req_t	recieve(int fd, char *msg);
+	req_t	receive(int fd, char *msg);
 	bool	respond(int fd);
 	void	closeConnection(int fd);
 	void	createResp();
@@ -85,6 +88,10 @@ public:
 	void 	matchRequestLocation(request_t &request); 
 	void	lookForPlaceholders();
 
+	void	HttpRequestLog(string &request_line, int fd_from);
+
+	void 	matchRequestLocation(request_t &request) const; 
+	
 	status_code_t	validateLocation();
 	status_code_t	manageDir();
 	
@@ -100,6 +107,14 @@ public:
 	public:
 		virtual const char	*what() const throw() {return "Detected location directive without trailing directory";}
 	};
+	class BodyMsgTooLong : public std::exception
+	{
+	public:
+		virtual const char	*what() const throw() {return "Content size exceeded allowed body size";}
+	};
+	
+private:
+	req_t	_receiveBody(request_t &request) throw (Server::BodyMsgTooLong);
 };
 
 #endif

@@ -19,6 +19,9 @@
 
 # define SEL_TIMEOUT {1, 0}
 
+# define RECV_BUFF_SIZE 10000
+
+
 struct	BetterSelect
 {
 	fd_set				_read_pool;
@@ -60,13 +63,14 @@ struct	BetterSelect
 	void			closeTimedOut();
 	void			rmFd(int fd, Server *s);
 private:
+
 	void			_handleRequestResponse(fd_set &readfds, fd_set &writefds);
 	void			_acceptNewConnections(fd_set &read_fds);
 
 	class HeadMsgTooLong : public std::exception
 	{
 	public:
-		virtual const char	*what() const throw() {return "Recieved too long a request";}
+		virtual const char	*what() const throw() {return "Received too long a request";}
 	};
 };
 

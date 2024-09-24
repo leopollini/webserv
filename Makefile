@@ -6,7 +6,7 @@
 #    By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/17 08:42:40 by lpollini          #+#    #+#              #
-#    Updated: 2024/09/04 09:50:05 by lpollini         ###   ########.fr        #
+#    Updated: 2024/09/24 10:58:55 by lpollini         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,7 @@ RM			= rm -rf
 INCLUDES	= include/
 OBJDIR 		= .objFiles
 
-FILES		:= Parser Webserv utils Server BetterSelect Parsing_exceptions Responser Server_utils BetterSocket
+FILES		:= Parser Webserv utils Server BetterSelect BetterSocket Parsing_exceptions Responser Server_utils transfer_encoding receive_request
 FILES		:= main $(addprefix src/, $(FILES))
 
 SRC			= $(FILES:=.cpp)
@@ -51,6 +51,9 @@ $(OBJDIR)/%.o: %.cpp $(HEADER)
 	@$(CC) $(FLAGS) $(OPTS) -c $< -o $@ 
 
 $(OBJDIR):
+
+class:
+	.bash ./new_class
 
 clean:
 	@$(RM) $(OBJDIR) $(OBJ)

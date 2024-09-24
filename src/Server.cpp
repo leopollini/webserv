@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/05 17:58:48 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 12:06:53 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	Server::printServerStats()
 {
 	cout << "Server " << _id << ":\n";
 	cout << "\tIs sharing port: " << (_is_sharing_port ? "yes\n" : "no\n");
-	cout << "\tName \'" << _env[NAME] << "\'\n";
+	cout << "\tName(s) \'" << _env[NAME] << "\'\n";
 	cout << "\tPort " << _env[PORT] << "\n";
 	cout << "\tRoot " << _env[LOC_ROOT] << '\n';
 	cout << "\tlocations (" << _loc_ls.size() << ")\n";
@@ -37,7 +37,7 @@ void	Server::printServerStats()
 
 req_t Server::parseMsg()
 {
-	string	msg(_recieved_head);
+	string	msg(_received_head);
 	string	cmd;
 	size_t	space_pos;
 
@@ -60,10 +60,10 @@ req_t Server::parseMsg()
 	else
 		return INVALID;
 
-	_current_request.dir = msg.substr(space_pos + 1, msg.find(' ', space_pos + 1) - space_pos - 1);
-	for (size_t i = _current_request.dir.size() - 1; _current_request.dir[i] == '/' && i; --i)
-		_current_request.dir.erase(i);
-	_full_request_dir = _current_request.dir;
+	_current_request.uri = msg.substr(space_pos + 1, msg.find(' ', space_pos + 1) - space_pos - 1);
+	for (size_t i = _current_request.uri.size() - 1; _current_request.uri[i] == '/' && i; --i)
+		_current_request.uri.erase(i);
+	_full_request_dir = _current_request.uri;
 	matchRequestLocation(_current_request);
 	// truncate location identification part of dir
 	_current_request.littel_parse(this);
@@ -84,7 +84,7 @@ void	Server::createResp()
 
 status_code_t	Server::validateLocation()
 {
-	SAY("Looking for " << _current_request.dir);
+	SAY("Looking for " << _current_request.uri);
 	SAY(". Allowed method flag: " << (int)_current_request.loc->allows << "\n");
 	_resp = _current_request;	// overloaded. Copies members dir and loc pointer
 	string target_file;
@@ -93,10 +93,10 @@ status_code_t	Server::validateLocation()
 	if (_resp._is_returning > 0)
 		return lookForPlaceholders(), ((status_code_t)(_resp._res_code = _return_info.code));
 
-	if (_current_request.dir.empty())
+	if (_current_request.uri.empty())
 		return (INTERNAL_SEVER_ERROR);
 		
-	_resp.getFileFlags() = checkCharacteristics(_current_request.dir.c_str());
+	_resp.getFileFlags() = checkCharacteristics(_current_request.uri.c_str());
 
 	if (!exists(_resp.getFileFlags()))
 		return NOT_FOUND;
@@ -123,10 +123,10 @@ status_code_t	Server::validateLocation()
 	return INTERNAL_SEVER_ERROR;
 }
 
-req_t Server::recieve(int fd, char *msg)
+req_t Server::receive(int fd, char *msg)
 {
 	_fd = fd;
-	_recieved_head = msg;
+	_received_head = msg;
 	if (parseMsg() == INVALID)
 		return INVALID;
 	createResp();
@@ -177,10 +177,10 @@ void	Server::matchRequestLocation(request_t &request)
 
 			// printf("called. \'%s\' (%i)\n", dir.c_str(), dir.size());
 			//if directory is more specific, or if it doesn't match
-			if (dir.size() - 1 > request.dir.size() || dir.size() <= max_len)
+			if (dir.size() - 1 > request.uri.size() || dir.size() <= max_len)
 				continue ;
 
-			if (request.dir.find(dir) || location_isvalid(*it, request.dir))
+			if (request.uri.find(dir) || location_isvalid(*it, request.uri))
 				continue ;
 
 			location = *it;
@@ -233,8 +233,6 @@ bool	Server::respond(int fd)
 {
 	SAY("Server " + itoa(_id) + ": Called by fd " << fd << " for response!\n");
 
-	// Send response
-	
 	_resp.Send(fd);
 	_resp.clear();
 

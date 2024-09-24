@@ -6,17 +6,18 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/05 17:59:02 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 15:52:46 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 #include "../include/Responser.hpp"
-#include "../include/Webserv.hpp"
+#include "Webserv.hpp"
+#include <poll.h>
 
-
-Server::Server(short id) : _clientfds(), _id(id), _state(0), _resp(this), _down_count(0), _is_sharing_port(false)
+Server::Server(short id) : _clientfds(), _id(id), _state(0), _current_request(), _resp(this), _lastUpAttempt (0), _down_count(0), _is_sharing_port (false)
 {
+	// _received_head[BUFFER_SIZE] = 0;
 	timestamp("Added new Server! Id: " + itoa(_id) + "!\n", CYAN);
 	_env[PORT] = SERVER_DEFAULT_PORT;
 	_env[LOC_ROOT] = SERVER_DEFAULT_ROOT;
@@ -41,8 +42,9 @@ int	Server::Accept()
 	int	t = _sock.Accept();
 
 	_clientfds.push_front(t);
+	_current_request = request_t();
 	getsockname(_clientfds.front(), (sockaddr *)&_sock.client, &_sock.len);
-	timestamp("Server " + itoa(_id) + " caught a client! IP: " + addr_to_str(_sock.client.sin_addr.s_addr) + '\n', CONNECT);
+	SAY("New client at IP: " << addr_to_str(_sock.client.sin_addr.s_addr) << "!\n");
 	fcntl(_clientfds.front(), F_SETFL, fcntl(_clientfds.front(), F_GETFL, 0) | O_NONBLOCK);
 	return _clientfds.front();
 }
@@ -76,12 +78,17 @@ void	Server::setup()
 	}
 }
 
-void Server::tryup()
+//tries to raise the server (opening its socket) after retry_time (SERVER_RETRY_TIME by default) 
+bool Server::tryUp(time_t retry_time)
 {
 	_state = 0;
+	time_t now = time(NULL);
+	if (now - _lastUpAttempt < retry_time) //wait more to retry
+		return (false);
+	// _lastUpAttempt;
 	if (!_state)
 		up();
-	return ;
+	return (true);
 }
 
 void Server::up()
@@ -118,6 +125,11 @@ void Server::closeConnection(int fd)
 void Server::printHttpRequest(string &msg, int fd_from)
 {
 	timestamp("Server " + itoa(_id) + ": Recieved from connection at fd " + itoa(fd_from) + ":\n\t" + msg + "\n", REC_MSG_PRNT);
+}
+
+void Server::HttpRequestLog(string &request_line, int fd_from)
+{
+	timestamp("Server " + itoa(_id) + ": Received from connection at fd " + itoa(fd_from) + ":\n\t" + request_line + "\n", REC_MSG_PRNT);
 }
 
 status_code_t	Server::manageDir()
@@ -174,13 +186,13 @@ string	&Server::getEnv(string key, location_t *location)
 void	request_t::littel_parse(Server *s)
 {
 	if (loc)
-		dir = dir.substr(loc->dir.size());
+		uri = uri.substr(loc->dir.size());
 	else
 		SAY("LOCATION NOT FOUND!\n");
-	if (dir[0] != '/')
-		dir = '/' + dir;
-	dir = s->getEnv(LOC_ROOT, loc) + dir;
-	SAY("requested dir be: \'" << dir << "\'\n");
+	if (uri[0] != '/')
+		uri = '/' + uri;
+	uri = s->getEnv(LOC_ROOT, loc) + uri;
+	SAY("requested uri be: \'" << uri << "\'\n");
 }
 
 void	CGIManager::start(Server *s, const string cgi_path, const string &arg)
@@ -206,7 +218,7 @@ void	CGIManager::start(Server *s, const string cgi_path, const string &arg)
 
 Responser &Responser::operator=(const request_t &t)
 {
-	_dir = t.dir;
+	_dir = t.uri;
 	_loc = t.loc;
 	return *this;
 }
@@ -299,8 +311,10 @@ void Responser::buildResponseHeader()
 	_head.append("Content-Type: " + getDocType() + CRNL);
 	_head.append("Content-Length: " + itoa(_body.size()) + CRNL);
 	_head.append("Server: " + _serv->getEnv(NAME) + CRNL);
-	_head.append("Date: " + string(ctime(&now)) + CRNL);
+	_head.append("Date: " + string(ctime(&now)));
+	_head.erase(_head.size() - 1,1); //removes unwanted trailing /n from ctime
 // _head.append(string("Keepalive: false") + CRNL);
+	_head += CRNL;
 	_head += CRNL;
 }
 
@@ -321,6 +335,7 @@ void	Responser::Send(int fd)
 	long	t;
 	
 	SAY("Trying to send " << size() << " bytes to " << fd);
+	std::cerr << (_head + _body).c_str();
 	if (_serv->getReqType() == HEAD)
 		t = send(fd, _head.c_str(), _head.size(), MSG_EOR);
 	else

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/23 21:14:53 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 15:18:06 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <set>
 
 // 0: no debug info; 1: show debug info
-# define DEBUG_INFO 1
+# define DEBUG_INFO 0
 
 # define ERROR RED
 # define WARNING YELLOW
@@ -29,6 +29,8 @@
 # define REC_MSG_PRNT GRAYI,COLORII
 # define CRNL "\r\n"
 
+# define SERVER_RETRY_TIME 200000
+# define SHORT_REVIVE_TIME 20000
 # define DOWN_SERVER_TRIES_MAX 20
 # define DOWN_SERVER_SLEEP_MS 2000
 # define DOWN_SERVER_MAX 20
@@ -37,6 +39,26 @@
 # define DEFAULT_RETURN_RESCODE 200
 # define CONNECTION_TIMEOUT 30 // measured in secs
 # define DEFAULT_CONF "test.config"
+# define DEFAULT_PROTOCOL "1.0"
+# define CRNL "\r\n"
+
+# define NEW_SERVER "server"
+# define NAME "server_name"
+# define PORT "listen"
+# define LOCATION "location"
+# define LOC_ROOT "root"
+# define L_DIR "location"
+# define L_INDEX "index"
+# define L_DIR_LISTING "autoindex"
+# define E_405 "e_405"
+# define E_404 "e_404"
+# define E_403 "e_403"
+# define L_AUTOINDEX "autoindex"
+# define L_ALLOW_METHODS "allow_methods"
+# define L_MAX_BODY_SIZE "max_body_size"
+
+# define H_BODY_SIZE "Content-Length"
+# define H_TRANSFER_ENCODING "Transfer-encoding"
 # define SERVER_DEFAULT_PORT "8080"
 # define SERVER_DEFAULT_ROOT "."
 # define SERVER_DEFAULT_NAME "default_server_name"
@@ -113,6 +135,7 @@ typedef	enum	e_req
 	POST = F_POST,
 	DELETE = F_DELETE,
 	FINISH = 3,
+	INCOMPLETE = 5,
 	LOLDEF
 }				req_t;
 
@@ -217,3 +240,10 @@ char	checkDir(const char *path);
 bool	isOkToSend(char flags);
 bool	exists(char flags);
 char	read_allows(string &allow);
+req_t	request_method(string request_line);
+//returns string according to type
+string	request_type_str(req_t type);
+string	strip(string str, string charset);
+
+struct request_t;
+void	printHttpRequest(request_t &request, std::ostream &out = std::cout);

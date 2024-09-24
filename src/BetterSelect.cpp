@@ -73,7 +73,8 @@ void	BetterSelect::delResponseConnection(int fd)
 
 void	BetterSelect::addConnectionServ(int fd, Server *s)
 {
-	FD_SET(fd, &_read_pool);
+	if (fd > 0)
+		FD_SET(fd, &_read_pool);
 	_servs_map[fd] = s;
 	_tot_size++;
 }
@@ -119,11 +120,10 @@ void	BetterSelect::_acceptNewConnections(fd_set &read_fds)
 		{
 			int fd = i->second->Accept();
 			addListeningConnection(fd, i->second);
-			timestamp("Server " + itoa(i->second->getId()) + " created new connection at fd " + itoa(fd) + '\n', INFO);
+			timestamp("New connection created at fd " + itoa(fd) + '\n', INFO);
 		}
 	}
 }
-
 
 void	BetterSelect::rmFd(int fd, Server *s)
 {
@@ -200,7 +200,7 @@ req_t	BetterSelect::readMsg(int fd, connections_map_t::iterator &i)
 		throw HeadMsgTooLong();
 	if (i->second->_is_sharing_port)
 		i->second = findServByHostname(i->second->getPort(), get_var_from_header(_recv_buff, "Host"));
-	return i->second->recieve(i->first, _recv_buff);
+	return i->second->receive(i->first, _recv_buff);
 }
 
 void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
@@ -230,6 +230,8 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 				continue ;
 			}
 			_current_connection_fd = i->first;
+			if (request_type == INCOMPLETE)
+				continue;
 			FD_SET(i->first, &_write_pool); //can allow next block to be executed
 			_timeout_map[i->first] = time(NULL);
 			return ;
@@ -242,7 +244,7 @@ void	BetterSelect::err_close_clis()
 	for (connections_map_t::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 		if (fcntl(i->first, F_GETFD) || !i->second)
 			delResponseConnection(i->first);
-	cout << "Called Err close clis\n";
+	SAY("Called Err close clis\n");
 }
 
 void	BetterSelect::selectReadAndWrite()
@@ -260,7 +262,7 @@ void	BetterSelect::selectReadAndWrite()
 	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
 	if (t < 0)
 		return (err_close_clis());
-	_handleRequestResponse(readfds, writefds);
 	_acceptNewConnections(readfds);
+	_handleRequestResponse(readfds, writefds);
 	return ;
 }

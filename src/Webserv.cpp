@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/23 21:07:59 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 15:38:21 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ Webserv::Webserv() : _conf(DEFAULT_CONF), _cgi_man(_sel)
 {
 	timestamp("Setting up Webserv!\n", CYAN);
 	signal(SIGINT, gracefullyQuit);
-	mapsInit();
+	docTypesInit();
 }
 
 Webserv::~Webserv()
@@ -43,7 +43,9 @@ Webserv::~Webserv()
 
 #define T_JOIN(x) string(DEFAULT_ERRPGS_DIR) + "/" + x + ".html"
 
-void	Webserv::mapsInit()
+
+// add anything useful. Every not recgnized extension is mapped to "default", which tells the browser to download the file
+void	Webserv::docTypesInit()
 {
 	ENV_FILL(CGI_AUTOINDEX_DIR, DEFAULT_AUTOINDEX_CGI_DIR);
 	ENV_FILL(L_INDEX, DEFAULT_INDEX_FILE);
@@ -157,28 +159,6 @@ char	Webserv::parseConfig( void )
 	return 0;
 }
 
-void	Webserv::start(char **prog_envp)
-{
-	timestamp("Starting Webserv!\n",GREEN);
-	_up = true;
-	upAllServers();
-	_cgi_man._env = prog_envp;
-	timestamp("CGI manager setup done!\n",GREEN);
-	while (_up)
-	{
-		if (!_servers_up.size())
-		{
-			timestamp("No servers up!\n", ERROR);
-			sleep(2);
-			continue ;
-		}
-		_sel.selectReadAndWrite();
-		usleep(2000);
-	}
-	_sel.closeAllClis();
-	downAllServers();
-}
-
 void	Webserv::gracefullyQuit(int sig)
 {
 	(void)sig;
@@ -200,7 +180,7 @@ void	Webserv::upAllServers()
 				(*i)->printServerStats();
 			(*i)->_down_count = 0;
 			_servers_up.push_front(*i);
-			_servers_down.erase(i++);
+			_servers_down.remove(*i++);
 		}
 		catch(const std::exception& e)
 		{
@@ -222,6 +202,21 @@ void	Webserv::downAllServers()
 }
 
 
+void	Webserv::downServer(Server *serv)
+{
+	serv->down();
+	_servers_up.remove(serv);
+	if (std::find(_servers_down.begin(), _servers_down.end(), serv) == _servers_down.end()) //if server is not in down list
+	{
+		_servers_down.push_front(serv);
+	}
+}
+
+void Webserv::downServer(int fd)
+{
+	downServer(_sel._servs_map[fd]);
+}
+
 const string	&Webserv::getConf() const
 {
 	return (_conf);
@@ -232,4 +227,52 @@ void	Webserv::setConf(string file_name)
 {
 	if (!_up)
 		_conf = file_name;
+}
+
+void	Webserv::reviveServers(ulong retry_time)
+{
+	for (serv_list_t::iterator it = _servers_down.begin(); it != _servers_down.end();)
+	{
+		try
+		{
+			if (!(*it)->tryUp(retry_time))
+				continue ;
+			_servers_up.push_front(*it);
+			_sel.addConnectionServ((*it)->getSockFd(), *it);
+			_servers_down.remove(*it++);
+		}
+		catch(const std::exception& e)
+		{
+			timestamp(string(e.what()) + "\n", ERROR);
+			it++;
+		}
+	}
+}
+
+void	Webserv::start(char **prog_envp)
+{
+	timestamp("Starting Webserv!\n",GREEN);
+	_up = true;
+	upAllServers();
+	_cgi_man._env = prog_envp;
+	timestamp("CGI manager setup done!\n",GREEN);
+	
+	while (_up)
+	{
+		if (!_servers_up.size())
+		{
+			std::cout << "No servers up!\n";
+			reviveServers(SHORT_REVIVE_TIME);
+			sleep(2);
+			continue ;
+		}
+		// cout << "Waiting.\n";
+		_sel.selectReadAndWrite();
+		usleep(2000);
+		reviveServers();
+		// sleep(2);
+	}
+	downAllServers();
+	_sel.closeAllClis();
+	_up = false;
 }

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/04 13:22:14 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 11:55:45 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ public:
 	void	buildResponseHeader();
 	char	buildResponseBody();
 
-	location_t	*getLoc() const {if (!_loc) cout << "###getLoc() got a NULL??\n"; return _loc;}
+	location_t	*getLoc() const {if (!_loc) SAY("###getLoc() got a NULL??\n"); return _loc;}
 
 	void	clear();
 	size_t	size() {return _head.size() + _body.size();}
@@ -57,6 +57,7 @@ public:
 
 	char	&getFileFlags() {return _file_flags;}
 	string	&getDir() {return _dir;}
+	string	badExplain(short code) {(void) code; return "LOL";}		// THIS IS USELESS
 	size_t	getBodyLen() {return _body.size();}
 	// 	string	getResServer() {return "Lolserv";}
 	string	getDocType();
