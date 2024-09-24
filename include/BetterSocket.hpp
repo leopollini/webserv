@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:01:08 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/24 11:38:44 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 18:59:08 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,17 +18,12 @@
 # include <string.h>
 
 # define CLIENTS_MAX 10
-# define BUFFER_SIZE 3000ul
 
 struct	BetterSocket
 {
-private:
-	size_t	_buffer_len;
-	char	_read_buff[BUFFER_SIZE + 1];
-	string	_flush_bytes(size_t n);
-	bool	_successful_read;
+
 public:
-	size_t	sockRead(int input_fd);
+
 	int					sock;
 	struct sockaddr_in	client;
 	socklen_t			len;
@@ -38,12 +33,7 @@ public:
 	BetterSocket&	operator=(const BetterSocket &assignment) {(void)assignment; return *this;}
 	BetterSocket(const BetterSocket &copy) {(void)copy;}
 	BetterSocket() : sock(-1), fd(-1)  {}
-	void	flushBuffer();
-	void	flushUntilEnd();
-	string	getLine();
-	bool	wasReadSuccessful() const {return _successful_read;};
-	string	getBytes(size_t to_read);
-	string	getChunk();
+
 	~BetterSocket() {down();}
 	
 	void				init(short port, int address = INADDR_ANY);
