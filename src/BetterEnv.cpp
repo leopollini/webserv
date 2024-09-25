@@ -6,7 +6,7 @@
 /*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 23:31:16 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/26 00:14:50 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/26 00:17:18 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ void BetterEnv::addVariable(string key_plus_value)
 
 	strncpy(new_str, key_plus_value.c_str(), key_plus_value.size() + 1);
 	_env[_size++] = new_str;
+	_env[_size] = NULL;
 }
 
 void BetterEnv::addVariable(string key, string value)
@@ -107,4 +108,5 @@ void BetterEnv::removeVariable(string key)
 	memmove(&_env[index], &_env[index + 1], _size - index);
 
 	_size--;
+	_env[NULL];
 }
