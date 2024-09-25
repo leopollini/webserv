@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/24 11:40:27 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 11:28:59 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@
 class	Server;
 
 struct	BetterSelect;
+
+#define BUFFER_SIZE 10000
 
 class	Webserv
 {

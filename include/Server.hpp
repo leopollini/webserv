@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/24 11:37:26 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 11:27:46 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ class	Server
 public:
 	int						_down_count;
 	struct __return_info	_return_info;
-	bool					_is_sharing_port;
+	char					_is_sharing_port;
 	static location_t		default_loc;
 
 	Server(short id);

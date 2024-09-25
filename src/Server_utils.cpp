@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/24 15:52:46 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 11:28:36 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "Webserv.hpp"
 #include <poll.h>
 
-Server::Server(short id) : _clientfds(), _id(id), _state(0), _current_request(), _resp(this), _lastUpAttempt (0), _down_count(0), _is_sharing_port (false)
+Server::Server(short id) : _clientfds(), _id(id), _state(0), _current_request(), _resp(this), _lastUpAttempt (0), _down_count(0), _is_sharing_port(false)
 {
 	// _received_head[BUFFER_SIZE] = 0;
 	timestamp("Added new Server! Id: " + itoa(_id) + "!\n", CYAN);
@@ -83,7 +83,7 @@ bool Server::tryUp(time_t retry_time)
 {
 	_state = 0;
 	time_t now = time(NULL);
-	if (now - _lastUpAttempt < retry_time) //wait more to retry
+	if (_is_sharing_port == -1 || now - _lastUpAttempt < retry_time) //wait more to retry
 		return (false);
 	// _lastUpAttempt;
 	if (!_state)
@@ -96,8 +96,8 @@ void Server::up()
 	if (BetterSelect::_used_ports.count(getPort()))
 	{
 		Server	*t = BetterSelect::_used_ports[getPort()].front();
-		t->_is_sharing_port = true;
-		_is_sharing_port = true;
+		t->_is_sharing_port = 1;
+		_is_sharing_port = -1;
 		getSockFd() = t->getSockFd();
 	}
 	else
