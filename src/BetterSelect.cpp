@@ -250,11 +250,11 @@ req_t	BetterSelect::readMsg(int fd, connections_map_t::iterator &i)
 		body_creat(_recv_msg[fd], msg_body);
 
 	// manage query string
-	if ((qs_begin = _recv_msg[fd].find(' ')) < _recv_msg[fd].find(DCRNL))
+	if ((qs_begin = _recv_msg[fd].find('?')) < _recv_msg[fd].find(DCRNL))
 	{
 		i->second->_query_str = _recv_msg[fd].substr(qs_begin + 1, (qs_end = _recv_msg[fd].find(' ')));
 		_recv_msg[fd].erase(qs_begin, qs_end - qs_begin);
-		cout << _recv_msg[fd];
+		cout << "Uri and Query string: " << _recv_msg[fd] << " ? " << i->second->_query_str << '\n';
 	}
 	else
 		i->second->_query_str.clear();

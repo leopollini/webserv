@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 11:47:44 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 21:46:07 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 22:25:24 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,18 @@
 struct	BetterSelect;
 class	Server;
 
+// Unique. Found inside Webserv
 struct	CGIManager
 {
+	struct	BetterEnv
+	{
+		char	**_env;
+		void setup(char *envp[])
+		{
+			// BetterEnv crator. Copies envp (from main) entirely and adds some extra slots for cgi stuff. MUST contain enough extra space for each essential CGI env var. Maybe it can be a list of strings that is converted on-spot?
+		}
+	};
+
 	char 				**_env;
 	BetterSelect		&_bs;
 	std::list<pid_t>	_pids;
@@ -37,7 +47,7 @@ struct	CGIManager
 	}
 
 	// All cariadic args MUST be char * and the last arg MUST be a NULL
-	void	start(Server *s, string &cgi_dir, string &uri_dir);
+	void	start(Server *s, const string &cgi_dir, const string &uri_dir);
 };
 
 #endif
