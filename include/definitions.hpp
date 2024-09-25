@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/24 18:56:40 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/24 15:18:06 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@
 # define CONNECT MAGENTA
 # define REC_MSG_PRNT GRAYI,COLORII
 # define CRNL "\r\n"
-# define HEAD_BODY_DELIMITER "\r\n\r\n"
 
 # define SERVER_RETRY_TIME 200000
 # define SHORT_REVIVE_TIME 20000
@@ -41,6 +40,7 @@
 # define CONNECTION_TIMEOUT 30 // measured in secs
 # define DEFAULT_CONF "test.config"
 # define DEFAULT_PROTOCOL "1.0"
+# define CRNL "\r\n"
 
 # define NEW_SERVER "server"
 # define NAME "server_name"
