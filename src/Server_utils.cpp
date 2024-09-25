@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 16:25:30 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 21:49:17 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,17 +196,16 @@ void	request_t::littel_parse(Server *s)
 }
 
 // CGI function!!!
-void	CGIManager::start(Server *s, const string cgi_path, const string &arg)
+void	CGIManager::start(Server *s, string &cgi_dir, string &uri_dir)
 {
-	std::vector<const char *>	args;
+	std::vector<const char *>	args(3);
 	pid_t						fk;
 	int							t;
 
-	args.push_back(cgi_path.c_str());
-	args.push_back(arg.c_str());
+	args.push_back(cgi_dir.c_str());
+	args.push_back(uri_dir.c_str());
 	args.push_back(NULL);
-	
-	SAY("Trying to execute " << cgi_path << '\n');
+	SAY("Trying to execute " << args[0] << '\n');
 	if (!(fk = fork()))
 	{
 		t = dup(STDOUT_FILENO);
@@ -292,24 +291,24 @@ char	Responser::buildResponseBody()
 			_body = REDIR_URL(_serv->_return_info.dir);
 		 return 0;
 		case _REQUEST_DIR_LISTING :
-			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir.c_str());
+			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[CGI_AUTOINDEX_DIR], _dir);
 			if (Webserv::_up == -1)
 				return internalServerError();
 			_res_code = _DONT_SEND;
 		 return -1;
-		case _REQUEST_DELETE :
-			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_DELETE_DIR, getLoc()), _dir.c_str());
-			if (Webserv::_up == -1)
-				return internalServerError();
-			_res_code = _DONT_SEND;
-		 return -1;
+		// case _REQUEST_DELETE :
+		// 	Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_DELETE_DIR, getLoc()), _dir.c_str());
+		// 	if (Webserv::_up == -1)
+		// 		return internalServerError();
+		// 	_res_code = _DONT_SEND;
+		//  return -1;
 		case _POST_SUCCESS :
 			SAY("Post request was successful. Posted at: " << _dir << "\n");
 			_body = SUCCESSFUL_POST_PAGE;
 			_res_code = OK;
 		 return 0;
 		case _CGI_RETURN :
-			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir.c_str());
+			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir);
 			if (Webserv::_up == -1)
 				return internalServerError();
 			_res_code = _DONT_SEND;

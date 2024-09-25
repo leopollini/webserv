@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 14:45:39 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 21:31:31 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ public:
 	struct __return_info	_return_info;
 	char					_is_sharing_port;
 	static location_t		default_loc;
+	string					_query_str;
 
 	Server(short id);
 	~Server();

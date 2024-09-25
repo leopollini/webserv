@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIManager.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 11:47:44 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/24 18:43:47 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/25 21:46:07 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ struct	CGIManager
 	}
 
 	// All cariadic args MUST be char * and the last arg MUST be a NULL
-	void	start(Server *s, const string cgi_path, const string &arg);
+	void	start(Server *s, string &cgi_dir, string &uri_dir);
 };
 
 #endif

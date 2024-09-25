@@ -227,6 +227,7 @@ req_t	BetterSelect::readMsg(int fd, connections_map_t::iterator &i)
 {
 	long	msg_len;
 	string	msg_body = "";
+	size_t	qs_begin, qs_end;
 
 	if (!(msg_len = recv(fd, _recv_buff, RECV_BUFF_SIZE, 0)))
 		return FINISH;
@@ -248,6 +249,15 @@ req_t	BetterSelect::readMsg(int fd, connections_map_t::iterator &i)
 	else if (_recv_msg[fd].find("POST") < _recv_msg[fd].find(DCRNL))
 		body_creat(_recv_msg[fd], msg_body);
 
+	// manage query string
+	if ((qs_begin = _recv_msg[fd].find(' ')) < _recv_msg[fd].find(DCRNL))
+	{
+		i->second->_query_str = _recv_msg[fd].substr(qs_begin + 1, (qs_end = _recv_msg[fd].find(' ')));
+		_recv_msg[fd].erase(qs_begin, qs_end - qs_begin);
+		cout << _recv_msg[fd];
+	}
+	else
+		i->second->_query_str.clear();
 
 	_long_req_flag = 0;
 	if (i->second->_is_sharing_port)
