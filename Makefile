@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+         #
+#    By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/17 08:42:40 by lpollini          #+#    #+#              #
-#    Updated: 2024/09/24 10:58:55 by lpollini         ###   ########.fr        #
+#    Updated: 2024/09/26 00:15:18 by fedmarti         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,7 @@ RM			= rm -rf
 INCLUDES	= include/
 OBJDIR 		= .objFiles
 
-FILES		:= Parser Webserv utils Server BetterSelect BetterSocket Parsing_exceptions Responser Server_utils transfer_encoding receive_request
+FILES		:= Parser Webserv utils Server BetterSelect BetterSocket Parsing_exceptions Responser Server_utils transfer_encoding receive_request BetterEnv
 FILES		:= main $(addprefix src/, $(FILES))
 
 SRC			= $(FILES:=.cpp)

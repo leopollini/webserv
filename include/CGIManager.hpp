@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIManager.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 11:47:44 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 22:25:24 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 00:15:02 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,15 +21,7 @@ class	Server;
 // Unique. Found inside Webserv
 struct	CGIManager
 {
-	struct	BetterEnv
-	{
-		char	**_env;
-		void setup(char *envp[])
-		{
-			// BetterEnv crator. Copies envp (from main) entirely and adds some extra slots for cgi stuff. MUST contain enough extra space for each essential CGI env var. Maybe it can be a list of strings that is converted on-spot?
-		}
-	};
-
+	
 	char 				**_env;
 	BetterSelect		&_bs;
 	std::list<pid_t>	_pids;

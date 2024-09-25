@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   definitions.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/25 16:25:04 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 23:41:45 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@
 # define DEFAULT_DELETE_CGI "delete_cgi.sh"
 # define DEFAULT_ERRPGS_DIR "error_pages"
 # define REDIR_URL(s) "<head>\n<meta http-equiv=\"Refresh\" content=\"0; URL=" + s + "\" />\n</head>"
+
+# define EXTRA_ENV_SPACE 25
 
 # define SUCCESSFUL_POST_PAGE "<head>Postes successfully.</head>"
 
