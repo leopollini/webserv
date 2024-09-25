@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/15 02:44:25 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/24 12:06:59 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 16:22:01 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,38 +17,38 @@
 //reads size bytes into _read_buff 
 //returns the result of the read call
 //on failure returns -1, flushes the buffer and possibly shuts down the server
-size_t	BetterSocket::sockRead(int input_fd)
-{
-	// char *read_buff = _read_buff;
-	int	bytes_read;
-	static int read_count = 0;
-	size_t	size;
+// size_t	BetterSocket::sockRead(int input_fd)
+// {
+// 	// char *read_buff = _read_buff;
+// 	int	bytes_read;
+// 	static int read_count = 0;
+// 	size_t	size;
 
-	size = BUFFER_SIZE - _buffer_len;
+// 	size = BUFFER_SIZE - _buffer_len;
 
-	bytes_read = read(input_fd, _read_buff + _buffer_len, size);
-	_buffer_len += bytes_read; 
+// 	bytes_read = read(input_fd, _read_buff + _buffer_len, size);
+// 	_buffer_len += bytes_read; 
 
-	if (bytes_read < 0)
-	{
-		timestamp("Failed read at fd: " + itoa(fd), ERROR);
-		if (fcntl(fd, F_GETFD) == -1)
-		{
-			timestamp(" The socket is closed!\n", ERROR, BOLD, false);
-			timestamp(" Shutting down server...\n", WARNING);
-			Webserv::getInstance().downServer(fd);
-		}
-		else
-			cout << std::endl;
-		flushBuffer();
-		// read_buff = NULL;
-	}
-	else
-		_read_buff[_buffer_len] = 0;
-	if (read_count++ == 4)
-		close(fd);
-	return (bytes_read);
-}
+// 	if (bytes_read < 0)
+// 	{
+// 		timestamp("Failed read at fd: " + itoa(fd), ERROR);
+// 		if (fcntl(fd, F_GETFD) == -1)
+// 		{
+// 			timestamp(" The socket is closed!\n", ERROR, BOLD, false);
+// 			timestamp(" Shutting down server...\n", WARNING);
+// 			Webserv::getInstance().downServer(fd);
+// 		}
+// 		else
+// 			cout << std::endl;
+// 		flushBuffer();
+// 		// read_buff = NULL;
+// 	}
+// 	else
+// 		_read_buff[_buffer_len] = 0;
+// 	if (read_count++ == 4)
+// 		close(fd);
+// 	return (bytes_read);
+// }
 
 //removes n bytes from the read buffer, without taking in account its contents, can cause overflow
 string BetterSocket::_flush_bytes(size_t n)

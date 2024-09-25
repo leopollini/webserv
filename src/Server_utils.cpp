@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 15:53:36 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 16:25:30 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,6 +206,7 @@ void	CGIManager::start(Server *s, const string cgi_path, const string &arg)
 	args.push_back(arg.c_str());
 	args.push_back(NULL);
 	
+	SAY("Trying to execute " << cgi_path << '\n');
 	if (!(fk = fork()))
 	{
 		t = dup(STDOUT_FILENO);
@@ -340,8 +341,7 @@ void Responser::buildResponseHeader()
 	_head.append("Date: " + string(ctime(&now)));
 	_head.erase(_head.size() - 1,1); //removes unwanted trailing /n from ctime
 // _head.append(string("Keepalive: false") + CRNL);
-	_head += CRNL;
-	_head += CRNL;
+	_head += DCRNL;
 }
 
 string	Responser::getDocType()

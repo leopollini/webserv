@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 16:02:38 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 16:19:08 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,7 +165,7 @@ void	Webserv::gracefullyQuit(int sig)
 
 	timestamp("\b\bGracefully shutting Webserv! Send signal again to Force Close\n", GRAYI);
 	signal(SIGINT, SIG_DFL);
-	_up = false;
+	_up = 0;
 }
 
 // tries to setup all servers. If one fails it just keeps on building the others
@@ -252,7 +252,7 @@ void	Webserv::reviveServers(ulong retry_time)
 void	Webserv::start(char **prog_envp)
 {
 	timestamp("Starting Webserv!\n",GREEN);
-	_up = true;
+	_up = 1;
 	upAllServers();
 	_cgi_man._env = prog_envp;
 	timestamp("CGI manager setup done!\n",GREEN);
@@ -261,7 +261,7 @@ void	Webserv::start(char **prog_envp)
 	{
 		if (!_servers_up.size())
 		{
-			std::cout << "No servers up!\n";
+			SAY("No servers up!\n");
 			// reviveServers(SHORT_REVIVE_TIME);
 			sleep(2);
 			continue ;
@@ -276,5 +276,5 @@ void	Webserv::start(char **prog_envp)
 	}
 	downAllServers();
 	_sel.closeAllClis();
-	_up = false;
+	_up = 0;
 }

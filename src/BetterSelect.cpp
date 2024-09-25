@@ -248,7 +248,6 @@ req_t	BetterSelect::readMsg(int fd, connections_map_t::iterator &i)
 	else if (_recv_msg[fd].find("POST") < _recv_msg[fd].find(DCRNL))
 		body_creat(_recv_msg[fd], msg_body);
 
-cout << "##" << msg_body << "##\n";
 
 	_long_req_flag = 0;
 	if (i->second->_is_sharing_port)
