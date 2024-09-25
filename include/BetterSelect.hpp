@@ -19,7 +19,7 @@
 
 # define SEL_TIMEOUT {1, 0}
 
-# define RECV_BUFF_SIZE 10000
+# define RECV_BUFF_SIZE 1000
 
 
 struct	BetterSelect
@@ -32,7 +32,10 @@ struct	BetterSelect
 	timeout_fd_t		_timeout_map;
 	fd_list_t			_del_lst;
 	int					_current_connection_fd;
-	char				_recv_buff[RECV_BUFF_SIZE];
+	char				_recv_buff[RECV_BUFF_SIZE + 1];
+	fd_msg_map			_recv_msg;
+
+	char				_long_req_flag;
 
 	static port_servs_map_t	_used_ports;
 

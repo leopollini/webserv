@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 18:59:23 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/24 18:33:05 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 11:35:03 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,40 +176,40 @@ req_t Server::_receiveBody(request_t &request) throw (Server::BodyMsgTooLong)
 // 	std::cout << "requested dir be: \'" << uri << "\'\n";
 // }
 
-req_t Server::receive(int fd)
-{
-	request_t	&request = _current_request;
-	cout << "Readimg from " << fd << "...\n";
+// req_t Server::receive(int fd)
+// {
+// 	request_t	&request = _current_request;
+// 	cout << "Readimg from " << fd << "...\n";
 	
-	if (_sock.sockRead(fd) < 1)
-		return (INVALID);
+// 	if (_sock.sockRead(fd) < 1)
+// 		return (INVALID);
 
-	if (request.complete)
-	{
-		request.header.clear();
-		string req_line = _sock.getLine();
+// 	if (request.complete)
+// 	{
+// 		request.header.clear();
+// 		string req_line = _sock.getLine();
 
-		if (req_line == "" || !_sock.wasReadSuccessful())
-			return (INVALID);
+// 		if (req_line == "" || !_sock.wasReadSuccessful())
+// 			return (INVALID);
 
-		HttpRequestLog(req_line, fd);
-		parse_request_line(request, req_line);
+// 		HttpRequestLog(req_line, fd);
+// 		parse_request_line(request, req_line);
 
-		if (!parse_request_header(_sock, request))
-			throw HeadMsgTooLong();
+// 		if (!parse_request_header(_sock, request))
+// 			throw HeadMsgTooLong();
 
-		if (request.type == INVALID)
-			return (INVALID);
+// 		if (request.type == INVALID)
+// 			return (INVALID);
 
-		// truncate location identification part of dir
-		matchRequestLocation(request);
-		request.littel_parse(this); //wtf does this even do
-	}
-	if (request.type == POST || request.type == DELETE) // all handled methods with body
-		_receiveBody(request);
-	if (request.type != INCOMPLETE)
-		printHttpRequest(request);
-	// return parseMsg(fd);
-	return request.type;
-}
+// 		// truncate location identification part of dir
+// 		matchRequestLocation(request);
+// 		request.littel_parse(this); //wtf does this even do
+// 	}
+// 	if (request.type == POST || request.type == DELETE) // all handled methods with body
+// 		_receiveBody(request);
+// 	if (request.type != INCOMPLETE)
+// 		printHttpRequest(request);
+// 	// return parseMsg(fd);
+// 	return request.type;
+// }
 

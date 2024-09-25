@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/24 12:06:53 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 15:58:10 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,12 +70,32 @@ req_t Server::parseMsg()
 	return _current_request.type;
 }
 
+void	Server::postRequestManager()
+{
+	if (_resp._res_code != 200)
+		return ;
+	try
+	{
+		std::ofstream	file(_resp.getDir().c_str());
+		file << _current_request.body << std::endl;
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+		_resp._res_code = INTERNAL_SEVER_ERROR;
+		return ;
+	}
+	_resp._res_code = _POST_SUCCESS;			// for later use. Sends bach the success page
+}
+
 void	Server::createResp()
 {
 	// Set Responser's location
 	// Launch Responser buildBody and buildHeader
 	_resp.keepalive = true;
 	_resp._res_code = validateLocation();
+	if (_current_request.type == POST)
+		postRequestManager();
 	if (_resp.buildResponseBody())
 		return ;
 	SAY("Response code: " << _resp._res_code << ": " << Webserv::getInstance().badExplain(_resp._res_code) << '\n');
@@ -87,7 +107,6 @@ status_code_t	Server::validateLocation()
 	SAY("Looking for " << _current_request.uri);
 	SAY(". Allowed method flag: " << (int)_current_request.loc->allows << "\n");
 	_resp = _current_request;	// overloaded. Copies members dir and loc pointer
-	string target_file;
 	status_code_t	t;
 
 	if (_resp._is_returning > 0)
@@ -98,9 +117,8 @@ status_code_t	Server::validateLocation()
 		
 	_resp.getFileFlags() = checkCharacteristics(_current_request.uri.c_str());
 
-	if (!exists(_resp.getFileFlags()))
+	if (!exists(_resp.getFileFlags()) && _current_request.type != POST)
 		return NOT_FOUND;
-		
 
 	if (!(_resp.getLoc()->allows & _current_request.type))
 		return (METHOD_NOT_ALLOWED);
@@ -114,19 +132,21 @@ status_code_t	Server::validateLocation()
 	if ((_resp.getFileFlags() & C_DIR) && (t = manageDir()) != _ZERO) // is a directory
 		return t;
 
-	else if (!(_resp.getFileFlags() & C_READ))
+	else if (!(_resp.getFileFlags() & C_READ) && _current_request.type != POST)
 		return FORBIDDEN;
 		
-	if (isOkToSend(_resp.getFileFlags()))
+	if (isOkToSend(_resp.getFileFlags()) || _current_request.type == POST)
 		return OK;
 
 	return INTERNAL_SEVER_ERROR;
 }
 
-req_t Server::receive(int fd, char *msg)
+req_t Server::receive(int fd, string &msg, string &body)
 {
 	_fd = fd;
 	_received_head = msg;
+	_current_request.body = body;
+	_resp._res_code = 200;
 	if (parseMsg() == INVALID)
 		return INVALID;
 	createResp();

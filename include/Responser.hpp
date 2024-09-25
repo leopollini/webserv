@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/24 11:55:45 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 11:54:01 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ public:
 
 	void	buildResponseHeader();
 	char	buildResponseBody();
+
+	char	internalServerError();
 
 	location_t	*getLoc() const {if (!_loc) SAY("###getLoc() got a NULL??\n"); return _loc;}
 

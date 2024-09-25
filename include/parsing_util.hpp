@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 15:44:11 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/04 11:52:27 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 12:53:45 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ namespace Parsing
 	};
 
 	bool		line_and_col(string &str, size_t pos, ushort &line, ushort &col);
+
 
 	class Error : public std::exception
 	{

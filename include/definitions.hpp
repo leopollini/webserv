@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/24 15:18:06 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 15:53:30 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <set>
 
 // 0: no debug info; 1: show debug info
-# define DEBUG_INFO 0
+# define DEBUG_INFO 1
 
 # define ERROR RED
 # define WARNING YELLOW
@@ -28,6 +28,7 @@
 # define CONNECT MAGENTA
 # define REC_MSG_PRNT GRAYI,COLORII
 # define CRNL "\r\n"
+# define DCRNL "\r\n\r\n"
 
 # define SERVER_RETRY_TIME 200000
 # define SHORT_REVIVE_TIME 20000
@@ -40,7 +41,6 @@
 # define CONNECTION_TIMEOUT 30 // measured in secs
 # define DEFAULT_CONF "test.config"
 # define DEFAULT_PROTOCOL "1.0"
-# define CRNL "\r\n"
 
 # define NEW_SERVER "server"
 # define NAME "server_name"
@@ -69,6 +69,8 @@
 # define DEFAULT_ERRPGS_DIR "error_pages"
 # define REDIR_URL(s) "<head>\n<meta http-equiv=\"Refresh\" content=\"0; URL=" + s + "\" />\n</head>"
 
+# define SUCCESSFUL_POST_PAGE "<head>Postes successfully.</head>"
+
 # define SAY(x) if (DEBUG_INFO) cout << x
 
 
@@ -91,6 +93,7 @@ typedef	std::list<location_t *>		locations_list_t;
 typedef	std::map<int, long>			timeout_fd_t;
 typedef	std::set<string>			str_set_t;
 typedef std::set<pid_t>				pidlst_t;
+typedef std::map<int, string>		fd_msg_map;
 
 
 typedef	enum	e_colors
@@ -146,6 +149,7 @@ typedef enum	e_status_code
 	_CGI_RETURN,
 	_DONT_SEND,
 	_REQUEST_DELETE,
+	_POST_SUCCESS,
 	CONTINUE = 100,
 	SWITCHING_PROTOCOLS,
 	PROCESSING,

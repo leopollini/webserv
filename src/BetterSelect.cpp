@@ -14,7 +14,7 @@
 
 port_servs_map_t	BetterSelect::_used_ports;
 
-BetterSelect::BetterSelect() : _tot_size(0)
+BetterSelect::BetterSelect() : _tot_size(0), _long_req_flag(0)
 {
 	FD_ZERO(&_read_pool);
 	FD_ZERO(&_write_pool);
@@ -159,14 +159,14 @@ static void	log_request(req_t type, const int socket_fd)
 	}
 }
 
-string	get_var_from_header(string msg, string name)
+string	get_var_from_header(string header, string name)
 {
-	size_t	varpos = msg.find(name);
+	size_t	varpos = header.find(name);
 
-	if (varpos == string::npos || varpos >= msg.find(HEAD_BODY_DELIMITER))
+	if (varpos >= header.find(DCRNL))
 		return "";
 
-	string a = msg.substr(varpos + name.size() + 2, msg.find("\r", varpos) - varpos - name.size() - 2);
+	string a = header.substr(varpos + name.size() + 2, header.find("\r", varpos) - varpos - name.size() - 2);
 	return a;
 }
 
@@ -187,21 +187,73 @@ Server	*BetterSelect::findServByHostname(port_t port, string host)
 	return t.front();
 }
 
+static size_t	axtoi(string s)
+{
+	std::stringstream	strs;
+	size_t				l;
+
+	strs << std::hex << s;
+	strs >> l;
+	return l;
+}
+
+static void	chunked_rebuilder(string &msg, string &body)
+{
+	size_t	pos = msg.find(DCRNL) + 4, chunk_size = 0;
+
+	try
+	{
+		while ((chunk_size = axtoi(msg.substr(pos))))
+		{
+			pos = msg.find(CRNL, pos) + 2;
+			body += msg.substr(pos, chunk_size);
+			pos += chunk_size + 2;
+		}
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+		body = "###INVALID";
+	}
+}
+
+static inline void	body_creat(string &msg, string &body)
+{
+	if (msg.find(DCRNL) < msg.size() + 4)
+		body = msg.substr(msg.find(DCRNL) + 4);
+}
+
 req_t	BetterSelect::readMsg(int fd, connections_map_t::iterator &i)
 {
 	long	msg_len;
-
-	SAY("Readimg from " << fd << "...\n");
+	string	msg_body = "";
 
 	if (!(msg_len = recv(fd, _recv_buff, RECV_BUFF_SIZE, 0)))
 		return FINISH;
+	_recv_buff[msg_len] = '\0';
+	SAY("Readimg " << msg_len << " from " << fd << "...\n");
 	if (msg_len < 0)
 		return timestamp("recv failed! ):\n", ERROR), INVALID;
+
+	// Long messages. Manages multiple reads but not multiple recieve
+	if (!_long_req_flag)
+		_recv_msg.clear();
+	_recv_msg[fd].append(_recv_buff);
 	if (msg_len == RECV_BUFF_SIZE)
-		throw HeadMsgTooLong();
+		return INCOMPLETE;
+
+	// Create body in case of POST or Chunked encoding
+	if (get_var_from_header(_recv_msg[fd], "Transfer-Encoding") == "chunked")
+		chunked_rebuilder(_recv_msg[fd], msg_body);
+	else if (_recv_msg[fd].find("POST") < _recv_msg[fd].find(DCRNL))
+		body_creat(_recv_msg[fd], msg_body);
+
+cout << "##" << msg_body << "##\n";
+
+	_long_req_flag = 0;
 	if (i->second->_is_sharing_port)
-		i->second = findServByHostname(i->second->getPort(), get_var_from_header(_recv_buff, "Host"));
-	return i->second->receive(i->first, _recv_buff);
+		i->second = findServByHostname(i->second->getPort(), get_var_from_header(_recv_msg[fd], "Host"));
+	return i->second->receive(i->first, _recv_msg[fd], msg_body);
 }
 
 void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
@@ -218,11 +270,21 @@ void	BetterSelect::_handleRequestResponse(fd_set &readfds, fd_set &writefds)
 	}
 	for (connections_map_t::iterator i = _clis_map.begin(); i != _clis_map.end(); ++i)
 	{
+		static int	incomplete_fd = 0;
+
 		if (!i->second)
 			continue;
-		if (FD_ISSET(i->first, &readfds)) //if the socket is ready to be read
+		if (FD_ISSET(i->first, &readfds) && (!_long_req_flag || incomplete_fd == i->first)) //if the socket is ready to be read
 		{
 			req_t request_type	= readMsg(i->first, i);
+
+			if (request_type == INCOMPLETE)
+			{
+				incomplete_fd = i->first;
+				_long_req_flag = 1;
+				return ;
+			}
+			_long_req_flag = 0;
 
 			log_request(request_type, i->first);
 			if (request_type == FINISH || request_type == INVALID || i->second->getRes() == _DONT_SEND)

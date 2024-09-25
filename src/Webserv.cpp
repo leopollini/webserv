@@ -6,14 +6,14 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/24 15:38:21 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 16:02:38 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Webserv.hpp"
 #include "parsing_util.hpp"
 
-bool	Webserv::_up = false;
+char	Webserv::_up = false;
 Webserv Webserv::_Singleton;
 
 Webserv &Webserv::getInstance()
@@ -262,14 +262,16 @@ void	Webserv::start(char **prog_envp)
 		if (!_servers_up.size())
 		{
 			std::cout << "No servers up!\n";
-			reviveServers(SHORT_REVIVE_TIME);
+			// reviveServers(SHORT_REVIVE_TIME);
 			sleep(2);
 			continue ;
 		}
+		if (_up != 1)
+			_up = false;
 		// cout << "Waiting.\n";
 		_sel.selectReadAndWrite();
 		usleep(2000);
-		reviveServers();
+		// reviveServers();
 		// sleep(2);
 	}
 	downAllServers();

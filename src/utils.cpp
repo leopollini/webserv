@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:09 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/19 19:23:06 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/25 12:52:53 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,6 +219,6 @@ void	printHttpRequest(request_t &request, std::ostream &out)
 	{
 		out << it->first << ": " << it->second << '\n';
 	}
-	out << "\r\n\r\n";
+	out << DCRNL;
 	out << request.body << std::endl;
 }

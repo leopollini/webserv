@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 11:27:46 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 14:45:39 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ class	Server
 	BetterSocket	_sock;
 	char			_state;
 	conf_t			_env;
-	char			*_received_head;
+	string			_received_head;
 	locations_list_t	_loc_ls;
 	int				_fd;
 	
@@ -78,24 +78,25 @@ public:
 	void	up();
 	void	down();
 	void	manageReturn(string &s);
-	req_t	receive(int fd, char *msg);
+	req_t	receive(int fd, string &msg, string &body);
 	bool	respond(int fd);
 	void	closeConnection(int fd);
 	void	createResp();
 	req_t	parseMsg();
 
+	void	printServerStats();
 	void	printHttpRequest(string &msg, int fd_from);
-	void 	matchRequestLocation(request_t &request); 
 	void	lookForPlaceholders();
 
 	void	HttpRequestLog(string &request_line, int fd_from);
 
-	void 	matchRequestLocation(request_t &request) const; 
+	void 	matchRequestLocation(request_t &request); 
 	
 	status_code_t	validateLocation();
 	status_code_t	manageDir();
 	
-	void	printServerStats();
+	void	postRequestManager();
+	
 	
 	class DuplicateServLocation : public std::exception
 	{

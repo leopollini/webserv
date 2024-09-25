@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 11:28:59 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 12:02:36 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,6 @@ class	Server;
 
 struct	BetterSelect;
 
-#define BUFFER_SIZE 10000
-
 class	Webserv
 {
 	//single instance
@@ -38,7 +36,6 @@ class	Webserv
 	conf_t			_doc_types;
 	
 	string			_conf;
-	static bool		_up;
 	serv_list_t		_servers_up;
 	serv_list_t		_servers_down;
 	BetterSelect	_sel;
@@ -51,6 +48,7 @@ class	Webserv
 	~Webserv();
 	void	docTypesInit();
 public:
+	static char		_up;
 	char 			read_buff[BUFFER_SIZE + 1];
 	CGIManager		_cgi_man;
 	static Webserv &getInstance();
