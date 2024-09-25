@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 13:07:36 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/24 15:33:19 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 18:28:39 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,13 @@ list<token> Parsing::tokenize (string content) throw (Error)
 
 		open_bracket += (content[i] == '{') - (content[i] == '}');
 		if (open_bracket < 0) //checks for too many closed brackets
-			throw (MismatchedBrackets(content, i));
+				throw (MismatchedBrackets(content, i));
+		if (lst.size() && (content[i] == '}'))
+		{
+			token &last = lst.back();
+			if (last.type == BASIC || last.type == STRINGLITERAL || last.type == ASSIGNMENT)
+				throw (MissingSemicolon(content, i));
+		}
 
 		if (end == string::npos) //eof reached
 			end = content.size();
