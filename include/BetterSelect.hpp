@@ -16,11 +16,13 @@
 # include "Server.hpp"
 # include "BetterSocket.hpp"
 # include "utils.hpp"
+# include "CGIManager.hpp"
 
 # define SEL_TIMEOUT {1, 0}
 
 # define RECV_BUFF_SIZE 1000000
 
+struct	CGIManager;
 
 struct	BetterSelect
 {
@@ -36,9 +38,11 @@ struct	BetterSelect
 	fd_msg_map			_recv_msg;
 
 	char				_long_req_flag;
-	
+
 	int					_super_pipe;
 	string				_super_body;
+
+	CGIManager			*_cgi_man_ptr;
 
 	static port_servs_map_t	_used_ports;
 

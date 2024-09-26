@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 19:14:11 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 19:34:53 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ Webserv::Webserv() : _conf(DEFAULT_CONF), _cgi_man(_sel)
 	timestamp("Setting up Webserv!\n", CYAN);
 	signal(SIGINT, gracefullyQuit);
 	docTypesInit();
+	_sel._cgi_man_ptr = &_cgi_man;
 
 	Server::default_loc.allows = DEFAULT_LOCATION_ALLOWS;
 }

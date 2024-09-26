@@ -1,6 +1,10 @@
 #!/bin/bash
 
-mv $1 hehetrasj/
+mkdir hehetrasj
+
+if [ $? -eq 0 ]; then
+	mv $1 hehetrasj/
+fi
 
 if [ $? -ne 0 ]; then
 	printf "HTTP/1.1 500 Internal Server Error\r\nContent-Type: default\r\nServer: autoindex_cgi\r\nDate: $(date -R)\r\n\r\n<!doctype html>

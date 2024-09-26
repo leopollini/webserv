@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 18:08:03 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 20:24:11 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,7 +214,10 @@ void	Server::matchRequestLocation(request_t &request)
 
 		// printf("called. \'%s\' (%i)\n", dir.c_str(), dir.size());
 		//if directory is more specific, or if it doesn't match
-		if (dir.size() - 1 > request.uri.size() || (dir.size() <= max_len && !(*it)->allowed_extensions.size()))
+		if (dir.size() >= request.uri.size() || dir.size() < max_len)
+			continue ;
+		
+		if (location && location->allowed_extensions.size() && !(*it)->allowed_extensions.size())
 			continue ;
 
 		if (request.uri.find(dir) || location_isinvalid(*it, request.uri))

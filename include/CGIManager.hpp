@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 11:47:44 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 12:21:07 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 19:41:48 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@ class	Server;
 // Unique. Found inside Webserv
 struct	CGIManager
 {
-	char **_envp;
-	BetterSelect		&_bs;
-	std::list<pid_t>	_pids;
+	char 			**_envp;
+	BetterSelect	&_bs;
+	pid_time_lst	_pids;
 
 	// DON'T USE
 	CGIManager&	operator=(const CGIManager &assignment) {(void)assignment; return *this;}
@@ -37,13 +37,14 @@ struct	CGIManager
 	CGIManager(BetterSelect &bs) : _bs(bs) {}
 	~CGIManager()
 	{
-		for (std::list<pid_t>::iterator i = _pids.begin(); i != _pids.end(); ++i)
-			kill(*i, SIGKILL);
+		for (pid_time_lst::iterator i = _pids.begin(); i != _pids.end(); ++i)
+			kill(i->first, SIGKILL);
 	}
 
 	// All cariadic args MUST be char * and the last arg MUST be a NULL
 	void	start(Server *s, const string &cgi_dir, const string &uri_dir, string query_string = "", string body = "");
 	void	envSet(char **a) {_envp = a;}
+	void	purgeCGI();
 };
 
 #endif

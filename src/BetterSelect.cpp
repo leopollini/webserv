@@ -339,6 +339,7 @@ void	BetterSelect::selectReadAndWrite()
 	if (!_tot_size)
 		return ;
 	closeTimedOut();
+	_cgi_man_ptr->purgeCGI();
 
 	fd_set			readfds = _read_pool;
 	fd_set			writefds = _write_pool;

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/09/26 19:15:51 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 20:02:59 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,11 +267,28 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		return ;
 	}
 	close(pipefd[0]);
+	close(s->getFd());
 
 	if (!body.empty())
 		Webserv::getInstance().superPipeSet(pipefd[1], body);
-	_pids.push_back(fk);
+	else
+		close(pipefd[1]);
+	_pids[fk] = (std::pair<pid_t, time_t>(s->getFd(), time(NULL)));
 	timestamp("CGI started!!\n");
+}
+
+void	CGIManager::purgeCGI()
+{
+	for (pid_time_lst::iterator i = _pids.begin(); i != _pids.end();)
+	{
+		if (i->second.second < time(NULL) - CGI_TIMEOUT)
+		{
+			kill(i->first, SIGKILL);
+			_pids.erase(i++);
+			continue ;
+		}
+		++i;
+	}
 }
 
 Responser &Responser::operator=(const request_t &t)
@@ -422,7 +439,12 @@ void	Responser::Send(int fd)
 	else
 		t = send(fd, (_head + _body).c_str(), size(), MSG_EOR);
 	if (t < 0)
-		return (void)timestamp("send failed! ):\n", ERROR);
+	{
+		timestamp("send failed! ): Closing connection.\n", ERROR);
+		_res_code = _DONT_SEND;
+		keepalive = false;
+		return ;
+	}
 	SAY("; Sent " << t << " bytes; body size was " <<  _body.size() << "... ");
 	timestamp("Done!\n", DONE, BOLD, false);
 }

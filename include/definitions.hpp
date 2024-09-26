@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/26 18:03:45 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 20:11:11 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <set>
 
 // 0: no debug info; 1: show debug info
-# define DEBUG_INFO 0
+# define DEBUG_INFO 1
 
 # define ERROR RED
 # define WARNING YELLOW
@@ -40,6 +40,7 @@
 # define MAX_CONNECTIONS 1
 # define DEFAULT_RETURN_RESCODE 200
 # define CONNECTION_TIMEOUT 30 // measured in secs
+# define CGI_TIMEOUT 5	// measured in secs
 # define DEFAULT_CONF "test.config"
 # define DEFAULT_PROTOCOL "1.0"
 
@@ -89,6 +90,8 @@ typedef	std::map<int, long>			timeout_fd_t;
 typedef	std::set<string>			str_set_t;
 typedef std::set<pid_t>				pidlst_t;
 typedef std::map<int, string>		fd_msg_map;
+
+typedef std::map< pid_t, std::pair<int, time_t> >	pid_time_lst;
 
 
 typedef	enum	e_colors
