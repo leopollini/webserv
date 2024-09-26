@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIManager.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 11:47:44 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 00:15:02 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/26 11:57:02 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,18 @@
 # define CGIMANAGER_HPP
 
 # include "utils.hpp"
+# include "BetterEnv.hpp"
+
+class	Webserv;
 
 struct	BetterSelect;
+
 class	Server;
 
 // Unique. Found inside Webserv
 struct	CGIManager
 {
-	
-	char 				**_env;
+	char 				**_envp;
 	BetterSelect		&_bs;
 	std::list<pid_t>	_pids;
 

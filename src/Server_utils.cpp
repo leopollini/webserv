@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 11:27:26 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 11:57:23 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,6 +200,7 @@ void	request_t::littel_parse(Server *s)
 // CGI function!!!
 void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir)
 {
+	BetterEnv					env(_envp);
 	std::vector<const char *>	args;
 	pid_t						fk;
 	int							t;
@@ -212,7 +213,7 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir)
 	{
 		t = dup(STDOUT_FILENO);
 		dup2(s->getFd(), STDOUT_FILENO);
-		execve(args[0], (char *const*)args.data(), _env);
+		execve(args[0], (char *const*)args.data(), env.c_envp());
 		dup2(t, STDOUT_FILENO);
 		close(STDOUT_FILENO);
 		close(t);

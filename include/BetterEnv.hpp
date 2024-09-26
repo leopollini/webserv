@@ -6,15 +6,17 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 23:26:31 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/26 09:36:50 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 11:55:45 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
 #include <string>
 #include <vector>
 
 using std::string;
 using std::vector;
+
 class BetterEnv {
 	char **_env;
 	size_t _size;

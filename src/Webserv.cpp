@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 11:36:39 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 11:53:48 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,6 +258,7 @@ void	Webserv::start(char **prog_envp)
 	upAllServers();
 	_cgi_man._env = prog_envp;
 	timestamp("CGI manager setup done!\n",GREEN);
+	_cgi_man
 	
 	while (_up)
 	{

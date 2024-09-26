@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 23:31:16 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/26 09:37:53 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 11:55:55 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,5 +106,5 @@ void BetterEnv::removeVariable(string key)
 	memmove(&_env[index], &_env[index + 1], _size - index);
 
 	_size--;
-	_env[NULL]; // ??
+	_env[_size] = NULL;
 }
