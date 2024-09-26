@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 11:47:44 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 11:57:02 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 12:21:07 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class	Server;
 // Unique. Found inside Webserv
 struct	CGIManager
 {
-	char 				**_envp;
+	char **_envp;
 	BetterSelect		&_bs;
 	std::list<pid_t>	_pids;
 
@@ -42,7 +42,8 @@ struct	CGIManager
 	}
 
 	// All cariadic args MUST be char * and the last arg MUST be a NULL
-	void	start(Server *s, const string &cgi_dir, const string &uri_dir);
+	void	start(Server *s, const string &cgi_dir, const string &uri_dir, string query_string = "", string body = "");
+	void	envSet(char **a) {_envp = a;}
 };
 
 #endif

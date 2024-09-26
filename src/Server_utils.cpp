@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 11:57:23 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 12:21:09 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,30 +197,51 @@ void	request_t::littel_parse(Server *s)
 	SAY("requested uri be: \'" << uri << "\'\n");
 }
 
+#define QUERY_STR_ENV "QUERY_STRING"
+#define CONTENT_SIZE "CONTENT_LENGTH"
+
 // CGI function!!!
-void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir)
+void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, string query_string, string body)
 {
 	BetterEnv					env(_envp);
 	std::vector<const char *>	args;
 	pid_t						fk;
 	int							t;
+	int							pipefd[2];
 
+	if (!query_string.empty())
+		env.addVariable(QUERY_STR_ENV, query_string);
+	if (body.size())
+		env.addVariable(CONTENT_SIZE, itoa(body.size()));
 	args.push_back(cgi_dir.c_str());
 	args.push_back(uri_dir.c_str());
 	args.push_back(NULL);
 	SAY("Trying to execute " << args[0] << '\n');
+
+	pipe(pipefd);
 	if (!(fk = fork()))
 	{
+		close(pipefd[1]);
+		dup2(pipefd[0], STDIN_FILENO);
 		t = dup(STDOUT_FILENO);
 		dup2(s->getFd(), STDOUT_FILENO);
 		execve(args[0], (char *const*)args.data(), env.c_envp());
 		dup2(t, STDOUT_FILENO);
+
 		close(STDOUT_FILENO);
+		close(pipefd[1]);
+		close(STDIN_FILENO);
 		close(t);
+		
 		Webserv::_up = -1;
 		std::cerr << "A CGI crashed!!!\n";
 		return ;
 	}
+	close(pipefd[0]);
+	if (!body.empty())
+		write(pipefd[1], body.c_str(), body.size());
+	close(pipefd[1]);
+
 	_pids.push_back(fk);
 	timestamp("CGI started!!\n");
 }
@@ -312,7 +333,7 @@ char	Responser::buildResponseBody()
 			_res_code = OK;
 		 return 0;
 		case _CGI_RETURN :
-			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir);
+			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir, _serv->_query_str, _body);
 			if (Webserv::_up == -1)
 				return internalServerError();
 			_res_code = _DONT_SEND;
