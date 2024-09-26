@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   definitions.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/26 20:11:11 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 22:19:46 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <set>
 
 // 0: no debug info; 1: show debug info
-# define DEBUG_INFO 1
+# define DEBUG_INFO 0
 
 # define ERROR RED
 # define WARNING YELLOW
