@@ -335,8 +335,8 @@ void	BetterSelect::selectReadAndWrite()
 	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
 	if (t < 0)
 		return (err_close_clis());
-	if (suepr_pipe())
-		return ;
+	// if (suepr_pipe())
+	// 	return ;
 	_acceptNewConnections(readfds);
 	_handleRequestResponse(readfds, writefds);
 	return ;

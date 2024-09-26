@@ -5,10 +5,11 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 17:57:47 by lpollini         ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2024/09/26 18:10:32 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "../include/Server.hpp"
 #include "../include/Responser.hpp"
@@ -89,6 +90,7 @@ bool Server::tryUp(time_t retry_time)
 	if (!_state)
 		up();
 	return (_state);
+	return (_state);
 }
 
 void Server::up()
@@ -98,6 +100,8 @@ void Server::up()
 		Server	*t = BetterSelect::_used_ports[getPort()].front();
 		t->_is_sharing_port = 1;
 		_is_sharing_port = -1;
+		if (!t->_state)
+			throw SharedPortOccupied();
 		if (!t->_state)
 			throw SharedPortOccupied();
 		getSockFd() = t->getSockFd();
@@ -214,17 +218,20 @@ static void add_meta_variables(Server *s, string query_string, string body, Bett
 
 static void location_fuckery(string &cgi_dir, string &uri_dir, Server *s)
 {
-	size_t first_slash = uri_dir.find('/');
+	size_t last_slash = uri_dir.find_last_of('/');
 
-	while (first_slash != string::npos)
+	while (last_slash != string::npos)
 	{
-		cgi_dir = cgi_dir
+		uri_dir = uri_dir.substr(first_slash);
+		cgi_dir = "../" + cgi_dir;
 	}
+
 }
 
 // CGI function!!!
 void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, string query_string, string body)
 {
+	BetterEnv					env(_envp);
 	BetterEnv					env(_envp);
 	std::vector<const char *>	args;
 	pid_t						fk;
@@ -263,6 +270,11 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		std::cerr << "A CGI crashed!!!\n";
 		return ;
 	}
+	close(pipefd[0]);
+	if (!body.empty())
+		write(pipefd[1], body.c_str(), body.size());
+	close(pipefd[1]);
+
 	close(pipefd[0]);
 	if (!body.empty())
 		write(pipefd[1], body.c_str(), body.size());
@@ -312,6 +324,10 @@ char	Responser::buildResponseBody()
 			_dir = _serv->getEnv(E_400, _loc);
 			SAY("Looking for 400 response" << _dir << "'\n");
 		 break ;
+		case BAD_REQUEST :
+			_dir = _serv->getEnv(E_400, _loc);
+			SAY("Looking for 400 response" << _dir << "'\n");
+		 break ;
 		case NOT_FOUND :
 			_dir = _serv->getEnv(E_404, _loc);
 			SAY("Looking for 404 response" << _dir << "'\n");
@@ -347,11 +363,14 @@ char	Responser::buildResponseBody()
 		case _REQUEST_DIR_LISTING :
 			SAY("Autoindexing at \'" << _dir << "\'...\n");
 			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir);
+			SAY("Autoindexing at \'" << _dir << "\'...\n");
+			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir);
 			if (Webserv::_up == -1)
 				return internalServerError();
 			_res_code = _DONT_SEND;
 		 return -1;
 		case _REQUEST_DELETE :
+			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_DELETE_DIR, getLoc()), _dir);
 			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_DELETE_DIR, getLoc()), _dir);
 			if (Webserv::_up == -1)
 				return internalServerError();
@@ -363,6 +382,7 @@ char	Responser::buildResponseBody()
 			_res_code = OK;
 		 return 0;
 		case _CGI_RETURN :
+			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir, _serv->_query_str, _serv->getReqBody());
 			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir, _serv->_query_str, _serv->getReqBody());
 			if (Webserv::_up == -1)
 				return internalServerError();
