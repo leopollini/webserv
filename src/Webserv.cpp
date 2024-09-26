@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 14:24:52 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 15:16:03 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ void	Webserv::docTypesInit()
 	ENV_FILL(CGI_AUTOINDEX_DIR, DEFAULT_AUTOINDEX_CGI_DIR);
 	ENV_FILL(L_INDEX, DEFAULT_INDEX_FILE);
 	ENV_FILL(CGI_DELETE_DIR, DEFAULT_DELETE_CGI);
+	ENV_FILL(E_400, T_JOIN("400"));
 	ENV_FILL(E_302, T_JOIN("302"));
 	ENV_FILL(E_301, T_JOIN("301"));
 	ENV_FILL(E_307, T_JOIN("307"));

@@ -231,10 +231,10 @@ req_t	BetterSelect::readMsg(int fd, connections_map_t::iterator &i)
 
 	if (!(msg_len = recv(fd, _recv_buff, RECV_BUFF_SIZE, 0)))
 		return FINISH;
-	_recv_buff[msg_len] = '\0';
 	SAY("Readimg " << msg_len << " from " << fd << "...\n");
 	if (msg_len < 0)
 		return timestamp("recv failed! ):\n", ERROR), INVALID;
+	_recv_buff[msg_len] = '\0';
 
 	// Long messages. Manages multiple reads but not multiple recieve
 	if (!_long_req_flag)

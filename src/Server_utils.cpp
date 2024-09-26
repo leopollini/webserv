@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 13:58:58 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 15:12:18 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -281,6 +281,10 @@ char	Responser::buildResponseBody()
 		{
 		case OK :
 			SAY("Reading \n");
+		 break ;
+		case BAD_REQUEST :
+			_dir = _serv->getEnv(E_400, _loc);
+			SAY("Looking for 400 response" << _dir << "'\n");
 		 break ;
 		case NOT_FOUND :
 			_dir = _serv->getEnv(E_404, _loc);

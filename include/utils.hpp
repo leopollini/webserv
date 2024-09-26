@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:29:37 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 21:49:02 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 15:13:07 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,8 @@
 # define CGI_AUTOINDEX_DIR "cgi_autoindex"
 # define CGI_DELETE_DIR "cgi_delete"
 # define LOC_CGI_RETURN "cgi_return"
-# define L_MAX_BODY_SIZE "max_body_size"
+# define MAX_BODY_SIZE "max_body_size"
+# define E_400 "e_400"
 # define E_405 "e_405"
 # define E_404 "e_404"
 # define E_403 "e_403"

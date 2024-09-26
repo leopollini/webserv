@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 12:43:49 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 15:11:14 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,10 +70,27 @@ req_t Server::parseMsg()
 	return _current_request.type;
 }
 
+static	size_t atoi2(string s)
+{
+	std::stringstream	str;
+	size_t				res;
+
+	if (s.empty())
+		return -1;
+	char	*end_of_string = const_cast<char *> (s.c_str() + s.size());
+	return res = strtol(s.c_str(), &end_of_string, 10);
+	str << std::dec << s;
+	str >> res;
+	return res;
+}
+
 void	Server::postRequestManager()
 {
+		const char *a = _current_request.body.c_str();
 	if (_resp._res_code != 200)
 		return ;
+	if (_current_request.body.size() > atoi2(getEnv(MAX_BODY_SIZE, _current_request.loc)))
+		return (void)(_resp._res_code = BAD_REQUEST);
 	try
 	{
 		std::ofstream	file(_resp.getDir().c_str());
