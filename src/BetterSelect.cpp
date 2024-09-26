@@ -14,7 +14,7 @@
 
 port_servs_map_t	BetterSelect::_used_ports;
 
-BetterSelect::BetterSelect() : _tot_size(0), _long_req_flag(0)
+BetterSelect::BetterSelect() : _tot_size(0), _long_req_flag(0), _super_pipe(0)
 {
 	FD_ZERO(&_read_pool);
 	FD_ZERO(&_write_pool);
@@ -320,6 +320,17 @@ void	BetterSelect::err_close_clis()
 	SAY("Called Err close clis\n");
 }
 
+char	BetterSelect::superPipe(fd_set &wfd)
+{
+	if (_super_pipe && FD_ISSET(_super_pipe, &wfd))
+	{
+		write(_super_pipe, _super_body.c_str(), _super_body.size());
+		close(_super_pipe);
+		return true;
+	}
+	return false;
+}
+
 void	BetterSelect::selectReadAndWrite()
 {
 	int				t;
@@ -335,8 +346,8 @@ void	BetterSelect::selectReadAndWrite()
 	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
 	if (t < 0)
 		return (err_close_clis());
-	// if (suepr_pipe())
-	// 	return ;
+	if (superPipe(writefds))
+		return ;
 	_acceptNewConnections(readfds);
 	_handleRequestResponse(readfds, writefds);
 	return ;

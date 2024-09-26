@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 15:16:03 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 19:14:11 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,6 +169,23 @@ void	Webserv::gracefullyQuit(int sig)
 	timestamp("\b\bGracefully shutting Webserv! Send signal again to Force Close\n", GRAYI);
 	signal(SIGINT, SIG_DFL);
 	_up = 0;
+}
+
+void	Webserv::superPipeSet(int super, string body)
+{
+	if (super)
+	{
+		_sel.delResponseConnection(_sel._super_pipe);
+		_sel._super_body = body;
+		_sel._super_pipe = super;
+		_sel.addResponseConnection(_sel._super_pipe, (Server *)0);	// DUMMY SERVER!! NEVER USE!!!
+	}
+	else
+	{
+		_sel.delResponseConnection(_sel._super_pipe);
+		_sel._super_pipe = 0;
+	}
+	
 }
 
 // tries to setup all servers. If one fails it just keeps on building the others

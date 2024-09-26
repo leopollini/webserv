@@ -6,14 +6,14 @@
 #    By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/17 08:42:40 by lpollini          #+#    #+#              #
-#    Updated: 2024/09/26 18:02:51 by lpollini         ###   ########.fr        #
+#    Updated: 2024/09/26 18:36:08 by lpollini         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		= webserv
 	
 CC			= c++
-FLAGS		= -Wall -Wextra -g $(addprefix -I, $(INCLUDES)) -std=c++98 -Werror
+FLAGS		= -Wall -Wextra -g $(addprefix -I, $(INCLUDES)) -std=c++98 #-Werror
 RM			= rm -rf
 
 INCLUDES	= include/
