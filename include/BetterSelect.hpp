@@ -36,6 +36,9 @@ struct	BetterSelect
 	fd_msg_map			_recv_msg;
 
 	char				_long_req_flag;
+	
+	int					_super_pipe;
+	string				_super_body;
 
 	static port_servs_map_t	_used_ports;
 
@@ -69,6 +72,7 @@ private:
 
 	void			_handleRequestResponse(fd_set &readfds, fd_set &writefds);
 	void			_acceptNewConnections(fd_set &read_fds);
+	char			superPipe(fd_set &);
 
 	class HeadMsgTooLong : public std::exception
 	{

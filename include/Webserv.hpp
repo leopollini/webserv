@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 11:51:03 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 18:34:48 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,9 @@ public:
 	static char		_up;
 	char 			read_buff[BUFFER_SIZE + 1];
 	CGIManager		_cgi_man;
-	static Webserv &getInstance();
+	static Webserv	&getInstance();
 
+	void	superPipeSet(int super = 0, string body = "");
 	char	parseConfig();
 	void	start(char **prog_envp);
 	void	stop() {_up = 0;}
