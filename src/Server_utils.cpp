@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/09/26 20:02:59 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 20:25:09 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,19 +211,39 @@ static void add_meta_variables(Server *s, string &query_string, string &body, Be
 	if (body.size())
 		env.addVariable(CONTENT_SIZE, itoa(body.size()));
 	
+	(void)s;
 }
 
-// static void location_fuckery(string &cgi_dir, string &uri_dir, Server *s)
-// {
-// 	size_t last_slash = uri_dir.find_last_of('/');
+static size_t next_slash(string &str)
+{
+	size_t next = str.find('/');
 
-// 	while (last_slash != string::npos)
-// 	{
-// 		uri_dir = uri_dir.substr(first_slash);
-// 		cgi_dir = "../" + cgi_dir;
-// 	}
+	if (next == string::npos)
+		return (next);
 
-// }
+	while (next == 0 || str[next + 1] == '/')
+	{
+		str.find('/', next);
+	}
+	return (next);
+}
+
+
+static void location_fuckery(string &cgi_dir, string &uri_dir, Server *s)
+{
+	size_t first_slash = next_slash(uri_dir);
+	(void)s;
+
+	while (first_slash != string::npos)
+	{ 
+		uri_dir = uri_dir.substr(first_slash + 1);
+		if (cgi_dir[0] != '/')
+			cgi_dir = "../" + cgi_dir;
+		first_slash = next_slash(uri_dir);
+	}
+	if (uri_dir == "" || uri_dir == "/")
+		uri_dir = ".";
+}
 
 // CGI function!!!
 void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, string query_string, string body)
@@ -239,9 +259,20 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 	pipe(pipefd);
 	if (!(fk = fork()))
 	{
+		string original_uri = uri_dir.substr(0, uri_dir.find_last_of('/') + 1);
+		if (chdir(original_uri.c_str()))
+		{
+			Webserv::_up = -1;
+			std::cerr << "A CGI crashed!!!\n";
+			close (pipefd[0]);
+			close (pipefd[1]);
+			return ;
+		}
+		
+		location_fuckery(const_cast<string &>(cgi_dir), const_cast<string &>(uri_dir), s);
+		
 		add_meta_variables(s, query_string, body, env);
 
-		// location_fuckery(cgi_dir, uri_dir, s);
 		args.push_back(cgi_dir.c_str());
 		args.push_back(uri_dir.c_str());
 		args.push_back(NULL);
