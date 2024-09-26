@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/09/26 18:46:54 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 19:15:51 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,11 +267,9 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		return ;
 	}
 	close(pipefd[0]);
-	close(pipefd[0]);
 
 	if (!body.empty())
 		Webserv::getInstance().superPipeSet(pipefd[1], body);
-
 	_pids.push_back(fk);
 	timestamp("CGI started!!\n");
 }
@@ -351,14 +349,11 @@ char	Responser::buildResponseBody()
 		case _REQUEST_DIR_LISTING :
 			SAY("Autoindexing at \'" << _dir << "\'...\n");
 			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir);
-			SAY("Autoindexing at \'" << _dir << "\'...\n");
-			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir);
 			if (Webserv::_up == -1)
 				return internalServerError();
 			_res_code = _DONT_SEND;
 		 return -1;
 		case _REQUEST_DELETE :
-			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_DELETE_DIR, getLoc()), _dir);
 			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_DELETE_DIR, getLoc()), _dir);
 			if (Webserv::_up == -1)
 				return internalServerError();
@@ -370,7 +365,6 @@ char	Responser::buildResponseBody()
 			_res_code = OK;
 		 return 0;
 		case _CGI_RETURN :
-			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir, _serv->_query_str, _serv->getReqBody());
 			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir, _serv->_query_str, _serv->getReqBody());
 			if (Webserv::_up == -1)
 				return internalServerError();
