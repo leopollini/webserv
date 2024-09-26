@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 21:31:31 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 11:35:00 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,11 @@ public:
 	{
 	public:
 		virtual const char	*what() const throw() {return "Content size exceeded allowed body size";}
+	};
+	class SharedPortOccupied : public std::exception
+	{
+	public:
+		virtual const char	*what() const throw() {return "Shared port is occupied";}
 	};
 	
 private:

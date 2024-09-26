@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 22:15:56 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 11:27:26 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ bool Server::tryUp(time_t retry_time)
 	// _lastUpAttempt;
 	if (!_state)
 		up();
-	return (true);
+	return (_state);
 }
 
 void Server::up()
@@ -98,6 +98,8 @@ void Server::up()
 		Server	*t = BetterSelect::_used_ports[getPort()].front();
 		t->_is_sharing_port = 1;
 		_is_sharing_port = -1;
+		if (!t->_state)
+			throw SharedPortOccupied();
 		getSockFd() = t->getSockFd();
 	}
 	else
@@ -291,14 +293,14 @@ char	Responser::buildResponseBody()
 			_body = REDIR_URL(_serv->_return_info.dir);
 		 return 0;
 		case _REQUEST_DIR_LISTING :
-			SAY("Autoindexing at " << _dir << "...\n");
+			SAY("Autoindexing at \'" << _dir << "\'...\n");
 			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir);
 			if (Webserv::_up == -1)
 				return internalServerError();
 			_res_code = _DONT_SEND;
 		 return -1;
 		case _REQUEST_DELETE :
-			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_DELETE_DIR, getLoc()), _dir.c_str());
+			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_DELETE_DIR, getLoc()), _dir);
 			if (Webserv::_up == -1)
 				return internalServerError();
 			_res_code = _DONT_SEND;
