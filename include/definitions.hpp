@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/26 11:40:56 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 14:04:33 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <set>
 
 // 0: no debug info; 1: show debug info
-# define DEBUG_INFO 0
+# define DEBUG_INFO 1
 
 # define ERROR RED
 # define WARNING YELLOW
@@ -26,7 +26,7 @@
 # define INFO WHITE
 # define DONE GREEN
 # define CONNECT MAGENTA
-# define REC_MSG_PRNT GRAYI,COLORII
+# define REC_MSG_PRNT GRAYI
 # define CRNL "\r\n"
 # define DCRNL "\r\n\r\n"
 

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/15 02:44:25 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/25 16:22:01 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 14:10:21 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,8 @@ void BetterSocket::init(short port, int address)
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = address;
 	addr.sin_port = htons(port);
+    int option_value = 1;
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &option_value, sizeof(int));
 	if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 		throw FailedSocketBind();
 	if (listen(fd, CLIENTS_MAX) < 0)

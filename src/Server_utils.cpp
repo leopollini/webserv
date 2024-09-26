@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 12:39:13 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 13:58:58 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ void Server::closeConnection(int fd)
 
 void Server::printHttpRequest(string &msg, int fd_from)
 {
-	timestamp("Server " + itoa(_id) + ": Recieved from connection at fd " + itoa(fd_from) + ":\n\t" + msg + "\n", REC_MSG_PRNT);
+	timestamp("Server " + itoa(_id) + ": Received from connection at fd " + itoa(fd_from) + ":\n\t" + msg + "\n", REC_MSG_PRNT);
 }
 
 void Server::HttpRequestLog(string &request_line, int fd_from)
@@ -238,7 +238,6 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		return ;
 	}
 	close(pipefd[0]);
-	cout << "BODY: \'" << body << "\'\n";
 	if (!body.empty())
 		write(pipefd[1], body.c_str(), body.size());
 	close(pipefd[1]);

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 12:05:24 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 14:24:52 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,8 +237,9 @@ void	Webserv::reviveServers(ulong retry_time)
 	{
 		try
 		{
-			if (!(*it)->tryUp(retry_time))
+ 			if (!(*it++)->tryUp(retry_time))
 				continue ;
+			--it;
 			_servers_up.push_front(*it);
 			_sel.addConnectionServ((*it)->getSockFd(), *it);
 			_servers_down.remove(*it++);
@@ -270,11 +271,10 @@ void	Webserv::start(char **prog_envp)
 		}
 		if (_up != 1)
 			_up = false;
-		// cout << "Waiting.\n";
+	// cout << "Waiting.\n";
 		_sel.selectReadAndWrite();
 		usleep(2000);
-		// reviveServers();
-		// sleep(2);
+		// reviveServers(SHORT_REVIVE_TIME);
 	}
 	downAllServers();
 	_sel.closeAllClis();
