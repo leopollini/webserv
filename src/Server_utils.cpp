@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/09/26 20:25:09 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 20:31:11 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,7 +254,7 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 	int							t[2];
 	int							pipefd[2];
 
-	SAY("Trying to execute " << args[0] << '\n');
+	SAY("Trying to execute " << cgi_dir << '\n');
 
 	pipe(pipefd);
 	if (!(fk = fork()))
@@ -277,6 +277,9 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		args.push_back(uri_dir.c_str());
 		args.push_back(NULL);
 
+		// Non fumziona. probabilmente il vettore che arriva non e' completo e quindi la cgi non parte. Non riesco a verificare col debugger.
+		// Potremmo anche lasciare stare questa parte dei percorsi relativi.. tanto domani ci chiede soltanto quello che oggi non andava.
+		// Ciao
 
 		close(pipefd[1]);
 		t[1] = dup(STDOUT_FILENO);
