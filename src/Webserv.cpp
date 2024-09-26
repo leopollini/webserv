@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 16:02:38 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 15:16:03 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ Webserv::Webserv() : _conf(DEFAULT_CONF), _cgi_man(_sel)
 	timestamp("Setting up Webserv!\n", CYAN);
 	signal(SIGINT, gracefullyQuit);
 	docTypesInit();
+
+	Server::default_loc.allows = DEFAULT_LOCATION_ALLOWS;
 }
 
 Webserv::~Webserv()
@@ -50,6 +52,7 @@ void	Webserv::docTypesInit()
 	ENV_FILL(CGI_AUTOINDEX_DIR, DEFAULT_AUTOINDEX_CGI_DIR);
 	ENV_FILL(L_INDEX, DEFAULT_INDEX_FILE);
 	ENV_FILL(CGI_DELETE_DIR, DEFAULT_DELETE_CGI);
+	ENV_FILL(E_400, T_JOIN("400"));
 	ENV_FILL(E_302, T_JOIN("302"));
 	ENV_FILL(E_301, T_JOIN("301"));
 	ENV_FILL(E_307, T_JOIN("307"));
@@ -165,7 +168,7 @@ void	Webserv::gracefullyQuit(int sig)
 
 	timestamp("\b\bGracefully shutting Webserv! Send signal again to Force Close\n", GRAYI);
 	signal(SIGINT, SIG_DFL);
-	_up = false;
+	_up = 0;
 }
 
 // tries to setup all servers. If one fails it just keeps on building the others
@@ -235,8 +238,9 @@ void	Webserv::reviveServers(ulong retry_time)
 	{
 		try
 		{
-			if (!(*it)->tryUp(retry_time))
+ 			if (!(*it++)->tryUp(retry_time))
 				continue ;
+			--it;
 			_servers_up.push_front(*it);
 			_sel.addConnectionServ((*it)->getSockFd(), *it);
 			_servers_down.remove(*it++);
@@ -252,29 +256,28 @@ void	Webserv::reviveServers(ulong retry_time)
 void	Webserv::start(char **prog_envp)
 {
 	timestamp("Starting Webserv!\n",GREEN);
-	_up = true;
+	_up = 1;
 	upAllServers();
-	_cgi_man._env = prog_envp;
+	_cgi_man.envSet(prog_envp);
 	timestamp("CGI manager setup done!\n",GREEN);
 	
 	while (_up)
 	{
 		if (!_servers_up.size())
 		{
-			std::cout << "No servers up!\n";
+			SAY("No servers up!\n");
 			// reviveServers(SHORT_REVIVE_TIME);
 			sleep(2);
 			continue ;
 		}
 		if (_up != 1)
 			_up = false;
-		// cout << "Waiting.\n";
+	// cout << "Waiting.\n";
 		_sel.selectReadAndWrite();
 		usleep(2000);
-		// reviveServers();
-		// sleep(2);
+		// reviveServers(SHORT_REVIVE_TIME);
 	}
 	downAllServers();
 	_sel.closeAllClis();
-	_up = false;
+	_up = 0;
 }

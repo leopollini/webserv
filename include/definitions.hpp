@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/25 15:53:30 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 17:15:25 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 # define INFO WHITE
 # define DONE GREEN
 # define CONNECT MAGENTA
-# define REC_MSG_PRNT GRAYI,COLORII
+# define REC_MSG_PRNT GRAYI
 # define CRNL "\r\n"
 # define DCRNL "\r\n\r\n"
 
@@ -42,21 +42,6 @@
 # define DEFAULT_CONF "test.config"
 # define DEFAULT_PROTOCOL "1.0"
 
-# define NEW_SERVER "server"
-# define NAME "server_name"
-# define PORT "listen"
-# define LOCATION "location"
-# define LOC_ROOT "root"
-# define L_DIR "location"
-# define L_INDEX "index"
-# define L_DIR_LISTING "autoindex"
-# define E_405 "e_405"
-# define E_404 "e_404"
-# define E_403 "e_403"
-# define L_AUTOINDEX "autoindex"
-# define L_ALLOW_METHODS "allow_methods"
-# define L_MAX_BODY_SIZE "max_body_size"
-
 # define H_BODY_SIZE "Content-Length"
 # define H_TRANSFER_ENCODING "Transfer-encoding"
 # define SERVER_DEFAULT_PORT "8080"
@@ -67,9 +52,13 @@
 # define DEFAULT_INDEX_FILE "index.html"
 # define DEFAULT_DELETE_CGI "delete_cgi.sh"
 # define DEFAULT_ERRPGS_DIR "error_pages"
+# define DEFAULT_MAX_BODY_SIZE "100000000"
+# define DEFAULT_LOCATION_ALLOWS F_GET | F_POST | F_DELETE | F_HEAD | F_DIR_LST // all methods allowed
 # define REDIR_URL(s) "<head>\n<meta http-equiv=\"Refresh\" content=\"0; URL=" + s + "\" />\n</head>"
 
-# define SUCCESSFUL_POST_PAGE "<head>Postes successfully.</head>"
+# define EXTRA_ENV_SPACE 25
+
+# define SUCCESSFUL_POST_PAGE "<head>Posted successfully.</head>"
 
 # define SAY(x) if (DEBUG_INFO) cout << x
 
@@ -215,7 +204,7 @@ typedef enum	e_status_code
 	NETWORK_AUTHENTICATION_REQUIRED
 } status_code_t;
 
-void	_print_pool(fd_set &pool, std::string &name);
+// void	_print_pool(fd_set &pool, std::string &name);
 void	timestamp(string s, colors c = WHITE, textype a = BOLD, bool do_timestamp = true);
 string	itoa(int arg);
 string	addr_to_str(int addr);

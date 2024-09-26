@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 14:45:39 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 12:39:04 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ public:
 	struct __return_info	_return_info;
 	char					_is_sharing_port;
 	static location_t		default_loc;
+	string					_query_str;
 
 	Server(short id);
 	~Server();
@@ -71,6 +72,7 @@ public:
 	short	getRes() {return _resp._res_code;}
 	int		getFd() {return _fd;}
 	req_t	getReqType() {return _current_request.type;}
+	string	&getReqBody() {return _current_request.body;}
 	
 	void	setup();
 	
@@ -112,6 +114,11 @@ public:
 	{
 	public:
 		virtual const char	*what() const throw() {return "Content size exceeded allowed body size";}
+	};
+	class SharedPortOccupied : public std::exception
+	{
+	public:
+		virtual const char	*what() const throw() {return "Shared port is occupied";}
 	};
 	
 private:

@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 15:53:36 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 17:57:47 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ bool Server::tryUp(time_t retry_time)
 	// _lastUpAttempt;
 	if (!_state)
 		up();
-	return (true);
+	return (_state);
 }
 
 void Server::up()
@@ -98,6 +98,8 @@ void Server::up()
 		Server	*t = BetterSelect::_used_ports[getPort()].front();
 		t->_is_sharing_port = 1;
 		_is_sharing_port = -1;
+		if (!t->_state)
+			throw SharedPortOccupied();
 		getSockFd() = t->getSockFd();
 	}
 	else
@@ -124,7 +126,7 @@ void Server::closeConnection(int fd)
 
 void Server::printHttpRequest(string &msg, int fd_from)
 {
-	timestamp("Server " + itoa(_id) + ": Recieved from connection at fd " + itoa(fd_from) + ":\n\t" + msg + "\n", REC_MSG_PRNT);
+	timestamp("Server " + itoa(_id) + ": Received from connection at fd " + itoa(fd_from) + ":\n\t" + msg + "\n", REC_MSG_PRNT);
 }
 
 void Server::HttpRequestLog(string &request_line, int fd_from)
@@ -195,29 +197,77 @@ void	request_t::littel_parse(Server *s)
 	SAY("requested uri be: \'" << uri << "\'\n");
 }
 
-// CGI function!!!
-void	CGIManager::start(Server *s, const string cgi_path, const string &arg)
+#define QUERY_STR_ENV "QUERY_STRING"
+#define CONTENT_SIZE "CONTENT_LENGTH"
+
+
+
+static void add_meta_variables(Server *s, string query_string, string body, BetterEnv &env)
 {
+	if (!query_string.empty())
+		env.addVariable(QUERY_STR_ENV, query_string);
+	if (body.size())
+		env.addVariable(CONTENT_SIZE, itoa(body.size()));
+	
+
+}
+
+static void location_fuckery(string &cgi_dir, string &uri_dir, Server *s)
+{
+	size_t first_slash = uri_dir.find('/');
+
+	while (first_slash != string::npos)
+	{
+		cgi_dir = cgi_dir
+	}
+}
+
+// CGI function!!!
+void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, string query_string, string body)
+{
+	BetterEnv					env(_envp);
 	std::vector<const char *>	args;
 	pid_t						fk;
-	int							t;
+	int							t[2];
+	int							pipefd[2];
 
-	args.push_back(cgi_path.c_str());
-	args.push_back(arg.c_str());
-	args.push_back(NULL);
-	
+	SAY("Trying to execute " << args[0] << '\n');
+
+	pipe(pipefd);
 	if (!(fk = fork()))
 	{
-		t = dup(STDOUT_FILENO);
+		add_meta_variables(s, query_string, body, env);
+
+		location_fuckery(cgi_dir, uri_dir, s);
+		args.push_back(cgi_dir.c_str());
+		args.push_back(uri_dir.c_str());
+		args.push_back(NULL);
+
+
+		close(pipefd[1]);
+		t[1] = dup(STDOUT_FILENO);
+		t[0] = dup(STDIN_FILENO);
 		dup2(s->getFd(), STDOUT_FILENO);
-		execve(args[0], (char *const*)args.data(), _env);
-		dup2(t, STDOUT_FILENO);
+		dup2(pipefd[0], STDIN_FILENO);
+		execve(args[0], (char *const*)args.data(), env.c_envp());
+		dup2(t[1], STDOUT_FILENO);
+		dup2(t[0], STDIN_FILENO);
+
 		close(STDOUT_FILENO);
-		close(t);
+		close(pipefd[0]);
+		close(STDIN_FILENO);
+		close(t[0]);
+		close(t[1]);
+		
 		Webserv::_up = -1;
 		std::cerr << "A CGI crashed!!!\n";
 		return ;
 	}
+	close(pipefd[0]);
+	if (!body.empty())
+		write(pipefd[1], body.c_str(), body.size());
+	close(pipefd[1]);
+
 	_pids.push_back(fk);
 	timestamp("CGI started!!\n");
 }
@@ -258,6 +308,10 @@ char	Responser::buildResponseBody()
 		case OK :
 			SAY("Reading \n");
 		 break ;
+		case BAD_REQUEST :
+			_dir = _serv->getEnv(E_400, _loc);
+			SAY("Looking for 400 response" << _dir << "'\n");
+		 break ;
 		case NOT_FOUND :
 			_dir = _serv->getEnv(E_404, _loc);
 			SAY("Looking for 404 response" << _dir << "'\n");
@@ -291,13 +345,14 @@ char	Responser::buildResponseBody()
 			_body = REDIR_URL(_serv->_return_info.dir);
 		 return 0;
 		case _REQUEST_DIR_LISTING :
-			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir.c_str());
+			SAY("Autoindexing at \'" << _dir << "\'...\n");
+			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir);
 			if (Webserv::_up == -1)
 				return internalServerError();
 			_res_code = _DONT_SEND;
 		 return -1;
 		case _REQUEST_DELETE :
-			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_DELETE_DIR, getLoc()), _dir.c_str());
+			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_DELETE_DIR, getLoc()), _dir);
 			if (Webserv::_up == -1)
 				return internalServerError();
 			_res_code = _DONT_SEND;
@@ -308,7 +363,7 @@ char	Responser::buildResponseBody()
 			_res_code = OK;
 		 return 0;
 		case _CGI_RETURN :
-			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir.c_str());
+			Webserv::getInstance()._cgi_man.start(_serv, getLoc()->stuff[LOC_CGI_RETURN], _dir, _serv->_query_str, _serv->getReqBody());
 			if (Webserv::_up == -1)
 				return internalServerError();
 			_res_code = _DONT_SEND;
@@ -340,8 +395,7 @@ void Responser::buildResponseHeader()
 	_head.append("Date: " + string(ctime(&now)));
 	_head.erase(_head.size() - 1,1); //removes unwanted trailing /n from ctime
 // _head.append(string("Keepalive: false") + CRNL);
-	_head += CRNL;
-	_head += CRNL;
+	_head += DCRNL;
 }
 
 string	Responser::getDocType()

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parsing_exceptions.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/05 17:14:53 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/06/07 19:40:27 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/26 15:14:03 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,3 +66,23 @@ MismatchedBrackets::~MismatchedBrackets() throw()
 {
 	;
 }
+
+MissingSemicolon::MissingSemicolon( ) : _err_str("Missing Semicolon")
+{
+	;
+}
+
+MissingSemicolon::MissingSemicolon( string &str, size_t pos ) : _err_str("Missing Semicolon")
+{
+	ushort line, col;
+
+	if (line_and_col(str, pos, line, col))
+		_err_str += " at line " + itoa(static_cast<int>(line)) + ", char " + itoa(static_cast<int>(col));;
+}
+
+MissingSemicolon::~MissingSemicolon() throw()
+{
+	;
+}
+
+

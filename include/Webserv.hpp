@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 12:02:36 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 11:51:03 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 # include "CGIManager.hpp"
 # include "Server.hpp"
 # include "Webserv.hpp"
+# include "BetterEnv.hpp"
+
 
 
 class	Server;
@@ -55,7 +57,8 @@ public:
 
 	char	parseConfig();
 	void	start(char **prog_envp);
-	void	stop() {_up = false;}
+	void	stop() {_up = 0;}
+	void	lastSend() {_up = -1;}
 
 	static void	gracefullyQuit(int sig);
 

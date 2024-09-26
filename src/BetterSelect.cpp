@@ -227,13 +227,14 @@ req_t	BetterSelect::readMsg(int fd, connections_map_t::iterator &i)
 {
 	long	msg_len;
 	string	msg_body = "";
+	size_t	qs_begin, qs_end;
 
 	if (!(msg_len = recv(fd, _recv_buff, RECV_BUFF_SIZE, 0)))
 		return FINISH;
-	_recv_buff[msg_len] = '\0';
 	SAY("Readimg " << msg_len << " from " << fd << "...\n");
 	if (msg_len < 0)
 		return timestamp("recv failed! ):\n", ERROR), INVALID;
+	_recv_buff[msg_len] = '\0';
 
 	// Long messages. Manages multiple reads but not multiple recieve
 	if (!_long_req_flag)
@@ -248,7 +249,16 @@ req_t	BetterSelect::readMsg(int fd, connections_map_t::iterator &i)
 	else if (_recv_msg[fd].find("POST") < _recv_msg[fd].find(DCRNL))
 		body_creat(_recv_msg[fd], msg_body);
 
-cout << "##" << msg_body << "##\n";
+	// manage query string
+	if ((qs_begin = _recv_msg[fd].find('?')) < _recv_msg[fd].find('\n'))
+	{
+		qs_end = _recv_msg[fd].find(' ', qs_begin);
+		i->second->_query_str = _recv_msg[fd].substr(qs_begin + 1, qs_end - qs_begin - 1);
+		_recv_msg[fd].erase(qs_begin, qs_end - qs_begin);
+		SAY("Uri and Query string: \'" << _recv_msg[fd] << "\' #?# \'" << i->second->_query_str << "\'\n");
+	}
+	else
+		i->second->_query_str.clear();
 
 	_long_req_flag = 0;
 	if (i->second->_is_sharing_port)
@@ -325,6 +335,8 @@ void	BetterSelect::selectReadAndWrite()
 	t = select(getBiggestFd() + 1, &readfds, &writefds, NULL, &timeout); // EXCEPTION -1
 	if (t < 0)
 		return (err_close_clis());
+	if (suepr_pipe())
+		return ;
 	_acceptNewConnections(readfds);
 	_handleRequestResponse(readfds, writefds);
 	return ;

@@ -6,20 +6,20 @@
 #    By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/17 08:42:40 by lpollini          #+#    #+#              #
-#    Updated: 2024/09/24 10:58:55 by lpollini         ###   ########.fr        #
+#    Updated: 2024/09/26 15:39:45 by lpollini         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		= webserv
 	
 CC			= c++
-FLAGS		= -Wall -Wextra -g $(addprefix -I, $(INCLUDES)) -std=c++98
+FLAGS		= -Wall -Wextra -g $(addprefix -I, $(INCLUDES)) -std=c++98 -Werror
 RM			= rm -rf
 
 INCLUDES	= include/
 OBJDIR 		= .objFiles
 
-FILES		:= Parser Webserv utils Server BetterSelect BetterSocket Parsing_exceptions Responser Server_utils transfer_encoding receive_request
+FILES		:= Parser Webserv utils Server BetterSelect BetterSocket Parsing_exceptions Responser Server_utils transfer_encoding receive_request BetterEnv
 FILES		:= main $(addprefix src/, $(FILES))
 
 SRC			= $(FILES:=.cpp)

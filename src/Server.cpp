@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 15:58:10 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 15:39:37 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,10 +70,26 @@ req_t Server::parseMsg()
 	return _current_request.type;
 }
 
+static	size_t atoi2(string s)
+{
+	std::stringstream	str;
+	size_t				res;
+
+	if (s.empty())
+		return -1;
+	char	*end_of_string = const_cast<char *> (s.c_str() + s.size());
+	return res = strtol(s.c_str(), &end_of_string, 10);
+	str << std::dec << s;
+	str >> res;
+	return res;
+}
+
 void	Server::postRequestManager()
 {
 	if (_resp._res_code != 200)
 		return ;
+	if (_current_request.body.size() > atoi2(getEnv(MAX_BODY_SIZE, _current_request.loc)))
+		return (void)(_resp._res_code = BAD_REQUEST);
 	try
 	{
 		std::ofstream	file(_resp.getDir().c_str());
@@ -105,7 +121,12 @@ void	Server::createResp()
 status_code_t	Server::validateLocation()
 {
 	SAY("Looking for " << _current_request.uri);
-	SAY(". Allowed method flag: " << (int)_current_request.loc->allows << "\n");
+	SAY(". Allowed method flag: " << (int)_current_request.loc->allows);
+	SAY(". Allowed extensions: ");
+	if (DEBUG_INFO)
+		for (str_set_t::iterator i = _current_request.loc->allowed_extensions.begin(); i != _current_request.loc->allowed_extensions.end(); ++i)
+			cout << *i << " ";
+	SAY('\n');
 	_resp = _current_request;	// overloaded. Copies members dir and loc pointer
 	status_code_t	t;
 
@@ -153,7 +174,7 @@ req_t Server::receive(int fd, string &msg, string &body)
 	return _current_request.type;
 }
 
-static bool location_isvalid(const location_t *loc, string &req)
+static bool location_isinvalid(const location_t *loc, string &req)
 {
 	int	i = loc->dir.size();
 
@@ -161,7 +182,7 @@ static bool location_isvalid(const location_t *loc, string &req)
 		return true;
 	if (loc->dir[i - 1] != '/' && ((req[i] != '/' && req[i])))
 		return true;
-	if (loc->allowed_extensions.size() && (req.find('.') == string::npos || !loc->allowed_extensions.count(req.substr(req.find('.')))))
+	if (loc->allowed_extensions.size() && (req.find_last_of('.') == string::npos || !loc->allowed_extensions.count(req.substr(req.find_last_of('.')))))
 		return true;
 	return false;
 }
@@ -187,48 +208,46 @@ void	Server::matchRequestLocation(request_t &request)
 	size_t max_len = 0;
 	location_t *location = NULL;
 	
-	if (_loc_ls.empty())
+	for (locations_list_t::const_iterator it = _loc_ls.begin(); it != _loc_ls.end(); it++)
+	{
+		string	&dir = (*it)->dir;
+
+		// printf("called. \'%s\' (%i)\n", dir.c_str(), dir.size());
+		//if directory is more specific, or if it doesn't match
+		if (dir.size() - 1 > request.uri.size() || (dir.size() <= max_len && !(*it)->allowed_extensions.size()))
+			continue ;
+
+		if (request.uri.find(dir) || location_isinvalid(*it, request.uri))
+			continue ;
+
+		location = *it;
+		max_len = dir.size();
+	}
+	request.loc = location;
+
+	if (!location)
+	{
 		location = request.loc = &Server::default_loc;
-	else
-	{
-		for (locations_list_t::const_iterator it = _loc_ls.begin(); it != _loc_ls.end(); it++)
-		{
-			string	&dir = (*it)->dir;
-
-			// printf("called. \'%s\' (%i)\n", dir.c_str(), dir.size());
-			//if directory is more specific, or if it doesn't match
-			if (dir.size() - 1 > request.uri.size() || dir.size() <= max_len)
-				continue ;
-
-			if (request.uri.find(dir) || location_isvalid(*it, request.uri))
-				continue ;
-
-			location = *it;
-			max_len = dir.size();
-		}
-		request.loc = location;
+		SAY("No location found. Returning default location: " << location->dir << '\n');
 	}
 
-	if (location)
+	SAY("Found location: " << location->dir << '\n');
+	SAY("\tlocation's root: " << location->stuff[LOC_ROOT] << '\n');
+	if (!getEnv(LOC_RETURN, location).empty())
 	{
-		SAY("Found location: " << location->dir << '\n');
-		SAY("\tlocation's root: " << location->stuff[LOC_ROOT] << '\n');
-		if (!getEnv(LOC_RETURN, location).empty())
+		SAY("Warning! Location is trying to redirect...\n");
+		try
 		{
-			SAY("Warning! Location is trying to redirect...\n");
-			try
-			{
-				manageReturn(getEnv(LOC_RETURN, location));
-			}
-			catch(const std::exception& e)
-			{
-				SAY("Redirection failed: " << e.what() << '\n');
-			}
-			_resp._is_returning = 1;
+			manageReturn(getEnv(LOC_RETURN, location));
 		}
-		if (!location->stuff[LOC_CGI_RETURN].empty())
-			_resp._is_returning = -1;
+		catch(const std::exception& e)
+		{
+			SAY("Redirection failed: " << e.what() << '\n');
+		}
+		_resp._is_returning = 1;
 	}
+	if (!location->stuff[LOC_CGI_RETURN].empty())
+		_resp._is_returning = -1;
 }
 
 void	Server::lookForPlaceholders()

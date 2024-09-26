@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_util.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 15:44:11 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/25 12:53:45 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/25 18:22:39 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,21 @@ namespace Parsing
 		string _err_str;
 	};
 	
+	class MissingSemicolon : public Error
+	{
+		const char *what() const throw()
+		{
+			return (_err_str.c_str());
+		};
+	public:
+		MissingSemicolon( );
+		MissingSemicolon( string &str, size_t pos );
+		MissingSemicolon ( int unclosed_n );
+		~MissingSemicolon() throw();
+	private:
+		string _err_str;
+	};
+
 	list<token>	tokenize (string content) throw (Error);
 	string 		read_file (string filename) throw (BadFile);
 
