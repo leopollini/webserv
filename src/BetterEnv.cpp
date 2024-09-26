@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BetterEnv.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 23:31:16 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/26 11:55:55 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/26 12:42:29 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ BetterEnv::BetterEnv(char **envp)
 		_env[i] = new char[len + 1];
 		
 		strncpy(_env[i], envp[i], len);
+		_env[i][len] = 0;
 	}
 	_env[size] = NULL;
 }
@@ -46,7 +47,7 @@ BetterEnv::~BetterEnv()
 		return ;
 	for (int i = (int)_size - 1; i >= 0; i--)
 	{
-		delete _env[i];
+		delete [] _env[i];
 	}
 	delete [] _env;
 }
@@ -76,6 +77,7 @@ void BetterEnv::addVariable(string key_plus_value)
 	char *new_str = new char[key_plus_value.size() + 1];
 
 	strncpy(new_str, key_plus_value.c_str(), key_plus_value.size() + 1);
+	new_str[key_plus_value.size()] = 0;
 	_env[_size++] = new_str;
 	_env[_size] = NULL;
 }
@@ -103,7 +105,7 @@ void BetterEnv::removeVariable(string key)
 
 	delete []_env[index];
 
-	memmove(&_env[index], &_env[index + 1], _size - index);
+	memmove(_env + index, _env + index + 1, (_size - index) * sizeof(*_env));
 
 	_size--;
 	_env[_size] = NULL;
