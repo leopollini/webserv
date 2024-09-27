@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_utils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/09/27 12:31:07 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/27 17:19:14 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -330,6 +330,10 @@ char	Responser::buildResponseBody()
 		case METHOD_NOT_ALLOWED :
 			_dir = _serv->getEnv(E_405, _loc);
 			SAY("Looking for 405 response" << _dir << "'\n");
+		 break ;
+		case INTERNAL_SEVER_ERROR :
+			_dir = _serv->getEnv(E_500, _loc);
+			SAY("Looking for 500 response" << _dir << "'\n");
 		 break ;
 		case MOVED_PERMANENTLY :
 			_extra_args["Location"] = _serv->_return_info.dir;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 22:17:06 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/27 17:56:25 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,10 +90,46 @@ void	Server::postRequestManager()
 		return ;
 	if (_current_request.body.size() > atoi2(getEnv(MAX_BODY_SIZE, _current_request.loc)))
 		return (void)(_resp._res_code = BAD_REQUEST);
+
+	size_t last_slash = _resp.getDir().find_last_of('/');
+	if (last_slash == string::npos)
+		last_slash = _resp.getDir().size();
+	else
+		last_slash++;
+	string path = _resp.getDir().substr(0, last_slash);
+	struct stat statbuff;
+	
+	stat(path.c_str(), &statbuff);
+	if (!S_ISDIR(statbuff.st_mode)) // if the last part of the path is not a directory
+	{
+		_resp._res_code = NOT_FOUND;
+		return ;
+	}
+
+	bool dir_write = !access(path.c_str(), W_OK);
+	bool file_exist = !access(_resp.getDir().c_str(), F_OK);
+	bool file_write = !access(_resp.getDir().c_str(), W_OK);
+	if ((!file_exist && !dir_write) || (file_exist && !file_write))
+	{
+		_resp._res_code = FORBIDDEN;
+		return ;
+	}
 	try
 	{
 		std::ofstream	file(_resp.getDir().c_str());
 		file << _current_request.body << std::endl;
+
+		std::ifstream checkfile(_resp.getDir().c_str());
+		std::string 	content;
+
+		checkfile >> content;
+
+		file.close();
+		checkfile.close();
+		if (content != _current_request.body)
+			throw(Parsing::BadFile());
+		
+
 	}
 	catch(const std::exception& e)
 	{
