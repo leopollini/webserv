@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 12:39:04 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/27 14:16:02 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,8 @@ public:
 	void	lookForPlaceholders();
 
 	void	HttpRequestLog(string &request_line, int fd_from);
+
+	request_t &getCurrentRequest(void) {return (_current_request);};
 
 	void 	matchRequestLocation(request_t &request); 
 	

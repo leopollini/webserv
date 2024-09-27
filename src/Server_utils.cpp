@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_utils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/09/26 20:31:11 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/27 15:08:50 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,13 +204,16 @@ void	request_t::littel_parse(Server *s)
 #define QUERY_STR_ENV "QUERY_STRING"
 #define CONTENT_SIZE "CONTENT_LENGTH"
 
-static void add_meta_variables(Server *s, string &query_string, string &body, BetterEnv &env)
+static void handle_meta_variables(Server *s, string &query_string, string &body, BetterEnv &env)
 {
 	if (!query_string.empty())
 		env.addVariable(QUERY_STR_ENV, query_string);
 	if (body.size())
 		env.addVariable(CONTENT_SIZE, itoa(body.size()));
 	
+
+	env.removeVariable("PWD");
+
 	(void)s;
 }
 
@@ -218,18 +221,18 @@ static size_t next_slash(string &str)
 {
 	size_t next = str.find('/');
 
-	if (next == string::npos)
-		return (next);
+	// if (next == string::npos)
+		// return (next);
 
-	while (next == 0 || str[next + 1] == '/')
+	while (next != string::npos &&  (next == 0 || str[next + 1] == '/' || str[next - 1] == '.'))
 	{
-		str.find('/', next);
+		next = str.find('/', next + 1);
 	}
 	return (next);
 }
 
 
-static void location_fuckery(string &cgi_dir, string &uri_dir, Server *s)
+static void location_fuckery(string &cgi_dir, string &uri_dir, string &backtrack_path, Server *s)
 {
 	size_t first_slash = next_slash(uri_dir);
 	(void)s;
@@ -237,13 +240,17 @@ static void location_fuckery(string &cgi_dir, string &uri_dir, Server *s)
 	while (first_slash != string::npos)
 	{ 
 		uri_dir = uri_dir.substr(first_slash + 1);
-		if (cgi_dir[0] != '/')
-			cgi_dir = "../" + cgi_dir;
+		backtrack_path.append("../");
 		first_slash = next_slash(uri_dir);
 	}
 	if (uri_dir == "" || uri_dir == "/")
 		uri_dir = ".";
+
+	if (cgi_dir[0] != '/')
+		cgi_dir = backtrack_path + cgi_dir;	
 }
+
+
 
 // CGI function!!!
 void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, string query_string, string body)
@@ -256,25 +263,34 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 
 	SAY("Trying to execute " << cgi_dir << '\n');
 
+
+	string root = s->getEnv("root", s->getCurrentRequest().loc);
+
+	if (root == ".")
+		root.append("/");
+	string stripped_requested_object = root +  uri_dir;
+	string path_to_binary = cgi_dir;
+	string original_uri = uri_dir.substr(0, uri_dir.find_last_of('/') + 1);
+	string backtrack_path = "./";
+	location_fuckery(path_to_binary, stripped_requested_object, backtrack_path, s);
 	pipe(pipefd);
 	if (!(fk = fork()))
 	{
-		string original_uri = uri_dir.substr(0, uri_dir.find_last_of('/') + 1);
+		SAY("original cgi uri:" + original_uri + "\n");
 		if (chdir(original_uri.c_str()))
 		{
 			Webserv::_up = -1;
-			std::cerr << "A CGI crashed!!!\n";
+			std::cerr << "A CGI crashed!!! \n couldn't cd into" << original_uri << std::endl;
 			close (pipefd[0]);
 			close (pipefd[1]);
 			return ;
 		}
-		
-		location_fuckery(const_cast<string &>(cgi_dir), const_cast<string &>(uri_dir), s);
-		
-		add_meta_variables(s, query_string, body, env);
 
-		args.push_back(cgi_dir.c_str());
-		args.push_back(uri_dir.c_str());
+		// SAY("Child process is in " << getcwd(NULL, 0) << std::endl);
+		handle_meta_variables(s, query_string, body, env);
+
+		args.push_back(path_to_binary.c_str());
+		args.push_back(stripped_requested_object.c_str());
 		args.push_back(NULL);
 
 		// Non fumziona. probabilmente il vettore che arriva non e' completo e quindi la cgi non parte. Non riesco a verificare col debugger.
@@ -289,7 +305,8 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		execve(args[0], (char *const*)args.data(), env.c_envp());
 		dup2(t[1], STDOUT_FILENO);
 		dup2(t[0], STDIN_FILENO);
-
+		if (chdir (backtrack_path.c_str()))
+			std::cerr << "couldn't cd back into original working directory" << std::endl;
 		close(STDOUT_FILENO);
 		close(pipefd[0]);
 		close(STDIN_FILENO);
@@ -318,6 +335,7 @@ void	CGIManager::purgeCGI()
 		if (i->second.second < time(NULL) - CGI_TIMEOUT)
 		{
 			kill(i->first, SIGKILL);
+			SAY ("killing child" << std::endl);
 			_pids.erase(i++);
 			continue ;
 		}

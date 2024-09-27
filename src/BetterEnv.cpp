@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   BetterEnv.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 23:31:16 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/26 12:49:22 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/27 02:36:36 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "BetterEnv.hpp"
 #include "definitions.hpp"
-#include <string.h>
+#include <cstring>
 
 BetterEnv::BetterEnv() : _size(0), _alloc_size(1 + EXTRA_ENV_SPACE)
 {

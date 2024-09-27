@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BetterSocket.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:01:08 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/24 11:38:44 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/27 02:39:40 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 # include "utils.hpp"
 # include "definitions.hpp"
-# include <string.h>
+# include <cstring>
 
 # define CLIENTS_MAX 10
 # define BUFFER_SIZE 3000ul
