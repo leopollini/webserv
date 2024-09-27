@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 19:57:38 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/27 19:03:27 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ public:
 	string	&getEnv(string key) {return (_env[key]);}
 
 	string	findDocType(const string &s) {return _doc_types[s];}
-	string	badExplain(short code) {return _bad_explain.count(code) ? _bad_explain[code] : "OK";}
+	string	badExplain(short code) {return _bad_explain.count(code) ? _bad_explain[code] : ((code == 204)? "NO CONTENT": "OK");}
 
 	void	deleteConnection(int fd) {_sel.delListeningConnection(fd); _sel.delResponseConnection(fd); close(fd);}
 

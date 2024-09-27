@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   definitions.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/27 12:36:47 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/27 18:45:47 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,6 @@
 # define DEFAULT_MOVED_FILE "redirect_file.html"
 # define DEFAULT_AUTOINDEX_CGI_DIR "dir_list_cgi.sh"
 # define DEFAULT_INDEX_FILE "index.html"
-# define DEFAULT_DELETE_CGI "delete_cgi.sh"
 # define DEFAULT_ERRPGS_DIR "error_pages"
 # define DEFAULT_MAX_BODY_SIZE "100000000"
 # define DEFAULT_LOCATION_ALLOWS F_GET | F_POST | F_DELETE | F_HEAD | F_DIR_LST // all methods allowed
@@ -61,6 +60,8 @@
 # define EXTRA_ENV_SPACE 25
 
 # define SUCCESSFUL_POST_PAGE "<head>Posted successfully.</head>"
+# define SUCCESFULL_DELETE_PAGE "<head>DELETE</head><body><text> Deleted $1 :) </text></body>"
+
 # define EXTRA_ENV_SPACE 25
 
 # define SAY(x) if (DEBUG_INFO) cout << x
@@ -196,7 +197,7 @@ typedef enum	e_status_code
 	TOO_MANY_REQUESTS,
 	REQUEST_HEADER_FIELDS_TOO_LARGE = 431,
 	UNAVAILABLE_FOR_LEGAL_REASONS = 451,
-	INTERNAL_SEVER_ERROR = 500,
+	INTERNAL_SERVER_ERROR = 500,
 	NOT_IMPLEMENTED,
 	BAD_GATEWAY,
 	SERVICE_UNAVAILABLE,
