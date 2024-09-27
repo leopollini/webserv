@@ -18,7 +18,7 @@
 #include <set>
 
 // 0: no debug info; 1: show debug info
-# define DEBUG_INFO 0
+# define DEBUG_INFO 1
 
 # define ERROR RED
 # define WARNING YELLOW

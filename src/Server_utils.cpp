@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_utils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/09/26 20:31:11 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/27 12:31:07 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,37 +214,6 @@ static void add_meta_variables(Server *s, string &query_string, string &body, Be
 	(void)s;
 }
 
-static size_t next_slash(string &str)
-{
-	size_t next = str.find('/');
-
-	if (next == string::npos)
-		return (next);
-
-	while (next == 0 || str[next + 1] == '/')
-	{
-		str.find('/', next);
-	}
-	return (next);
-}
-
-
-static void location_fuckery(string &cgi_dir, string &uri_dir, Server *s)
-{
-	size_t first_slash = next_slash(uri_dir);
-	(void)s;
-
-	while (first_slash != string::npos)
-	{ 
-		uri_dir = uri_dir.substr(first_slash + 1);
-		if (cgi_dir[0] != '/')
-			cgi_dir = "../" + cgi_dir;
-		first_slash = next_slash(uri_dir);
-	}
-	if (uri_dir == "" || uri_dir == "/")
-		uri_dir = ".";
-}
-
 // CGI function!!!
 void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, string query_string, string body)
 {
@@ -254,22 +223,12 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 	int							t[2];
 	int							pipefd[2];
 
-	SAY("Trying to execute " << cgi_dir << '\n');
+	SAY("Trying to execute " << cgi_dir << "; args: " << uri_dir << '\n');
 
 	pipe(pipefd);
 	if (!(fk = fork()))
 	{
-		string original_uri = uri_dir.substr(0, uri_dir.find_last_of('/') + 1);
-		if (chdir(original_uri.c_str()))
-		{
-			Webserv::_up = -1;
-			std::cerr << "A CGI crashed!!!\n";
-			close (pipefd[0]);
-			close (pipefd[1]);
-			return ;
-		}
-		
-		location_fuckery(const_cast<string &>(cgi_dir), const_cast<string &>(uri_dir), s);
+		close(pipefd[1]);
 		
 		add_meta_variables(s, query_string, body, env);
 
@@ -277,11 +236,6 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		args.push_back(uri_dir.c_str());
 		args.push_back(NULL);
 
-		// Non fumziona. probabilmente il vettore che arriva non e' completo e quindi la cgi non parte. Non riesco a verificare col debugger.
-		// Potremmo anche lasciare stare questa parte dei percorsi relativi.. tanto domani ci chiede soltanto quello che oggi non andava.
-		// Ciao
-
-		close(pipefd[1]);
 		t[1] = dup(STDOUT_FILENO);
 		t[0] = dup(STDIN_FILENO);
 		dup2(s->getFd(), STDOUT_FILENO);
@@ -289,7 +243,6 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		execve(args[0], (char *const*)args.data(), env.c_envp());
 		dup2(t[1], STDOUT_FILENO);
 		dup2(t[0], STDIN_FILENO);
-
 		close(STDOUT_FILENO);
 		close(pipefd[0]);
 		close(STDIN_FILENO);
@@ -300,6 +253,7 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		std::cerr << "A CGI crashed!!!\n";
 		return ;
 	}
+	usleep(10000);
 	close(pipefd[0]);
 	close(s->getFd());
 
@@ -399,6 +353,7 @@ char	Responser::buildResponseBody()
 		 return 0;
 		case _REQUEST_DIR_LISTING :
 			SAY("Autoindexing at \'" << _dir << "\'...\n");
+			_dir.append("/");
 			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir);
 			if (Webserv::_up == -1)
 				return internalServerError();
