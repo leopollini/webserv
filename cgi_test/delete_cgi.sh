@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdir hehetrasj
+mkdir -p hehetrasj
 
 if [ $? -eq 0 ]; then
 	mv $1 hehetrasj/
