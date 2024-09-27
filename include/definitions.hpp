@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 17:18:37 by fedmarti          #+#    #+#             */
-/*   Updated: 2024/09/26 22:19:46 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/27 12:36:47 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,16 +56,12 @@
 # define DEFAULT_ERRPGS_DIR "error_pages"
 # define DEFAULT_MAX_BODY_SIZE "100000000"
 # define DEFAULT_LOCATION_ALLOWS F_GET | F_POST | F_DELETE | F_HEAD | F_DIR_LST // all methods allowed
-# define DEFAULT_MAX_BODY_SIZE "100000000"
-# define DEFAULT_LOCATION_ALLOWS F_GET | F_POST | F_DELETE | F_HEAD | F_DIR_LST // all methods allowed
 # define REDIR_URL(s) "<head>\n<meta http-equiv=\"Refresh\" content=\"0; URL=" + s + "\" />\n</head>"
 
 # define EXTRA_ENV_SPACE 25
 
 # define SUCCESSFUL_POST_PAGE "<head>Posted successfully.</head>"
 # define EXTRA_ENV_SPACE 25
-
-# define SUCCESSFUL_POST_PAGE "<head>Posted successfully.</head>"
 
 # define SAY(x) if (DEBUG_INFO) cout << x
 

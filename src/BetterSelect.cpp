@@ -324,7 +324,10 @@ char	BetterSelect::superPipe(fd_set &wfd)
 {
 	if (_super_pipe && FD_ISSET(_super_pipe, &wfd))
 	{
-		write(_super_pipe, _super_body.c_str(), _super_body.size());
+		if (fcntl(_super_pipe, F_GETFD) != -1)
+			write(_super_pipe, _super_body.c_str(), _super_body.size());
+		else
+			timestamp("Cgi pipe was broken", ERROR);
 		close(_super_pipe);
 		return true;
 	}
