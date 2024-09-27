@@ -6,7 +6,7 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/09/27 15:08:50 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/09/27 15:37:28 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,7 +261,7 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 	int							t[2];
 	int							pipefd[2];
 
-	SAY("Trying to execute " << cgi_dir << '\n');
+	SAY("Trying to execute " << cgi_dir << "; args: " << uri_dir << '\n');
 
 
 	string root = s->getEnv("root", s->getCurrentRequest().loc);
@@ -293,11 +293,6 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		args.push_back(stripped_requested_object.c_str());
 		args.push_back(NULL);
 
-		// Non fumziona. probabilmente il vettore che arriva non e' completo e quindi la cgi non parte. Non riesco a verificare col debugger.
-		// Potremmo anche lasciare stare questa parte dei percorsi relativi.. tanto domani ci chiede soltanto quello che oggi non andava.
-		// Ciao
-
-		close(pipefd[1]);
 		t[1] = dup(STDOUT_FILENO);
 		t[0] = dup(STDIN_FILENO);
 		dup2(s->getFd(), STDOUT_FILENO);
@@ -317,6 +312,7 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		std::cerr << "A CGI crashed!!!\n";
 		return ;
 	}
+	usleep(10000);
 	close(pipefd[0]);
 	close(s->getFd());
 
@@ -417,6 +413,7 @@ char	Responser::buildResponseBody()
 		 return 0;
 		case _REQUEST_DIR_LISTING :
 			SAY("Autoindexing at \'" << _dir << "\'...\n");
+			_dir.append("/");
 			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir);
 			if (Webserv::_up == -1)
 				return internalServerError();
