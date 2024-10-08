@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lpollini <lpollini@student.42firenze.it    +#+  +:+       +#+        */
+/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/26 22:17:06 by lpollini         ###   ########.fr       */
+/*   Updated: 2024/09/27 18:58:19 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 #include "../include/Responser.hpp"
 #include "Webserv.hpp"
+#include <cstdio>
 
 location_t	Server::default_loc;
 
@@ -84,21 +85,73 @@ static	size_t atoi2(string s)
 	return res;
 }
 
+void	Server::deleteRequestManager()
+{
+
+	if (access(_resp.getDir().c_str(), F_OK))
+	{
+		_resp._res_code = NOT_FOUND;
+		return;
+	}
+	if (std::remove(_resp.getDir().c_str()))
+	{
+		_resp._res_code = INTERNAL_SERVER_ERROR;
+		return ;
+	}
+	_resp._res_code = NO_CONTENT;
+}
+
 void	Server::postRequestManager()
 {
 	if (_resp._res_code != 200)
 		return ;
 	if (_current_request.body.size() > atoi2(getEnv(MAX_BODY_SIZE, _current_request.loc)))
 		return (void)(_resp._res_code = BAD_REQUEST);
+
+	size_t last_slash = _resp.getDir().find_last_of('/');
+	if (last_slash == string::npos)
+		last_slash = _resp.getDir().size();
+	else
+		last_slash++;
+	string path = _resp.getDir().substr(0, last_slash);
+	struct stat statbuff;
+	
+	stat(path.c_str(), &statbuff);
+	if (!S_ISDIR(statbuff.st_mode)) // if the last part of the path is not a directory
+	{
+		_resp._res_code = NOT_FOUND;
+		return ;
+	}
+
+	bool dir_write = !access(path.c_str(), W_OK);
+	bool file_exist = !access(_resp.getDir().c_str(), F_OK);
+	bool file_write = !access(_resp.getDir().c_str(), W_OK);
+	if ((!file_exist && !dir_write) || (file_exist && !file_write))
+	{
+		_resp._res_code = FORBIDDEN;
+		return ;
+	}
 	try
 	{
 		std::ofstream	file(_resp.getDir().c_str());
 		file << _current_request.body << std::endl;
+
+		std::ifstream checkfile(_resp.getDir().c_str());
+		std::string 	content;
+
+		checkfile >> content;
+
+		file.close();
+		checkfile.close();
+		if (content != _current_request.body)
+			throw(Parsing::BadFile());
+		
+
 	}
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
-		_resp._res_code = INTERNAL_SEVER_ERROR;
+		_resp._res_code = INTERNAL_SERVER_ERROR;
 		return ;
 	}
 	_resp._res_code = _POST_SUCCESS;			// for later use. Sends bach the success page
@@ -112,6 +165,8 @@ void	Server::createResp()
 	_resp._res_code = validateLocation();
 	if (_current_request.type == POST)
 		postRequestManager();
+	else if (_current_request.type == DELETE)
+		deleteRequestManager();
 	if (_resp.buildResponseBody())
 		return ;
 	SAY("Response code: " << _resp._res_code << ": " << Webserv::getInstance().badExplain(_resp._res_code) << '\n');
@@ -134,7 +189,7 @@ status_code_t	Server::validateLocation()
 		return lookForPlaceholders(), ((status_code_t)(_resp._res_code = _return_info.code));
 
 	if (_current_request.uri.empty())
-		return (INTERNAL_SEVER_ERROR);
+		return (INTERNAL_SERVER_ERROR);
 		
 	_resp.getFileFlags() = checkCharacteristics(_current_request.uri.c_str());
 
@@ -159,7 +214,7 @@ status_code_t	Server::validateLocation()
 	if (isOkToSend(_resp.getFileFlags()) || _current_request.type == POST)
 		return OK;
 
-	return INTERNAL_SEVER_ERROR;
+	return INTERNAL_SERVER_ERROR;
 }
 
 req_t Server::receive(int fd, string &msg, string &body)

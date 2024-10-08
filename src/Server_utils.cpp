@@ -6,7 +6,7 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/09/27 15:37:28 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/10/08 19:42:23 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -360,7 +360,7 @@ char	Responser::internalServerError()
 	SAY("Preparing 500 response.\n");
 	_dir = _serv->getEnv(E_500, _loc);
 	_body = Parsing::read_file(_dir);
-	_res_code = INTERNAL_SEVER_ERROR;
+	_res_code = INTERNAL_SERVER_ERROR;
 	return 0;
 }
 
@@ -391,6 +391,10 @@ char	Responser::buildResponseBody()
 			_dir = _serv->getEnv(E_405, _loc);
 			SAY("Looking for 405 response" << _dir << "'\n");
 		 break ;
+		case INTERNAL_SERVER_ERROR :
+			_dir = _serv->getEnv(E_500, _loc);
+			SAY("Looking for 500 response" << _dir << "'\n");
+		 break ;
 		case MOVED_PERMANENTLY :
 			_extra_args["Location"] = _serv->_return_info.dir;
 			_dir = DEFAULT_MOVED_FILE;
@@ -419,12 +423,10 @@ char	Responser::buildResponseBody()
 				return internalServerError();
 			_res_code = _DONT_SEND;
 		 return -1;
-		case _REQUEST_DELETE :
-			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_DELETE_DIR, getLoc()), _dir);
-			if (Webserv::_up == -1)
-				return internalServerError();
-			_res_code = _DONT_SEND;
-		 return -1;
+		case NO_CONTENT :
+			SAY("file deleted successfully" << std::endl);
+			// _body = SUCCESSFUL_DELETE_PAGE;
+		 return 0;
 		case _POST_SUCCESS :
 			SAY("Post request was successful. Posted at: " << _dir << "\n");
 			_body = SUCCESSFUL_POST_PAGE;
@@ -436,6 +438,7 @@ char	Responser::buildResponseBody()
 				return internalServerError();
 			_res_code = _DONT_SEND;
 		 return -1;
+
 		default:
 			timestamp("Could not send file at path \'" + _dir + "\'. Res code: " + itoa(_res_code) + '\n', ERROR);
 			return 0;
@@ -457,8 +460,11 @@ void Responser::buildResponseHeader()
 	_head = "HTTP/1.1 " + itoa(_res_code) + ' ' + Webserv::getInstance().badExplain(_res_code) + CRNL;
 	for (conf_t::iterator i = _extra_args.begin(); i != _extra_args.end(); ++i)
 		_head.append(i->first + ": " + i->second + CRNL);
-	_head.append("Content-Type: " + getDocType() + CRNL);
-	_head.append("Content-Length: " + itoa(_body.size()) + CRNL);
+	if (_body.size())
+	{
+		_head.append("Content-Type: " + getDocType() + CRNL);
+		_head.append("Content-Length: " + itoa(_body.size()) + CRNL);
+	}
 	_head.append("Server: " + _serv->getEnv(NAME) + CRNL);
 	_head.append("Date: " + string(ctime(&now)));
 	_head.erase(_head.size() - 1,1); //removes unwanted trailing /n from ctime

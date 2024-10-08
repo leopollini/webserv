@@ -6,7 +6,7 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:33 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/27 14:16:02 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/10/08 19:45:11 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,7 @@ public:
 	status_code_t	manageDir();
 	
 	void	postRequestManager();
+	void	deleteRequestManager();
 	
 	
 	class DuplicateServLocation : public std::exception
