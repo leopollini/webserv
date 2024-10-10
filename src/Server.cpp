@@ -262,6 +262,7 @@ void	Server::matchRequestLocation(request_t &request)
 {
 	size_t max_len = 0;
 	location_t *location = NULL;
+	_resp._is_returning = 0;
 	
 	for (locations_list_t::const_iterator it = _loc_ls.begin(); it != _loc_ls.end(); it++)
 	{

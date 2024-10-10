@@ -314,7 +314,7 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		std::cerr << "A CGI crashed!!!\n";
 		return ;
 	}
-	usleep(10000);
+	usleep(1000);
 	close(pipefd[0]);
 	close(s->getFd());
 
@@ -354,7 +354,7 @@ void	Responser::clear()
 	_body.clear();
 	_dir.clear();
 	_extra_args.clear();
-	_is_returning = false;
+	_is_returning = 0;
 }
 
 char	Responser::internalServerError()
