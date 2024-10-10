@@ -6,7 +6,7 @@
 /*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/10/08 19:42:23 by fedmarti         ###   ########.fr       */
+/*   Updated: 2024/10/10 02:24:26 by fedmarti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -264,12 +264,14 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 	SAY("Trying to execute " << cgi_dir << "; args: " << uri_dir << '\n');
 
 
-	string root = s->getEnv("root", s->getCurrentRequest().loc);
+	string root = s->getEnv("root", s->getCurrentRequest().loc).substr();
 
 	if (root == ".")
 		root.append("/");
-	string stripped_requested_object = root +  uri_dir;
-	string path_to_binary = cgi_dir;
+	string stripped_requested_object = root;
+	if (uri_dir != "./")
+		stripped_requested_object += uri_dir;
+	string path_to_binary = cgi_dir.substr(0);
 	string original_uri = uri_dir.substr(0, uri_dir.find_last_of('/') + 1);
 	string backtrack_path = "./";
 	location_fuckery(path_to_binary, stripped_requested_object, backtrack_path, s);
@@ -417,7 +419,8 @@ char	Responser::buildResponseBody()
 		 return 0;
 		case _REQUEST_DIR_LISTING :
 			SAY("Autoindexing at \'" << _dir << "\'...\n");
-			_dir.append("/");
+			if (_dir[_dir.size() - 1] != '/')
+				_dir.append("/");
 			Webserv::getInstance()._cgi_man.start(_serv, _serv->getEnv(CGI_AUTOINDEX_DIR, getLoc()), _dir);
 			if (Webserv::_up == -1)
 				return internalServerError();
