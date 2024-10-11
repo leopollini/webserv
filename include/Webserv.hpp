@@ -82,6 +82,7 @@ public:
 	string	badExplain(short code) {return _bad_explain.count(code) ? _bad_explain[code] : ((code == 204)? "NO CONTENT": "OK");}
 
 	void	deleteConnection(int fd) {_sel.delListeningConnection(fd); _sel.delResponseConnection(fd); close(fd);}
+	void	fill_line(conf_t *env, list<Parsing::token>::iterator &s);
 
 	class MissingConfigFile : public std::exception
 	{
@@ -92,6 +93,11 @@ public:
 	{
 	public:
 		virtual const char	*what() const throw() {return "Failed server setup";}
+	};
+	class InvalidDirectiveOverwrite : public std::exception
+	{
+	public:
+		virtual const char	*what() const throw() {return "Cannot overwrite listen directive";}
 	};
 };
 

@@ -20,7 +20,6 @@ Server::Server(short id) : _clientfds(), _id(id), _state(0), _current_request(),
 {
 	// _received_head[BUFFER_SIZE] = 0;
 	timestamp("Added new Server! Id: " + itoa(_id) + "!\n", CYAN);
-	_env[PORT] = SERVER_DEFAULT_PORT;
 	_env[LOC_ROOT] = SERVER_DEFAULT_ROOT;
 	_env[NAME] = SERVER_DEFAULT_NAME;
 }
@@ -95,6 +94,8 @@ bool Server::tryUp(time_t retry_time)
 
 void Server::up()
 {
+	if (_env[PORT].empty())
+		_env[PORT] = SERVER_DEFAULT_PORT;
 	if (BetterSelect::_used_ports.count(getPort()))
 	{
 		Server	*t = BetterSelect::_used_ports[getPort()].front();
@@ -311,11 +312,12 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		close(t[1]);
 		
 		Webserv::_up = -1;
-		std::cerr << "A CGI crashed!!!\n";
+		std::cerr << "A CGI crashed!!! Called as \'" << cgi_dir << "\'\n";
 		return ;
 	}
 	usleep(1000);
 	close(pipefd[0]);
+
 	close(s->getFd());
 
 	if (!body.empty())
@@ -332,8 +334,8 @@ void	CGIManager::purgeCGI()
 	{
 		if (i->second.second < time(NULL) - CGI_TIMEOUT)
 		{
-			kill(i->first, SIGKILL);
-			SAY ("killing child" << std::endl);
+			if (!kill(i->first, SIGKILL))
+				timestamp("closing cgi for timeout\n", INFO);
 			_pids.erase(i++);
 			continue ;
 		}
@@ -446,7 +448,7 @@ char	Responser::buildResponseBody()
 			timestamp("Could not send file at path \'" + _dir + "\'. Res code: " + itoa(_res_code) + '\n', ERROR);
 			return 0;
 		}
-		_body = Parsing::read_file(_dir);
+		_body = Parsing::read_file(_dir) + '\n';
 	}
 	catch(const std::exception& e)
 	{

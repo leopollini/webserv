@@ -143,10 +143,8 @@ void	Server::postRequestManager()
 
 		file.close();
 		checkfile.close();
-		if (content != _current_request.body)
-			throw(Parsing::BadFile());
-		
-
+		// if (content != _current_request.body)
+		// 	throw(Parsing::BadFile());
 	}
 	catch(const std::exception& e)
 	{

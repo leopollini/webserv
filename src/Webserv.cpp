@@ -83,12 +83,14 @@ void	Webserv::docTypesInit()
 
 }
 
-void	fill_line(conf_t *env, list<Parsing::token>::iterator &s)
+void	Webserv::fill_line(conf_t *env, list<Parsing::token>::iterator &s)
 {
 	if (s->content.empty())
 		return ;
 
 	string	&t = (*env)[s->content];
+	if (!t.empty() && s->content == "listen")
+		throw InvalidDirectiveOverwrite();
 	t.clear();
 	while ((++s)->type != ';' && s->type != '{')
 		t.append(s->content + ' ');

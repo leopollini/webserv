@@ -106,7 +106,7 @@ public:
 	class DuplicateServLocation : public std::exception
 	{
 	public:
-		virtual const char	*what() const throw() {return "Parser tried to insert the same location twice";}
+		virtual const char	*what() const throw() {return "Duplicate location";}
 	};
 	class EmptyLocationDir : public std::exception
 	{
