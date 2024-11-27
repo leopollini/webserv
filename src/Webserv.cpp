@@ -26,6 +26,7 @@ Webserv::Webserv() : _conf(DEFAULT_CONF), _cgi_man(_sel)
 	timestamp("Setting up Webserv!\n", CYAN);
 	signal(SIGINT, gracefullyQuit);
 	docTypesInit();
+	signal(SIGPIPE,SIG_IGN);
 	_sel._cgi_man_ptr = &_cgi_man;
 
 	Server::default_loc.allows = DEFAULT_LOCATION_ALLOWS;
@@ -50,8 +51,6 @@ Webserv::~Webserv()
 // add anything useful. Every not recgnized extension is mapped to "default", which tells the browser to download the file
 void	Webserv::docTypesInit()
 {
-	ENV_FILL(CGI_AUTOINDEX_DIR, DEFAULT_AUTOINDEX_CGI_DIR);
-	ENV_FILL(L_INDEX, DEFAULT_INDEX_FILE);
 	ENV_FILL(E_400, T_JOIN("400"));
 	ENV_FILL(E_302, T_JOIN("302"));
 	ENV_FILL(E_301, T_JOIN("301"));
@@ -123,38 +122,46 @@ char	Webserv::parseConfig( void )
 			continue ;
 		if (i->content == NEW_SERVER)
 		{
-			if (brackets++ > 0 || (++i)->type != '{' )
-				throw Parsing::ErrorType();
-			++i;
-			current = new Server(servs++);
-			addServer(current);
-			env = &(current->getEnvMap());
-			while (brackets == 1 && i != tokens.end())
+			try
 			{
-				if (i->content == LOCATION)
-				{
-					current_loc = new location_t;
-					env_loc = &current_loc->stuff;
-					fill_line(env_loc, i);
-					if (brackets++ > 1 || (i)->type != '{')
-						throw Parsing::ErrorType();
-					++i;
-					for (; brackets == 2 && i != tokens.end(); ++i)
-					{
-						if (i->type == '}' && brackets-- && ++i != tokens.end())
-							break ;
-						fill_line(env_loc, i);
-					}
-					current->addLocation(current_loc);
-					continue ;
-				}
-				// printf("called. (%i) \'%s\'\n", i->line_n, i->content.c_str());
-				if (i->content == "}" && !--brackets)
-					break ;
-				fill_line(env, i);
+				if (brackets++ > 0 || (++i)->type != '{' )
+					throw Parsing::ErrorType();
 				++i;
+				current = new Server(servs++);
+				env = &(current->getEnvMap());
+				while (brackets == 1 && i != tokens.end())
+				{
+					if (i->content == LOCATION)
+					{
+						current_loc = new location_t;
+						env_loc = &current_loc->stuff;
+						fill_line(env_loc, i);
+						if (brackets++ > 1 || (i)->type != '{')
+							throw Parsing::ErrorType();
+						++i;
+						for (; brackets == 2 && i != tokens.end(); ++i)
+						{
+							if (i->type == '}' && brackets-- && ++i != tokens.end())
+								break ;
+							fill_line(env_loc, i);
+						}
+						current->addLocation(current_loc);
+						continue ;
+					}
+					if (i->content == "}" && !--brackets)
+						break ;
+					fill_line(env, i);
+					++i;
+				}
+				addServer(current);
+				continue ;
 			}
-			continue ;
+			catch(const InvalidDirectiveOverwrite& e)
+			{
+				timestamp("Detected invalid configuration. Ignoring server " + itoa(current->getId()) + "\n", YELLOW);
+				delete current;
+			}
+			
 		}
 		fill_line(&_env, i);
 	}

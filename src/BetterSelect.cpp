@@ -322,12 +322,18 @@ void	BetterSelect::err_close_clis()
 
 char	BetterSelect::superPipe(fd_set &wfd)
 {
+	int 		t;
+	struct stat	buf;
 	if (_super_pipe && FD_ISSET(_super_pipe, &wfd))
 	{
-		if (fcntl(_super_pipe, F_GETFD) != -1)
-			write(_super_pipe, _super_body.c_str(), _super_body.size());
+		if (fstat(_super_pipe, &buf) != -1)
+			t = write(_super_pipe, _super_body.c_str(), _super_body.size());
 		else
 			timestamp("Cgi pipe was broken", ERROR);
+		if (t < 0)
+			timestamp("Failed to write in pipe! ):\n", ERROR);
+		if (!t)
+			timestamp("Wrote nothing to pipe!\n", ERROR);
 		close(_super_pipe);
 		return true;
 	}

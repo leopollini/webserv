@@ -85,20 +85,14 @@ static	size_t atoi2(string s)
 	return res;
 }
 
-void	Server::deleteRequestManager()
+short	Server::deleteRequestManager()
 {
 
 	if (access(_resp.getDir().c_str(), F_OK))
-	{
-		_resp._res_code = NOT_FOUND;
-		return;
-	}
+		return _resp._res_code = NOT_FOUND;					// should never reach here lol
 	if (std::remove(_resp.getDir().c_str()))
-	{
-		_resp._res_code = INTERNAL_SERVER_ERROR;
-		return ;
-	}
-	_resp._res_code = NO_CONTENT;
+		return _resp._res_code = INTERNAL_SERVER_ERROR;
+	return _resp._res_code = NO_CONTENT;
 }
 
 void	Server::postRequestManager()
@@ -163,7 +157,7 @@ void	Server::createResp()
 	_resp._res_code = validateLocation();
 	if (_current_request.type == POST)
 		postRequestManager();
-	else if (_current_request.type == DELETE)
+	else if (_current_request.type == DELETE && _resp._res_code == OK)
 		deleteRequestManager();
 	if (_resp.buildResponseBody())
 		return ;
@@ -197,10 +191,8 @@ status_code_t	Server::validateLocation()
 	if (!(_resp.getLoc()->allows & _current_request.type))
 		return (METHOD_NOT_ALLOWED);
 
-	if (_current_request.type == DELETE)
-		return _REQUEST_DELETE;
 
-	if (_resp._is_returning < 0)
+	if (_resp._is_returning < 0 && _current_request.type != DELETE)
 		return _CGI_RETURN;
 
 	if ((_resp.getFileFlags() & C_DIR) && (t = manageDir()) != _ZERO) // is a directory

@@ -2,7 +2,7 @@
 
 echo "Child: listing files in $1" 1>&2
 
-FILES=$(ls -l $1)
+FILES=$(ls -l .)
 
 if [ "$?" -ne "0" ]; then
 	echo "FAIL"

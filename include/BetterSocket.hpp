@@ -48,7 +48,7 @@ public:
 	
 	void				init(short port, int address = INADDR_ANY);
 	int					Accept();
-	void				down() {close (fd);}
+	void				down() {if (fd > 0 )close (fd);}
 
 
 	class FailedSocketCreation : public std::exception

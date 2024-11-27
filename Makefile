@@ -13,13 +13,13 @@
 NAME		= webserv
 	
 CC			= c++
-FLAGS		= -Wall -Wextra -g $(addprefix -I, $(INCLUDES)) -std=c++98 -Werror
+FLAGS		= -Wall -Wextra -g $(addprefix -I, $(INCLUDES)) -std=c++98 #-Werror
 RM			= rm -rf
 
 INCLUDES	= include/
 OBJDIR 		= .objFiles
 
-FILES		:= Parser Webserv utils Server BetterSelect BetterSocket Parsing_exceptions Responser Server_utils transfer_encoding receive_request BetterEnv
+FILES		:= Parser Webserv utils Server BetterSelect BetterSocket Parsing_exceptions Responser Server_utils transfer_encoding BetterEnv
 FILES		:= main $(addprefix src/, $(FILES))
 
 SRC			= $(FILES:=.cpp)

@@ -100,7 +100,7 @@ public:
 	status_code_t	manageDir();
 	
 	void	postRequestManager();
-	void	deleteRequestManager();
+	short	deleteRequestManager();
 	
 	
 	class DuplicateServLocation : public std::exception

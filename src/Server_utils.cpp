@@ -26,15 +26,17 @@ Server::Server(short id) : _clientfds(), _id(id), _state(0), _current_request(),
 
 Server::~Server()
 {
-	timestamp("Server " + itoa(_id) + " removed!\n", BLUE);
 	down();
 	if (_sock.sock >= 0)
 		close(_sock.sock);
+	if (_sock.sock >= 0)
+		close(_sock.fd);
 	for (fd_list_t::iterator i = _clientfds.begin(); i != _clientfds.end(); i++)
-		close(*i);
+		if (_sock.sock >= 0)
+			close(*i);
 	for (locations_list_t::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
 		delete *i;
-	close(_sock.fd);
+	timestamp("Server " + itoa(_id) + " removed!\n", BLUE);
 }
 
 int	Server::Accept()
@@ -147,13 +149,13 @@ status_code_t	Server::manageDir()
 		return _REQUEST_DIR_LISTING;
 	
 	index_file = getEnv(L_INDEX, _current_request.loc);
-	if (index_file.empty())									// no index file found
+	if (index_file.empty())									// no index file specified
 		return FORBIDDEN;
 
-	if (_resp.getDir()[_resp.getDir().size() - 1] != '/')
+	if (*--_resp.getDir().end() != '/')
 		_resp.getDir() += '/';
 		
-	index_file = _resp.getDir().append(index_file); //searches for index files
+	index_file = _resp.getDir() + index_file; 				//searches for index files
 	char	index_flags = checkCharacteristics(index_file.c_str());
 
 	if (isOkToSend(index_flags))							// found a valid index file
@@ -274,24 +276,25 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		stripped_requested_object += uri_dir;
 	string path_to_binary = cgi_dir.substr(0);
 	string original_uri = uri_dir.substr(0, uri_dir.find_last_of('/') + 1);
+	cout << "##heh: " << original_uri << ", was " << uri_dir << '\n';
 	string backtrack_path = "./";
-	location_fuckery(path_to_binary, stripped_requested_object, backtrack_path, s);
 	pipe(pipefd);
 	if (!(fk = fork()))
 	{
-		SAY("original cgi uri:" + original_uri + "\n");
+		location_fuckery(path_to_binary, stripped_requested_object, backtrack_path, s);
 		if (chdir(original_uri.c_str()))
 		{
 			Webserv::_up = -1;
-			std::cerr << "A CGI crashed!!! \n couldn't cd into" << original_uri << std::endl;
+			std::cerr << "A CGI crashed!!! Couldn't cd into " << original_uri << std::endl;
 			close (pipefd[0]);
 			close (pipefd[1]);
+			close(STDOUT_FILENO);
 			return ;
 		}
 
-		// SAY("Child process is in " << getcwd(NULL, 0) << std::endl);
 		handle_meta_variables(s, query_string, body, env);
 
+		close (pipefd[1]);
 		args.push_back(path_to_binary.c_str());
 		args.push_back(stripped_requested_object.c_str());
 		args.push_back(NULL);
@@ -300,6 +303,7 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		t[0] = dup(STDIN_FILENO);
 		dup2(s->getFd(), STDOUT_FILENO);
 		dup2(pipefd[0], STDIN_FILENO);
+		std::cerr << "### calling " + string(args[0]) + ".\n";
 		execve(args[0], (char *const*)args.data(), env.c_envp());
 		dup2(t[1], STDOUT_FILENO);
 		dup2(t[0], STDIN_FILENO);
@@ -315,6 +319,7 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		std::cerr << "A CGI crashed!!! Called as \'" << cgi_dir << "\'\n";
 		return ;
 	}
+	timestamp("CGI started!!\n");
 	usleep(1000);
 	close(pipefd[0]);
 
@@ -325,7 +330,6 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 	else
 		close(pipefd[1]);
 	_pids[fk] = (std::pair<pid_t, time_t>(s->getFd(), time(NULL)));
-	timestamp("CGI started!!\n");
 }
 
 void	CGIManager::purgeCGI()
@@ -430,7 +434,6 @@ char	Responser::buildResponseBody()
 		 return -1;
 		case NO_CONTENT :
 			SAY("file deleted successfully" << std::endl);
-			// _body = SUCCESSFUL_DELETE_PAGE;
 		 return 0;
 		case _POST_SUCCESS :
 			SAY("Post request was successful. Posted at: " << _dir << "\n");
@@ -454,6 +457,7 @@ char	Responser::buildResponseBody()
 	{
 		std::cerr << e.what() << '\n';
 		SAY("Body not constructed! ):\n");
+		_body = DEFAULT_ERROR_STRING(_res_code);
 	}
 	return 0;
 }
@@ -501,6 +505,13 @@ void	Responser::Send(int fd)
 	if (t < 0)
 	{
 		timestamp("send failed! ): Closing connection.\n", ERROR);
+		_res_code = _DONT_SEND;
+		keepalive = false;
+		return ;
+	}
+	if (!t)
+	{
+		timestamp("Sent nothing! Assuming end of connection.\n", ERROR);
 		_res_code = _DONT_SEND;
 		keepalive = false;
 		return ;

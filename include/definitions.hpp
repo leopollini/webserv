@@ -56,11 +56,12 @@
 # define DEFAULT_MAX_BODY_SIZE "100000000"
 # define DEFAULT_LOCATION_ALLOWS F_GET | F_POST | F_DELETE | F_HEAD | F_DIR_LST // all methods allowed
 # define REDIR_URL(s) "<head>\n<meta http-equiv=\"Refresh\" content=\"0; URL=" + s + "\" />\n</head>"
+# define DEFAULT_ERROR_STRING(c) "Error " + itoa(c) + ": " + Webserv::getInstance().badExplain(c) + "."
 
 # define EXTRA_ENV_SPACE 25
 
 # define SUCCESSFUL_POST_PAGE "<head>Posted successfully.</head>"
-# define SUCCESFULL_DELETE_PAGE "<head>DELETE</head><body><text> Deleted $1 :) </text></body>"
+# define SUCCESFULL_DELETE_PAGE(s) "<head>DELETE</head><body><text> Deleted " + s + " :) </text></body>"
 
 # define EXTRA_ENV_SPACE 25
 
