@@ -101,6 +101,8 @@ public:
 	
 	void	postRequestManager();
 	short	deleteRequestManager();
+
+	void	extensionPrioritySort();
 	
 	
 	class DuplicateServLocation : public std::exception
@@ -122,6 +124,11 @@ public:
 	{
 	public:
 		virtual const char	*what() const throw() {return "Shared port is occupied";}
+	};
+	class SharedPortNotAllowed : public std::exception
+	{
+	public:
+		virtual const char	*what() const throw() {return "Port sharing not allowed. Change in src/definitions.hpp";}
 	};
 	
 private:

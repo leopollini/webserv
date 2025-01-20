@@ -43,12 +43,18 @@ int	Server::Accept()
 {
 	int	t = _sock.Accept();
 
-	_clientfds.push_front(t);
+	// _clientfds.push_front(t);
+	// _current_request = request_t();
+	// getsockname(_clientfds.front(), (sockaddr *)&_sock.client, &_sock.len);
+	// SAY("New client at IP: " << addr_to_str(_sock.client.sin_addr.s_addr) << "!\n");
+	// fcntl(_clientfds.front(), F_SETFL, fcntl(_clientfds.front(), F_GETFL, 0) | O_NONBLOCK);
+	// return _clientfds.front();
+
 	_current_request = request_t();
-	getsockname(_clientfds.front(), (sockaddr *)&_sock.client, &_sock.len);
+	getsockname(t, (sockaddr *)&_sock.client, &_sock.len);
 	SAY("New client at IP: " << addr_to_str(_sock.client.sin_addr.s_addr) << "!\n");
-	fcntl(_clientfds.front(), F_SETFL, fcntl(_clientfds.front(), F_GETFL, 0) | O_NONBLOCK);
-	return _clientfds.front();
+	fcntl(t, F_SETFL, fcntl(t, F_GETFL, 0) | O_NONBLOCK);
+	return t;
 }
 
 void	Server::addLocation(location_t *l)
@@ -58,26 +64,16 @@ void	Server::addLocation(location_t *l)
 		throw EmptyLocationDir();
 	l->allows = read_allows(l->stuff[L_ALLOW_METHODS]);
 
-	// is needed???
-	for (locations_list_t::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
-		if ((*i)->dir == l->dir)
-			throw DuplicateServLocation();
-	_loc_ls.push_back(l);
-}
+	string	&line = l->dir;
 
-// Anything regarding initialization of env (both server's and locations') MUST be done here
-void	Server::setup()
-{
-	for (locations_list_t::iterator i = _loc_ls.begin(); i != _loc_ls.end(); i++)
+	if (line.find(' ') != string::npos)
 	{
-		string	&line = (*i)->dir;
-		if (line.find(' ') != string::npos)
-		{
-			(*i)->allowed_extensions.insert(line.substr(line.find(' ') + 1));
-			line.erase(line.find(' '));
-		}
-		(*i)->stuff[L_DIR] = line;
+		l->allowed_extensions.insert(line.substr(line.find(' ') + 1));
+		line.erase(line.find(' '));
 	}
+	l->stuff[L_DIR] = line;
+	// This allows extension precedence. Extension match has precedence over directory match
+	l->allowed_extensions.empty() ? _loc_ls.push_back(l) : _loc_ls.push_front(l);
 }
 
 //tries to raise the server (opening its socket) after retry_time (SERVER_RETRY_TIME by default) 
@@ -87,7 +83,6 @@ bool Server::tryUp(time_t retry_time)
 	time_t now = time(NULL);
 	if (_is_sharing_port == -1 || now - _lastUpAttempt < retry_time) //wait more to retry
 		return (false);
-	// _lastUpAttempt;
 	if (!_state)
 		up();
 	return (_state);
@@ -276,7 +271,7 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		stripped_requested_object += uri_dir;
 	string path_to_binary = cgi_dir.substr(0);
 	string original_uri = uri_dir.substr(0, uri_dir.find_last_of('/') + 1);
-	cout << "##heh: " << original_uri << ", was " << uri_dir << '\n';
+	cout << "\n";
 	string backtrack_path = "./";
 	pipe(pipefd);
 	if (!(fk = fork()))
@@ -303,7 +298,8 @@ void	CGIManager::start(Server *s, const string &cgi_dir, const string &uri_dir, 
 		t[0] = dup(STDIN_FILENO);
 		dup2(s->getFd(), STDOUT_FILENO);
 		dup2(pipefd[0], STDIN_FILENO);
-		std::cerr << "### calling " + string(args[0]) + ".\n";
+		if (DEBUG_INFO)
+			std::cerr << "### calling " + string(args[0]) + ".\n";
 		execve(args[0], (char *const*)args.data(), env.c_envp());
 		dup2(t[1], STDOUT_FILENO);
 		dup2(t[0], STDIN_FILENO);
@@ -339,7 +335,7 @@ void	CGIManager::purgeCGI()
 		if (i->second.second < time(NULL) - CGI_TIMEOUT)
 		{
 			if (!kill(i->first, SIGKILL))
-				timestamp("closing cgi for timeout\n", INFO);
+				SAY("closing cgi for timeout\n");
 			_pids.erase(i++);
 			continue ;
 		}
@@ -403,6 +399,10 @@ char	Responser::buildResponseBody()
 			_dir = _serv->getEnv(E_500, _loc);
 			SAY("Looking for 500 response" << _dir << "'\n");
 		 break ;
+		case PAYLOAD_TOO_LARGE :
+			_dir = _serv->getEnv(E_413, _loc);
+			SAY("Looking for 413 response" << _dir << "'\n");
+		 break ;
 		case MOVED_PERMANENTLY :
 			_extra_args["Location"] = _serv->_return_info.dir;
 			_dir = DEFAULT_MOVED_FILE;
@@ -462,6 +462,26 @@ char	Responser::buildResponseBody()
 	return 0;
 }
 
+void Responser::addHeader()
+{
+
+	string		extra_head = _serv->getEnv("add_header", getLoc()), t;
+	str_set_t	set;
+	size_t		c;
+
+	if (extra_head != (t =_serv->getEnv("add_header")))
+		extra_head.append(";" + t);
+
+	while ((c = extra_head.find(";")) != string::npos)
+	{
+		set.insert(extra_head.substr(0, c));
+		extra_head = extra_head.substr(c + 1);
+	}
+	set.insert(extra_head);
+	for (str_set_t::iterator i = set.begin(); i != set.end(); ++i)
+		_head.append(*i + CRNL);
+}
+
 void Responser::buildResponseHeader()
 {
 	time_t now = time(0);
@@ -474,10 +494,10 @@ void Responser::buildResponseHeader()
 		_head.append("Content-Type: " + getDocType() + CRNL);
 		_head.append("Content-Length: " + itoa(_body.size()) + CRNL);
 	}
+	addHeader();
 	_head.append("Server: " + _serv->getEnv(NAME) + CRNL);
 	_head.append("Date: " + string(ctime(&now)));
-	_head.erase(_head.size() - 1,1); //removes unwanted trailing /n from ctime
-// _head.append(string("Keepalive: false") + CRNL);
+	_head.erase(_head.size() - 1,1);
 	_head += DCRNL;
 }
 

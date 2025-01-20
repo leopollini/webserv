@@ -18,7 +18,9 @@
 #include <set>
 
 // 0: no debug info; 1: show debug info
-# define DEBUG_INFO 0
+# define DEBUG_INFO 1
+// 0: multi ports forbidden; 1: multi ports ok
+# define PORT_SHARING 0
 
 # define ERROR RED
 # define WARNING YELLOW

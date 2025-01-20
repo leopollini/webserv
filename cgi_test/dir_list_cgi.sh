@@ -9,7 +9,7 @@ if [ "$?" -ne "0" ]; then
 	exit -1;
 fi
 
-printf "HTTP/1.1 200 OK\r\nContent-Type: default\r\nServer: autoindex_cgi\r\nDate: $(date -R)\r\n" 
+printf "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nServer: autoindex_cgi\r\nDate: $(date -R)\r\n" 
 
 A=$(echo "<html><head>
 <meta charset="UTF-8">

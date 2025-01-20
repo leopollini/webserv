@@ -59,12 +59,14 @@ void	Webserv::docTypesInit()
 	ENV_FILL(E_403, T_JOIN("403"));
 	ENV_FILL(E_404, T_JOIN("404"));
 	ENV_FILL(E_405, T_JOIN("405"));
+	ENV_FILL(E_413, T_JOIN("413"));
 	ENV_FILL(E_500, T_JOIN("500"));
 
 	DOCTYPE_FILE(".html", "text/html");
 	DOCTYPE_FILE(".css", "text/css");
 	DOCTYPE_FILE(".cpp", "text/cpp");
 	DOCTYPE_FILE(".hpp", "text/hpp");
+	DOCTYPE_FILE(".sh", "text/sh");
 	
 	BAD_FILL(1, "# cgi Autoindexing");
 	BAD_FILL(-1, "# cgi generic");
@@ -77,6 +79,7 @@ void	Webserv::docTypesInit()
 	BAD_FILL(403, "Forbidden");
 	BAD_FILL(404, "Not Found");
 	BAD_FILL(405, "Method Not Allowed");
+	BAD_FILL(413, "Request Entity Too Large");
 	BAD_FILL(418, "I'm a teapot");
 	BAD_FILL(500, "Internal Server Error");
 
@@ -87,13 +90,34 @@ void	Webserv::fill_line(conf_t *env, list<Parsing::token>::iterator &s)
 	if (s->content.empty())
 		return ;
 
+	conf_t::iterator c = (*env).find(s->content);
+	if (c != (*env).end())		// if match found
+	{
+		if (s->content == "listen")
+			throw InvalidDirectiveOverwrite();
+		if (s->content == "server_name" || s->content == "root" || s->content == "return")
+			c->second.clear();
+		else if (s->content != "add_header")
+		{
+			SAY("Warning: config file overwriting same directive multiple times (near '" << s->content << "'\n");
+			c->second.clear();
+		}
+		else
+			c->second.append(";");
+	}
 	string	&t = (*env)[s->content];
-	if (!t.empty() && s->content == "listen")
-		throw InvalidDirectiveOverwrite();
-	t.clear();
 	while ((++s)->type != ';' && s->type != '{')
 		t.append(s->content + ' ');
 	t = t.substr(0, t.size() - 1);
+}
+
+void	Webserv::addServer(Server *s)
+{
+	if (!PORT_SHARING)
+		for (serv_list_t::iterator i = _servers_down.begin(); i != _servers_down.end(); ++i)
+			if ((*i)->getPort() == s->getPort())
+				throw Server::SharedPortNotAllowed();
+	_servers_down.push_back(s);
 }
 
 // Very ugly. Sorry, just don't look at it.
@@ -165,8 +189,8 @@ char	Webserv::parseConfig( void )
 		}
 		fill_line(&_env, i);
 	}
-	for (serv_list_t::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
-		(*i)->setup();
+	// for (serv_list_t::iterator i = _servers_down.begin(); i != _servers_down.end(); i++)
+	// 	(*i)->setup();
 	// 	(*i)->locReadEnv();
 	return 0;
 }
@@ -300,7 +324,7 @@ void	Webserv::start(char **prog_envp)
 			_up = false;
 	// cout << "Waiting.\n";
 		_sel.selectReadAndWrite();
-		usleep(2000);
+		usleep(500);
 		// reviveServers(SHORT_REVIVE_TIME);
 	}
 	downAllServers();

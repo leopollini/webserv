@@ -65,6 +65,7 @@
 # define E_302 "e_302"
 # define E_307 "e_307"
 # define E_308 "e_308"
+# define E_413 "e_413"
 # define E_500 "e_500"
 
 #endif

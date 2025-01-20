@@ -100,7 +100,7 @@ void	Server::postRequestManager()
 	if (_resp._res_code != 200)
 		return ;
 	if (_current_request.body.size() > atoi2(getEnv(MAX_BODY_SIZE, _current_request.loc)))
-		return (void)(_resp._res_code = BAD_REQUEST);
+		return (void)(_resp._res_code = PAYLOAD_TOO_LARGE);
 
 	size_t last_slash = _resp.getDir().find_last_of('/');
 	if (last_slash == string::npos)
@@ -177,8 +177,6 @@ status_code_t	Server::validateLocation()
 	_resp = _current_request;	// overloaded. Copies members dir and loc pointer
 	status_code_t	t;
 
-	if (_resp._is_returning > 0)
-		return lookForPlaceholders(), ((status_code_t)(_resp._res_code = _return_info.code));
 
 	if (_current_request.uri.empty())
 		return (INTERNAL_SERVER_ERROR);
@@ -191,9 +189,11 @@ status_code_t	Server::validateLocation()
 	if (!(_resp.getLoc()->allows & _current_request.type))
 		return (METHOD_NOT_ALLOWED);
 
-
 	if (_resp._is_returning < 0 && _current_request.type != DELETE)
 		return _CGI_RETURN;
+
+	if (_resp._is_returning > 0)
+		return lookForPlaceholders(), ((status_code_t)(_resp._res_code = _return_info.code));
 
 	if ((_resp.getFileFlags() & C_DIR) && (t = manageDir()) != _ZERO) // is a directory
 		return t;
@@ -201,6 +201,7 @@ status_code_t	Server::validateLocation()
 	else if (!(_resp.getFileFlags() & C_READ) && _current_request.type != POST)
 		return FORBIDDEN;
 		
+
 	if (isOkToSend(_resp.getFileFlags()) || _current_request.type == POST)
 		return OK;
 
@@ -222,7 +223,6 @@ req_t Server::receive(int fd, string &msg, string &body)
 static bool location_isinvalid(const location_t *loc, string &req)
 {
 	int	i = loc->dir.size();
-
 	if (req.compare(0, i, loc->dir))
 		return true;
 	if (loc->dir[i - 1] != '/' && ((req[i] != '/' && req[i])))
@@ -262,10 +262,8 @@ void	Server::matchRequestLocation(request_t &request)
 		//if directory is more specific, or if it doesn't match
 		if (dir.size() > request.uri.size() || dir.size() <= max_len)
 			continue ;
-		
 		if (location && location->allowed_extensions.size() && !(*it)->allowed_extensions.size())
 			continue ;
-
 		if (request.uri.find(dir) || location_isinvalid(*it, request.uri))
 			continue ;
 

@@ -75,11 +75,11 @@ public:
 	const string	&getConf() const;
 	void			setConf(string file_name);
 
-	void	addServer(Server *s) {_servers_down.push_back(s);}
+	void	addServer(Server *s);
 	string	&getEnv(string key) {return (_env[key]);}
 
 	string	findDocType(const string &s) {return _doc_types[s];}
-	string	badExplain(short code) {return _bad_explain.count(code) ? _bad_explain[code] : ((code == 204)? "NO CONTENT": "OK");}
+	string	badExplain(short code) {return _bad_explain.count(code) ? _bad_explain[code] : ((code == 204)? "No Content": "OK");}
 
 	void	deleteConnection(int fd) {_sel.delListeningConnection(fd); _sel.delResponseConnection(fd); close(fd);}
 	void	fill_line(conf_t *env, list<Parsing::token>::iterator &s);

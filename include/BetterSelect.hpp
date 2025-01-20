@@ -20,7 +20,7 @@
 
 # define SEL_TIMEOUT {1, 0}
 
-# define RECV_BUFF_SIZE 1000000
+# define RECV_BUFF_SIZE 100000
 
 struct	CGIManager;
 
