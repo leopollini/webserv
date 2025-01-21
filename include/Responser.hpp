@@ -6,7 +6,7 @@
 /*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 15:00:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/25 16:13:51 by lpollini         ###   ########.fr       */
+/*   Updated: 2025/01/21 11:53:17 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ public:
 	char		_is_returning;
 
 	Responser(const Responser &a) {(void)a;}
-	Responser(Server *s) : _serv(s), _loc(NULL), _is_returning(false) {}
+	Responser(Server *s) : _serv(s), _loc(NULL), _is_returning(0) {}
 	~Responser() {}
 	Responser &operator=(const request_t &t);
 

@@ -110,10 +110,10 @@ content: url(resource://content-accessible/html/folder.png);
 }
 </style>
 <link rel="'"'"stylesheet"'"'" media="'"'"screen, projection"'"'" type="'"'"text/css"'"'" href="'"'"chrome://global/skin/dirListing/dirListing.css"'"'">
-<title>Index of $1</title>
+<title>Index of $PWD</title>
 </head>
 <body dir="'"'"ltr"'"'">
-<h1>Index of $1</h1>
+<h1>Index of $PWD</h1>
 <p id="'"'"UI_goUp"'"'"><a class="'"'"up"'"'" href="'"'".."'"'">..</a></p>
 <table order="'"'""'"'" class="'"'""'"'">
 <thead>

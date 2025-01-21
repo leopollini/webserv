@@ -322,7 +322,7 @@ void	BetterSelect::err_close_clis()
 
 char	BetterSelect::superPipe(fd_set &wfd)
 {
-	int 		t;
+	int 		t = -1;
 	struct stat	buf;
 	if (_super_pipe && FD_ISSET(_super_pipe, &wfd))
 	{

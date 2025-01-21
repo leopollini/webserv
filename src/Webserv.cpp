@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 11:32:36 by lpollini          #+#    #+#             */
-/*   Updated: 2024/10/08 19:45:19 by fedmarti         ###   ########.fr       */
+/*   Updated: 2025/01/21 11:00:28 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,13 +120,9 @@ void	Webserv::addServer(Server *s)
 	_servers_down.push_back(s);
 }
 
-// Very ugly. Sorry, just don't look at it.
 // Format be: env[FIRST_WORD] = TRAILING WORDS SEPARATED BY SPACES (no trailing space :) )
 char	Webserv::parseConfig( void )
 {
-	// if ((_conf_fd = open(_conf.c_str(), O_RDONLY)) < 0)
-		// throw MissingConfigFile();
-
 	timestamp("Parsing config file!\n",YELLOW);
 	
 	string fileContent = Parsing::read_file(getConf());

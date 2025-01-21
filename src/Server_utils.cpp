@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_utils.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2024/10/10 02:24:26 by fedmarti         ###   ########.fr       */
+/*   Updated: 2025/01/21 14:07:31 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,14 +142,15 @@ status_code_t	Server::manageDir()
 
 	if (getEnv(L_AUTOINDEX, _resp.getLoc()) == "yes")		// autoindex on
 		return _REQUEST_DIR_LISTING;
-	
-	index_file = getEnv(L_INDEX, _current_request.loc);
+
+	index_file = (_current_request.type == GET || _current_request.type == HEAD ?\
+			getEnv(L_INDEX, _current_request.loc) : "");	// prevents deleting/overwriting index file involuntarly
 	if (index_file.empty())									// no index file specified
 		return FORBIDDEN;
 
 	if (*--_resp.getDir().end() != '/')
 		_resp.getDir() += '/';
-		
+
 	index_file = _resp.getDir() + index_file; 				//searches for index files
 	char	index_flags = checkCharacteristics(index_file.c_str());
 
@@ -377,7 +378,7 @@ char	Responser::buildResponseBody()
 		switch (_res_code)
 		{
 		case OK :
-			SAY("Reading \n");
+			SAY("Reading file\n");
 		 break ;
 		case BAD_REQUEST :
 			_dir = _serv->getEnv(E_400, _loc);
@@ -446,7 +447,6 @@ char	Responser::buildResponseBody()
 				return internalServerError();
 			_res_code = _DONT_SEND;
 		 return -1;
-
 		default:
 			timestamp("Could not send file at path \'" + _dir + "\'. Res code: " + itoa(_res_code) + '\n', ERROR);
 			return 0;
@@ -469,6 +469,8 @@ void Responser::addHeader()
 	str_set_t	set;
 	size_t		c;
 
+	if (extra_head.empty())
+		return ;
 	if (extra_head != (t =_serv->getEnv("add_header")))
 		extra_head.append(";" + t);
 

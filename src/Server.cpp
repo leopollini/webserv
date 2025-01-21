@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <fedmarti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:08:38 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/27 18:58:19 by fedmarti         ###   ########.fr       */
+/*   Updated: 2025/01/21 11:54:06 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ void	Server::postRequestManager()
 {
 	if (_resp._res_code != 200)
 		return ;
+	cout << _current_request.body.size() << " vs " << atoi2(getEnv(MAX_BODY_SIZE, _current_request.loc));
 	if (_current_request.body.size() > atoi2(getEnv(MAX_BODY_SIZE, _current_request.loc)))
 		return (void)(_resp._res_code = PAYLOAD_TOO_LARGE);
 
@@ -128,17 +129,9 @@ void	Server::postRequestManager()
 	try
 	{
 		std::ofstream	file(_resp.getDir().c_str());
-		file << _current_request.body << std::endl;
-
-		std::ifstream checkfile(_resp.getDir().c_str());
-		std::string 	content;
-
-		checkfile >> content;
+		file << _current_request.body;
 
 		file.close();
-		checkfile.close();
-		// if (content != _current_request.body)
-		// 	throw(Parsing::BadFile());
 	}
 	catch(const std::exception& e)
 	{
@@ -295,6 +288,7 @@ void	Server::matchRequestLocation(request_t &request)
 	}
 	if (!location->stuff[LOC_CGI_RETURN].empty())
 		_resp._is_returning = -1;
+
 }
 
 void	Server::lookForPlaceholders()

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BetterSocket.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fedmarti <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: lpollini <lpollini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 15:01:08 by lpollini          #+#    #+#             */
-/*   Updated: 2024/09/27 02:39:40 by fedmarti         ###   ########.fr       */
+/*   Updated: 2025/01/21 11:32:03 by lpollini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@
 # include "definitions.hpp"
 # include <cstring>
 
-# define CLIENTS_MAX 10
-# define BUFFER_SIZE 3000ul
+# define CLIENTS_MAX 20
+# define BUFFER_SIZE 30000ul
 
 struct	BetterSocket
 {
